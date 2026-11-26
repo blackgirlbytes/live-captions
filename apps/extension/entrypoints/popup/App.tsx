@@ -1,13 +1,17 @@
 import { browser } from "wxt/browser";
 import { CaptionsIcon, ExternalIcon, PanelIcon, StatusBadge, STATUS_LABELS } from "@earshot/shared/react";
 import { Wordmark } from "@/components/Logo";
-import { useActiveTab, useCommands, useServerUrl, useSession } from "@/components/hooks";
-import { restrictedReason } from "@/utils/config";
+import { needsKey, useActiveTab, useCommands, useServerStatus, useServerUrl, useSession, useUserKey } from "@/components/hooks";
+import { restrictedReason, SESSION_KEYS, type SidepanelViewRequest } from "@/utils/config";
+import { isKeyError } from "@/utils/messages";
 
 export default function App() {
   const tab = useActiveTab();
   const { snap, loaded, capturing } = useSession();
   const serverUrl = useServerUrl();
+  const userKey = useUserKey();
+  const server = useServerStatus(serverUrl, userKey.loaded && !userKey.hasKey);
+  const missingKey = needsKey(userKey.hasKey, server.status);
   const cmd = useCommands();
 
   const status = snap.transcript.status;
@@ -16,14 +20,22 @@ export default function App() {
   const elsewhere = capturing && !here;
   const restricted = restrictedReason(tab?.url);
   const error = cmd.error ?? (here && status === "error" ? snap.transcript.error : null);
+  const keyAction = Boolean(error) && (cmd.errorCode === "needs_key" || isKeyError(error));
+  // An Earshot web app only exists in server mode; hide the link when nothing is there.
+  const showWebLink = !userKey.hasKey && (server.status === "ready" || server.status === "no_server_key" || server.status === "unknown");
 
   const toggle = () => {
     if (!tab?.id) return;
     void (onHere ? cmd.stop() : cmd.start(tab.id));
   };
 
-  const openPanel = () => {
+  const openPanel = (view?: "settings") => {
     if (!tab?.id) return;
+    // Tell the panel which view to show; it reads (and clears) this when it opens.
+    if (view) {
+      const request: SidepanelViewRequest = { view, windowId: tab.windowId, at: Date.now() };
+      void browser.storage.session.set({ [SESSION_KEYS.sidepanelView]: request });
+    }
     // Must run synchronously inside the click (user gesture) — no awaits before it.
     browser.sidePanel.open({ tabId: tab.id }).then(
       () => window.close(),
@@ -82,9 +94,27 @@ export default function App() {
           {statusLine}
         </p>
         {error && (
-          <p role="alert" className="mt-2 rounded-lg bg-live/10 px-3 py-2 text-xs leading-relaxed text-live ring-1 ring-live/25">
-            {error}
-          </p>
+          <div role="alert" className="mt-2 rounded-lg bg-live/10 px-3 py-2 text-xs leading-relaxed text-live ring-1 ring-live/25">
+            <p>{error}</p>
+            {keyAction && (
+              <button type="button" onClick={() => openPanel("settings")} className="mt-1.5 font-semibold underline hover:no-underline">
+                {userKey.hasKey ? "Check your key" : "Add your Deepgram key"}
+              </button>
+            )}
+          </div>
+        )}
+        {missingKey && !capturing && !error && !restricted && (
+          <div data-testid="needs-key" className="mt-2 rounded-lg bg-ink-800 px-3 py-2.5 text-xs leading-relaxed text-ink-200">
+            <p>
+              <span className="font-semibold text-ink-100">Add a Deepgram API key to start.</span>{" "}
+              {server.status === "no_server_key"
+                ? "The Earshot server has no Deepgram key."
+                : "No Earshot server is running, so Earshot needs your own key. It stays in this browser."}
+            </p>
+            <button type="button" onClick={() => openPanel("settings")} className="mt-1.5 font-semibold text-accent hover:underline">
+              Add your key →
+            </button>
+          </div>
         )}
       </section>
 
@@ -101,19 +131,21 @@ export default function App() {
       <div className="grid gap-1.5">
         <button
           type="button"
-          onClick={openPanel}
+          onClick={() => openPanel()}
           disabled={!tab?.id}
           className="flex h-10 items-center gap-2.5 rounded-xl px-3 text-sm text-ink-200 ring-1 ring-ink-700 hover:bg-ink-800 disabled:opacity-40"
         >
           <PanelIcon size={16} /> Open transcript panel
         </button>
-        <button
-          type="button"
-          onClick={() => serverUrl && void browser.tabs.create({ url: serverUrl })}
-          className="flex h-10 items-center gap-2.5 rounded-xl px-3 text-sm text-ink-200 ring-1 ring-ink-700 hover:bg-ink-800"
-        >
-          <ExternalIcon size={16} /> Open Earshot web
-        </button>
+        {showWebLink && (
+          <button
+            type="button"
+            onClick={() => serverUrl && void browser.tabs.create({ url: serverUrl })}
+            className="flex h-10 items-center gap-2.5 rounded-xl px-3 text-sm text-ink-200 ring-1 ring-ink-700 hover:bg-ink-800"
+          >
+            <ExternalIcon size={16} /> Open Earshot web
+          </button>
+        )}
       </div>
 
       <p className="text-[11px] leading-relaxed text-ink-500">

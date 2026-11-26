@@ -7,7 +7,13 @@
  * popup / side panel. Transcripts live in memory only.
  */
 import { browser } from "wxt/browser";
-import { createTokenFetcher, initialTranscriptState, reduceTranscript, TranscriptionSession } from "@earshot/shared";
+import {
+  createTokenFetcher,
+  initialTranscriptState,
+  reduceTranscript,
+  TranscriptionSession,
+  type DeepgramCredential,
+} from "@earshot/shared";
 import {
   broadcast,
   errorMessage,
@@ -31,6 +37,11 @@ function setMeta(next: Partial<typeof meta>) {
   broadcast({ to: "broadcast", type: "meta", meta });
 }
 
+function userKeyCredential(key: string): () => Promise<DeepgramCredential> {
+  const credential: DeepgramCredential = { type: "token", value: key };
+  return async () => credential;
+}
+
 async function start(msg: Extract<OffscreenRequest, { type: "start" }>): Promise<CommandResult> {
   await stop();
 
@@ -47,7 +58,12 @@ async function start(msg: Extract<OffscreenRequest, { type: "start" }>): Promise
   const tabId = msg.tabId;
   setMeta({ tabId, tabTitle: msg.tabTitle, overlayHidden: false });
   const s = new TranscriptionSession({
-    getToken: createTokenFetcher(msg.tokenEndpoint),
+    // A user key is used directly (Deepgram's `token` subprotocol); no Earshot server involved.
+    // Otherwise each (re)connect fetches a short-lived JWT from the Earshot server.
+    getToken:
+      msg.credential.kind === "user-key"
+        ? userKeyCredential(msg.credential.userKey)
+        : createTokenFetcher(msg.credential.tokenEndpoint),
     workletUrl: browser.runtime.getURL("/pcm-worklet.js"),
     // chrome.tabCapture mutes the tab for the user; route the audio back to the speakers.
     preservePlayback: true,

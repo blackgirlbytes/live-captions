@@ -118,3 +118,11 @@ describe.skipIf(!KEY || !AUDIO)("Deepgram live (real API)", () => {
     for (let i = 1; i < state.lines.length; i++) expect(state.lines[i]!.start).toBeGreaterThanOrEqual(state.lines[i - 1]!.end - 0.05);
   }, 90_000);
 });
+
+describe.skipIf(!KEY)("verifyDeepgramKey (real API)", () => {
+  it("accepts a real key and rejects a bad one", async () => {
+    const { verifyDeepgramKey } = await import("../src/core/deepgram");
+    expect(await verifyDeepgramKey(KEY!)).toBe("ok");
+    expect(await verifyDeepgramKey("0123456789abcdef0123456789abcdef01234567")).toBe("rejected");
+  }, 20_000);
+});

@@ -1,5 +1,5 @@
 import { PCM_TARGET_SAMPLE_RATE } from "./audio";
-import type { DeepgramStreamOptions } from "./types";
+import type { DeepgramCredential, DeepgramStreamOptions } from "./types";
 import type { DgResults } from "./transcript";
 
 export const DEEPGRAM_LISTEN_URL = "wss://api.deepgram.com/v1/listen";
@@ -39,18 +39,17 @@ export interface DeepgramSocketHandlers {
 /**
  * Thin wrapper around a browser WebSocket to Deepgram's /v1/listen.
  *
- * Browsers cannot set an Authorization header on WebSockets, so the short-lived JWT
- * from POST /v1/auth/grant is passed as the `bearer` subprotocol — the same mechanism
- * the official @deepgram/sdk uses in the browser. The permanent API key never reaches
- * the client.
+ * Browsers cannot set an Authorization header on WebSockets, so credentials go in the
+ * subprotocol — the same mechanism the official @deepgram/sdk uses in the browser:
+ * `["bearer", jwt]` for server-minted tokens, `["token", apiKey]` for a user's own key.
  */
 export class DeepgramSocket {
   private ws: WebSocket;
   private opened = false;
   private closedByUs = false;
 
-  constructor(accessToken: string, url: string, private readonly handlers: DeepgramSocketHandlers) {
-    this.ws = new WebSocket(url, ["bearer", accessToken]);
+  constructor(credential: DeepgramCredential, url: string, private readonly handlers: DeepgramSocketHandlers) {
+    this.ws = new WebSocket(url, [credential.type, credential.value]);
     this.ws.binaryType = "arraybuffer";
     this.ws.onopen = () => {
       this.opened = true;
@@ -132,8 +131,54 @@ export class DeepgramSocket {
 /** Human-readable explanation for a socket close. */
 export function describeClose(code: number, reason: string, wasOpen: boolean): string {
   if (reason) return `Deepgram closed the connection: ${reason}`;
-  if (!wasOpen) return "Could not connect to Deepgram. Check your network connection and API key.";
+  if (!wasOpen) return "Could not connect to Deepgram. Check your network connection.";
   if (code === 1008) return "Deepgram rejected the stream (policy violation).";
   if (code === 1011) return "Deepgram timed out waiting for audio.";
   return `Connection to Deepgram lost (code ${code}).`;
+}
+
+/** Cheap shape check for a pasted Deepgram API key (they are 40 hex characters today). */
+export function looksLikeDeepgramKey(key: string): boolean {
+  return /^[A-Za-z0-9_-]{32,128}$/.test(key.trim());
+}
+
+export type KeyCheckResult = "ok" | "rejected" | "offline";
+
+/**
+ * Verify a user's Deepgram key from the browser by briefly opening a streaming socket.
+ * (Deepgram's REST API doesn't allow browser CORS, so the socket is the only browser-side check.)
+ * A rejected key fails the handshake with HTTP 401, which browsers surface as a close before open.
+ */
+export function verifyDeepgramKey(key: string, timeoutMs = 8000): Promise<KeyCheckResult> {
+  return new Promise((resolve) => {
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return resolve("offline");
+    let done = false;
+    const finish = (r: KeyCheckResult) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      resolve(r);
+    };
+    let ws: WebSocket;
+    try {
+      ws = new WebSocket(buildListenUrl(), ["token", key.trim()]);
+    } catch {
+      return resolve("rejected");
+    }
+    const timer = setTimeout(() => {
+      try {
+        ws.close();
+      } catch {
+        /* noop */
+      }
+      finish("offline");
+    }, timeoutMs);
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: "CloseStream" }));
+      ws.close(1000);
+      finish("ok");
+    };
+    ws.onerror = () => finish(typeof navigator !== "undefined" && navigator.onLine === false ? "offline" : "rejected");
+    ws.onclose = () => finish("rejected");
+  });
 }

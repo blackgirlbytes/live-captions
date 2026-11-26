@@ -3,6 +3,11 @@ import type { NextRequest } from "next/server";
 
 /**
  * POST /api/deepgram/token → { access_token, expires_in }
+ * GET  /api/deepgram/token → { serverKey: boolean }
+ *
+ * DEEPGRAM_API_KEY is optional. When it's unset, GET reports `serverKey: false` and POST
+ * answers 503 `{ error, code: "no_server_key" }`: visitors then bring their own Deepgram key,
+ * which stays in their browser and is never sent here.
  *
  * Mints a short-lived Deepgram JWT so the browser (web app or Chrome extension) can open
  * the streaming WebSocket without ever seeing the permanent API key. An open socket stays
@@ -66,7 +71,7 @@ function corsHeaders(origin: string | null): HeadersInit {
   };
   if (origin) {
     h["Access-Control-Allow-Origin"] = origin;
-    h["Access-Control-Allow-Methods"] = "POST, OPTIONS";
+    h["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
     h["Access-Control-Allow-Headers"] = "Content-Type";
     h["Access-Control-Max-Age"] = "600";
   }
@@ -88,14 +93,14 @@ function clientIp(req: NextRequest): string {
 }
 
 /** Fixed-window, in-memory, per-IP limiter. Good enough for a single instance. */
-function rateLimit(ip: string): { ok: true } | { ok: false; retryAfter: number } {
+function rateLimit(key: string): { ok: true } | { ok: false; retryAfter: number } {
   const now = Date.now();
   if (hits.size > 5000) {
     for (const [k, v] of hits) if (v.resetAt <= now) hits.delete(k);
   }
-  const entry = hits.get(ip);
+  const entry = hits.get(key);
   if (!entry || entry.resetAt <= now) {
-    hits.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    hits.set(key, { count: 1, resetAt: now + RATE_WINDOW_MS });
     return { ok: true };
   }
   entry.count += 1;
@@ -111,6 +116,27 @@ export function OPTIONS(req: NextRequest) {
   return new Response(null, { status: 204, headers: corsHeaders(check.corsOrigin) });
 }
 
+function serverApiKey(): string | null {
+  return process.env.DEEPGRAM_API_KEY?.trim() || null;
+}
+
+/** Availability check for clients deciding whether to ask the user for their own key. Never mints. */
+export function GET(req: NextRequest) {
+  const check = checkOrigin(req);
+  if (!check.ok) return json({ error: "This origin is not allowed to query the token endpoint." }, 403, null);
+  const origin = check.corsOrigin;
+
+  // Separate bucket so status checks don't eat into the token budget.
+  const limit = rateLimit(`status:${clientIp(req)}`);
+  if (!limit.ok) {
+    return json({ error: "Too many requests. Wait a moment and try again." }, 429, origin, {
+      "Retry-After": String(limit.retryAfter),
+    });
+  }
+
+  return json({ serverKey: serverApiKey() !== null }, 200, origin);
+}
+
 export async function POST(req: NextRequest) {
   const check = checkOrigin(req);
   if (!check.ok) return json({ error: "This origin is not allowed to request Deepgram tokens." }, 403, null);
@@ -123,14 +149,15 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const apiKey = process.env.DEEPGRAM_API_KEY?.trim();
+  const apiKey = serverApiKey();
   if (!apiKey) {
+    // Not a server fault: this deployment expects visitors to bring their own Deepgram key.
     return json(
       {
-        error:
-          "The Earshot server has no Deepgram API key. Set DEEPGRAM_API_KEY in apps/web/.env.local (see .env.example) and restart the server.",
+        error: "This Earshot server doesn't provide a Deepgram API key. Add your own Deepgram API key to start captions.",
+        code: "no_server_key",
       },
-      500,
+      503,
       origin,
     );
   }

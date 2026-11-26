@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ByokNote } from "@/components/ByokNote";
 import { Logo } from "@/components/Logo";
 import { CAPTURE_STEPS } from "@/components/StepArt";
 import { UrlForm } from "@/components/UrlForm";
@@ -102,6 +103,7 @@ export default function Home() {
                 sharing”, ends it instantly.
               </li>
               <li>Transcripts live in your browser tab and disappear when you close it. Nothing is stored on a server.</li>
+              <ByokNote />
             </ul>
           </div>
           <div id="extension" className="scroll-mt-8 rounded-3xl bg-ink-900 p-7 ring-1 ring-ink-800 sm:p-9">

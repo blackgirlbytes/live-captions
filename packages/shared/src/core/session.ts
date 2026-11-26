@@ -2,7 +2,7 @@ import { startPcmCapture, stopStream, PCM_TARGET_SAMPLE_RATE, type PcmCapture } 
 import { buildListenUrl, describeClose, DeepgramSocket, type DeepgramServerMessage } from "./deepgram";
 import { StreamTimeMap } from "./time-map";
 import { initialTranscriptState, reduceTranscript, TranscriptAssembler, type DgResults } from "./transcript";
-import type { DeepgramStreamOptions, TranscriptEvent, TranscriptState, TranscriptionStatus } from "./types";
+import type { DeepgramCredential, DeepgramStreamOptions, TranscriptEvent, TranscriptState, TranscriptionStatus } from "./types";
 
 /** Throw this from `getToken` when retrying cannot help (e.g. server has no API key). */
 export class FatalTranscriptionError extends Error {
@@ -10,8 +10,11 @@ export class FatalTranscriptionError extends Error {
 }
 
 export interface TranscriptionSessionOptions {
-  /** Returns a short-lived Deepgram access token (JWT from POST /v1/auth/grant). */
-  getToken: () => Promise<string>;
+  /**
+   * Returns the credential for each (re)connect: a short-lived JWT from an Earshot server
+   * (a plain string is treated as a bearer JWT) or the user's own key (`{ type: "token" }`).
+   */
+  getToken: () => Promise<string | DeepgramCredential>;
   /** URL of the PCM AudioWorklet module (see PCM_WORKLET_SOURCE). */
   workletUrl: string;
   /** Re-route captured audio to the speakers (chrome.tabCapture mutes the tab otherwise). */
@@ -55,6 +58,8 @@ export class TranscriptionSession {
   private gated = false;
   private running = false;
   private attempts = 0;
+  /** Whether any socket opened during this run (a user key that never opens is likely invalid). */
+  private everOpened = false;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private keepAliveTimer: ReturnType<typeof setInterval> | null = null;
   private lastSentAt = 0;
@@ -98,6 +103,7 @@ export class TranscriptionSession {
     this.buffer = [];
     this.gated = false;
     this.attempts = 0;
+    this.everOpened = false;
     this.timeMap.clear();
     this.assembler = this.createAssembler();
     if (keepTranscript) {
@@ -233,9 +239,10 @@ export class TranscriptionSession {
     if (!this.running) return;
     this.setStatus(this.attempts === 0 ? "connecting" : "reconnecting");
 
-    let token: string;
+    let credential: DeepgramCredential;
     try {
-      token = await this.opts.getToken();
+      const token = await this.opts.getToken();
+      credential = typeof token === "string" ? { type: "bearer", value: token } : token;
     } catch (err) {
       if ((err as FatalTranscriptionError).fatal) return this.fail((err as Error).message);
       return this.scheduleReconnect((err as Error).message);
@@ -244,9 +251,10 @@ export class TranscriptionSession {
 
     this.connOffset = null;
     const url = buildListenUrl(this.opts.deepgram, this.opts.listenBaseUrl);
-    const socket = new DeepgramSocket(token, url, {
+    const socket = new DeepgramSocket(credential, url, {
       onOpen: () => {
         if (this.socket !== socket) return;
+        this.everOpened = true;
         this.setStatus(this.gated ? "paused" : "live");
         const pending = this.buffer;
         this.buffer = [];
@@ -261,6 +269,10 @@ export class TranscriptionSession {
         this.socket = null;
         this.assembler.flush();
         if (wasOpen) this.attempts = 0;
+        if (!wasOpen && !this.everOpened && credential.type === "token" && !(typeof navigator !== "undefined" && navigator.onLine === false)) {
+          void this.fail("Deepgram didn't accept your API key. Check it in settings, or create a new one at console.deepgram.com.");
+          return;
+        }
         this.scheduleReconnect(describeClose(code, reason, wasOpen));
       },
     });

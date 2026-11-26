@@ -76,3 +76,13 @@ export interface DeepgramStreamOptions {
   language?: string;
   keyterms?: string[];
 }
+
+/**
+ * How the browser authenticates the Deepgram WebSocket.
+ * - `bearer`: short-lived JWT minted by an Earshot server (server holds the API key).
+ * - `token`: the user's own Deepgram API key ("bring your own key"); never sent to Earshot.
+ */
+export interface DeepgramCredential {
+  type: "bearer" | "token";
+  value: string;
+}

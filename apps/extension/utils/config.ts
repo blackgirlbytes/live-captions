@@ -11,7 +11,24 @@ export const STORAGE_KEYS = {
   serverUrl: "serverUrl",
   captionSettings: "captionSettings",
   overlayLayout: "overlayLayout",
+  /** The user's own Deepgram API key ("bring your own key"). Only ever sent to Deepgram. */
+  deepgramKey: "deepgramKey",
 } as const;
+
+/** chrome.storage.session keys (cleared when the browser closes). */
+export const SESSION_KEYS = {
+  /** One-shot request from the popup: open the side panel on this view. */
+  sidepanelView: "sidepanelView",
+} as const;
+
+/** Popup → side panel: "show this view". Scoped to a window; expires instead of being consumed. */
+export interface SidepanelViewRequest {
+  view: "settings";
+  windowId: number;
+  at: number;
+}
+
+export const SIDEPANEL_VIEW_REQUEST_TTL_MS = 10_000;
 
 /** Caption box placement, as fractions of the viewport so it survives resizes / fullscreen. */
 export interface OverlayLayout {
@@ -41,6 +58,46 @@ export async function getServerUrl(): Promise<string> {
 
 export function tokenEndpoint(serverUrl: string): string {
   return `${serverUrl}/api/deepgram/token`;
+}
+
+/** The user's saved Deepgram key, or null. Never log or broadcast the returned value. */
+export async function getUserKey(): Promise<string | null> {
+  const stored = (await browser.storage.local.get(STORAGE_KEYS.deepgramKey))[STORAGE_KEYS.deepgramKey];
+  return typeof stored === "string" && stored.trim() ? stored.trim() : null;
+}
+
+/** "••••abcd" — the only form of the key the UI ever shows. */
+export function maskKey(key: string): string {
+  return `••••${key.slice(-4)}`;
+}
+
+/**
+ * What the Earshot server can do for us when the user has no key of their own.
+ * - ready: reachable and has a Deepgram key.
+ * - no_server_key: reachable but can't mint tokens.
+ * - unknown: reachable, but it doesn't report whether it has a key (older server).
+ * - unreachable: nothing answered.
+ */
+export type ServerStatus = "ready" | "no_server_key" | "unknown" | "unreachable";
+
+/** `GET {server}/api/deepgram/token` → `{ serverKey: boolean }`. Works from pages and the service worker. */
+export async function probeServer(serverUrl: string, timeoutMs = 3000): Promise<ServerStatus> {
+  const url = tokenEndpoint(serverUrl);
+  try {
+    const res = await fetch(url, { method: "GET", cache: "no-store", signal: AbortSignal.timeout(timeoutMs) });
+    const body = (await res.json().catch(() => null)) as { serverKey?: unknown; code?: unknown } | null;
+    if (body && typeof body.serverKey === "boolean") return body.serverKey ? "ready" : "no_server_key";
+    if (body?.code === "no_server_key") return "no_server_key";
+    return "unknown";
+  } catch {
+    // A CORS-less answer (e.g. an older server without GET) still proves something is listening.
+    try {
+      await fetch(url, { method: "GET", mode: "no-cors", cache: "no-store", signal: AbortSignal.timeout(timeoutMs) });
+      return "unknown";
+    } catch {
+      return "unreachable";
+    }
+  }
 }
 
 export async function getCaptionSettings(): Promise<CaptionSettings> {

@@ -2,7 +2,6 @@
 
 import {
   createPcmWorkletUrl,
-  createTokenFetcher,
   preferredTimeBase,
   TranscriptionSession,
   type CaptionSettings,
@@ -22,9 +21,12 @@ import {
   useTranscriptionSession,
 } from "@earshot/shared/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { DeepgramKeyDialog } from "@/components/DeepgramKeyDialog";
+import { DeepgramKeySettings } from "@/components/DeepgramKeySettings";
 import { SettingsPopover } from "@/components/SettingsPopover";
 import { StartGuide } from "@/components/StartGuide";
 import { captureTabAudio, detectCaptureSupport } from "@/lib/capture";
+import { createGetToken, keyMode, TOKEN_ENDPOINT_PATH, useServerKeyStatus, useUserDeepgramKey } from "@/lib/deepgram-key";
 import { resolveVideo, type PlayerAdapter, type PlayerError, type PlayerState } from "@/lib/providers";
 import { loadCaptionSettings, saveCaptionSettings } from "@/lib/settings-storage";
 
@@ -51,8 +53,9 @@ export function WatchExperience({ url }: { url: string }) {
   const [session] = useState(
     () =>
       new TranscriptionSession({
+        // The user's own Deepgram key when saved, else a server-minted JWT.
         // Absolute URL: the shared fetcher builds error messages with `new URL(endpoint)`.
-        getToken: createTokenFetcher(`${window.location.origin}/api/deepgram/token`),
+        getToken: createGetToken(`${window.location.origin}${TOKEN_ENDPOINT_PATH}`),
         workletUrl: getWorkletUrl(),
         getMediaTime: () => adapterRef.current?.getCurrentTime() ?? null,
         preservePlayback: false,
@@ -85,6 +88,13 @@ export function WatchExperience({ url }: { url: string }) {
   const [query, setQuery] = useState("");
   const [fullscreen, setFullscreen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  /** Settings were opened to fix the Deepgram key: scroll there and show the form. */
+  const [keyFocus, setKeyFocus] = useState(false);
+
+  const userKey = useUserDeepgramKey();
+  const [serverKey, setServerKey] = useServerKeyStatus();
+  const mode = keyMode(userKey, serverKey);
+  const [keyDialogOpen, setKeyDialogOpen] = useState(false);
 
   /* ----------------------------- player ----------------------------- */
 
@@ -198,12 +208,37 @@ export function WatchExperience({ url }: { url: string }) {
 
   const onStartClick = () => {
     if (!support.ok) return;
+    if (mode === "none") {
+      // No server key and no key of their own yet: ask for one first.
+      setCaptureError(null);
+      setKeyDialogOpen(true);
+      return;
+    }
     // Calling getDisplayMedia straight from the click keeps Chrome's user-activation requirement.
     if (skipGuide) void startCapture();
     else {
       setCaptureError(null);
       setGuideOpen(true);
     }
+  };
+
+  // Verifying the key used up the click's user activation, so getDisplayMedia must come from
+  // a fresh click: always continue through the start guide's "Choose this tab" button.
+  const onKeySaved = useCallback(() => {
+    setKeyDialogOpen(false);
+    setCaptureError(null);
+    setGuideOpen(true);
+  }, []);
+  const closeKeyDialog = useCallback(() => setKeyDialogOpen(false), []);
+
+  const onSettingsOpenChange = useCallback((open: boolean) => {
+    setSettingsOpen(open);
+    if (!open) setKeyFocus(false);
+  }, []);
+
+  const openKeySettings = () => {
+    setKeyFocus(true);
+    setSettingsOpen(true);
   };
 
   const onSkipGuideChange = (v: boolean) => {
@@ -253,6 +288,13 @@ export function WatchExperience({ url }: { url: string }) {
 
   const sessionError = ts.status === "error" ? ts.error : null;
   const reconnecting = ts.status === "reconnecting";
+  const keyError = Boolean(sessionError && /API key/i.test(sessionError));
+  const noServerKeyError = Boolean(sessionError && /doesn.t provide a Deepgram API key/i.test(sessionError));
+
+  // The token endpoint said this server has no key (e.g. the status check failed earlier).
+  useEffect(() => {
+    if (noServerKeyError && serverKey !== false) setServerKey(false);
+  }, [noServerKeyError, serverKey, setServerKey]);
 
   /* ------------------------------ render ------------------------------ */
 
@@ -328,8 +370,12 @@ export function WatchExperience({ url }: { url: string }) {
                 showPosition={overlayAllowed}
                 buttonClassName={iconBtn}
                 sheet={fullscreen}
-                onOpenChange={setSettingsOpen}
-              />
+                open={settingsOpen}
+                onOpenChange={onSettingsOpenChange}
+                scrollToChildren={keyFocus}
+              >
+                <DeepgramKeySettings userKey={userKey} serverKey={serverKey} initiallyEditing={keyFocus} running={running} />
+              </SettingsPopover>
               {!fullscreen && (
                 <button
                   type="button"
@@ -364,6 +410,7 @@ export function WatchExperience({ url }: { url: string }) {
               onSkipNextTimeChange={onSkipGuideChange}
             />
           )}
+          {keyDialogOpen && <DeepgramKeyDialog onSaved={onKeySaved} onClose={closeKeyDialog} />}
         </div>
 
         {/* Notices */}
@@ -375,7 +422,19 @@ export function WatchExperience({ url }: { url: string }) {
             </Banner>
           )}
           {sessionError && (
-            <Banner tone="error" action={support.ok ? { label: "Restart captions", onClick: () => void startCapture() } : undefined}>
+            <Banner
+              tone="error"
+              action={
+                keyError
+                  ? mode === "none"
+                    ? { label: "Add your Deepgram key", onClick: () => (support.ok ? setKeyDialogOpen(true) : openKeySettings()) }
+                    : { label: "Check Deepgram key", onClick: openKeySettings }
+                  : support.ok
+                    ? { label: "Restart captions", onClick: () => void startCapture() }
+                    : undefined
+              }
+              secondary={keyError && support.ok && mode !== "none" ? { label: "Restart captions", onClick: onStartClick } : undefined}
+            >
               Captions stopped: {sessionError}
             </Banner>
           )}
@@ -462,10 +521,12 @@ function Banner({
   tone,
   children,
   action,
+  secondary,
 }: {
   tone: "info" | "error";
   children: React.ReactNode;
   action?: { label: string; onClick: () => void };
+  secondary?: { label: string; onClick: () => void };
 }) {
   return (
     <div
@@ -475,6 +536,11 @@ function Banner({
       }`}
     >
       <p className="min-w-0 flex-1">{children}</p>
+      {secondary && (
+        <button type="button" onClick={secondary.onClick} className="rounded-lg px-3 py-1.5 text-sm font-semibold text-ink-200 ring-1 ring-ink-600 hover:bg-ink-800">
+          {secondary.label}
+        </button>
+      )}
       {action && (
         <button type="button" onClick={action.onClick} className="rounded-lg bg-ink-100 px-3 py-1.5 text-sm font-semibold text-ink-900 hover:bg-white">
           {action.label}

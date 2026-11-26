@@ -25,8 +25,14 @@ export interface SessionSnapshot {
 
 export type SessionMeta = Pick<SessionSnapshot, "tabId" | "tabTitle" | "overlayHidden">;
 
-/** Generic reply for commands. */
-export type CommandResult = { ok: true } | { ok: false; error: string };
+/** Generic reply for commands. `code: "needs_key"` means "the user should add their own Deepgram key". */
+export type CommandResult = { ok: true } | { ok: false; error: string; code?: "needs_key" };
+
+/**
+ * How the offscreen document authenticates to Deepgram. Chosen by the background, which
+ * is the only context that reads the user's key from storage. Sent only background → offscreen.
+ */
+export type CredentialSource = { kind: "user-key"; userKey: string } | { kind: "server"; tokenEndpoint: string };
 
 /* ----------------------------- → background ----------------------------- */
 
@@ -61,7 +67,7 @@ export interface OverlayHello {
 /* ----------------------------- → offscreen ----------------------------- */
 
 export type OffscreenRequest =
-  | { to: "offscreen"; type: "start"; streamId: string; tabId: number; tabTitle: string | null; tokenEndpoint: string }
+  | { to: "offscreen"; type: "start"; streamId: string; tabId: number; tabTitle: string | null; credential: CredentialSource }
   | { to: "offscreen"; type: "stop" }
   | { to: "offscreen"; type: "get-state" }
   | { to: "offscreen"; type: "set-overlay-hidden"; hidden: boolean };
@@ -119,6 +125,11 @@ export function isOverlayMessage(msg: unknown): msg is OverlayMessage {
 /** Statuses during which audio is being captured. */
 export function isCapturing(status: TranscriptionStatus): boolean {
   return status === "connecting" || status === "live" || status === "paused" || status === "reconnecting";
+}
+
+/** Session errors that the user's (or the server's) Deepgram key can fix. */
+export function isKeyError(message: string | null | undefined): boolean {
+  return Boolean(message && /API key|Deepgram key/i.test(message));
 }
 
 export function errorMessage(err: unknown): string {

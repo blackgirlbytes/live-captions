@@ -9,7 +9,7 @@
 import { browser, type Browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
 import { initialTranscriptState, type TranscriptEvent } from "@earshot/shared";
-import { getServerUrl, restrictedReason, tokenEndpoint } from "@/utils/config";
+import { getServerUrl, getUserKey, probeServer, restrictedReason, tokenEndpoint } from "@/utils/config";
 import {
   errorMessage,
   isCapturing,
@@ -19,6 +19,7 @@ import {
   type BackgroundRequest,
   type BackgroundResponses,
   type CommandResult,
+  type CredentialSource,
   type OverlayHello,
   type SessionSnapshot,
 } from "@/utils/messages";
@@ -116,11 +117,41 @@ export default defineBackground(() => {
     return `Could not capture this tab: ${msg}`;
   }
 
+  /**
+   * The user's own key wins; otherwise the Earshot server mints tokens. Without a key we
+   * check the server first so a missing/keyless server is explained up front instead of
+   * surfacing later as a network error. The key itself only travels background → offscreen.
+   */
+  async function resolveCredential(): Promise<{ ok: true; credential: CredentialSource } | Extract<CommandResult, { ok: false }>> {
+    const userKey = await getUserKey();
+    if (userKey) return { ok: true, credential: { kind: "user-key", userKey } };
+    const serverUrl = await getServerUrl();
+    const status = await probeServer(serverUrl);
+    if (status === "unreachable") {
+      return {
+        ok: false,
+        code: "needs_key",
+        error: `Earshot needs a Deepgram API key. Add your own key in settings (the Earshot server at ${serverUrl} isn't reachable).`,
+      };
+    }
+    if (status === "no_server_key") {
+      return {
+        ok: false,
+        code: "needs_key",
+        error: `Earshot needs a Deepgram API key. Add your own key in settings (the Earshot server at ${serverUrl} has no Deepgram key).`,
+      };
+    }
+    return { ok: true, credential: { kind: "server", tokenEndpoint: tokenEndpoint(serverUrl) } };
+  }
+
   async function start(tabId: number): Promise<CommandResult> {
     const tab = await browser.tabs.get(tabId).catch(() => null);
     if (!tab) return { ok: false, error: "That tab no longer exists." };
     const restricted = restrictedReason(tab.url);
     if (restricted) return { ok: false, error: restricted };
+
+    const cred = await resolveCredential();
+    if (!cred.ok) return cred;
 
     // One capture at a time: stop whatever is running (on this or another tab) first.
     const current = await getSnapshot();
@@ -141,7 +172,7 @@ export default defineBackground(() => {
         streamId,
         tabId,
         tabTitle: tab.title ?? null,
-        tokenEndpoint: tokenEndpoint(await getServerUrl()),
+        credential: cred.credential,
       });
       if (!res?.ok) {
         await closeOffscreen();

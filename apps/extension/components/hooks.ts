@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { browser, type Browser } from "wxt/browser";
 import { initialTranscriptState, reduceTranscript, type CaptionSettings, type TranscriptEvent } from "@earshot/shared";
-import { getCaptionSettings, getServerUrl, STORAGE_KEYS } from "@/utils/config";
+import {
+  getCaptionSettings,
+  getServerUrl,
+  getUserKey,
+  maskKey,
+  probeServer,
+  STORAGE_KEYS,
+  type ServerStatus,
+} from "@/utils/config";
 import { isCapturing, isRuntimeMessage, sendToBackground, type CommandResult, type SessionSnapshot } from "@/utils/messages";
 
 const EMPTY: SessionSnapshot = { tabId: null, tabTitle: null, overlayHidden: false, transcript: initialTranscriptState() };
@@ -107,17 +115,64 @@ export function useServerUrl() {
   return url;
 }
 
+/**
+ * Whether the user saved their own Deepgram key. Only the masked form leaves this hook;
+ * `loaded` is false until storage has been read.
+ */
+export function useUserKey() {
+  const [state, setState] = useState<{ loaded: boolean; masked: string | null }>({ loaded: false, masked: null });
+  useEffect(() => {
+    const read = () => void getUserKey().then((key) => setState({ loaded: true, masked: key ? maskKey(key) : null }));
+    read();
+    const onChanged = (changes: Record<string, unknown>, area: string) => {
+      if (area === "local" && STORAGE_KEYS.deepgramKey in changes) read();
+    };
+    browser.storage.onChanged.addListener(onChanged);
+    return () => browser.storage.onChanged.removeListener(onChanged);
+  }, []);
+  return { loaded: state.loaded, hasKey: state.masked !== null, masked: state.masked };
+}
+
+/** Probe the Earshot server (only when `enabled`, i.e. the user has no key of their own). */
+export function useServerStatus(serverUrl: string | null, enabled: boolean) {
+  const [status, setStatus] = useState<ServerStatus | "checking" | null>(null);
+  const [nonce, setNonce] = useState(0);
+  useEffect(() => {
+    if (!serverUrl || !enabled) {
+      setStatus(null);
+      return;
+    }
+    let alive = true;
+    setStatus("checking");
+    void probeServer(serverUrl).then((s) => alive && setStatus(s));
+    return () => {
+      alive = false;
+    };
+  }, [serverUrl, enabled, nonce]);
+  return { status, recheck: useCallback(() => setNonce((n) => n + 1), []) };
+}
+
+/** No key of our own and the server can't help: the user must add a key before captions can work. */
+export function needsKey(hasKey: boolean, server: ServerStatus | "checking" | null): boolean {
+  return !hasKey && (server === "unreachable" || server === "no_server_key");
+}
+
 /** Start/stop/show-overlay commands with pending + error state. */
 export function useCommands() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
 
   const run = useCallback(async (fn: () => Promise<CommandResult>) => {
     setPending(true);
     setError(null);
+    setErrorCode(null);
     try {
       const res = await fn();
-      if (!res?.ok) setError(res?.error ?? "Something went wrong.");
+      if (!res?.ok) {
+        setError(res?.error ?? "Something went wrong.");
+        setErrorCode(res?.code ?? null);
+      }
       return Boolean(res?.ok);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -130,7 +185,12 @@ export function useCommands() {
   return {
     pending,
     error,
-    clearError: () => setError(null),
+    /** "needs_key" when the fix is adding a Deepgram key. */
+    errorCode,
+    clearError: () => {
+      setError(null);
+      setErrorCode(null);
+    },
     start: (tabId: number) => run(() => sendToBackground({ to: "background", type: "start", tabId })),
     stop: () => run(() => sendToBackground({ to: "background", type: "stop" })),
     showOverlay: () => run(() => sendToBackground({ to: "background", type: "show-overlay" })),

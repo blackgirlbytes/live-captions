@@ -166,4 +166,37 @@ describe("TranscriptionSession", () => {
     expect(s.isRunning).toBe(false);
     expect(s.getState().status).toBe("error");
   });
+
+  it("uses the token subprotocol for a user's own key", async () => {
+    const s = makeSession({ getToken: async () => ({ type: "token" as const, value: "user-key" }) });
+    await s.start(fakeStream());
+    expect(FakeWS.all[0]!.protocols).toEqual(["token", "user-key"]);
+    FakeWS.all[0]!.open();
+    expect(s.getState().status).toBe("live");
+    await s.stop();
+  });
+
+  it("fails clearly (no retry loop) when a user key is rejected at the handshake", async () => {
+    const s = makeSession({ getToken: async () => ({ type: "token" as const, value: "bad-key" }) });
+    await s.start(fakeStream());
+    FakeWS.all[0]!.serverClose(1006);
+    await flush();
+    await flush();
+    expect(s.getState().status).toBe("error");
+    expect(s.getState().error).toContain("API key");
+    expect(FakeWS.all).toHaveLength(1);
+  });
+
+  it("still reconnects a user-key session that dropped after opening", async () => {
+    const s = makeSession({ getToken: async () => ({ type: "token" as const, value: "user-key" }) });
+    await s.start(fakeStream());
+    FakeWS.all[0]!.open();
+    vi.useFakeTimers();
+    FakeWS.all[0]!.serverClose(1006);
+    expect(s.getState().status).toBe("reconnecting");
+    await vi.advanceTimersByTimeAsync(600);
+    expect(FakeWS.all).toHaveLength(2);
+    vi.useRealTimers();
+    await s.stop();
+  });
 });
