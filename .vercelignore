@@ -1,0 +1,14 @@
+# Never upload local secrets: a public deployment must not carry DEEPGRAM_API_KEY (see AGENTS.md).
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+# Local build output and tooling state
+node_modules
+**/node_modules
+**/.next
+**/.output
+**/.wxt
+.entire

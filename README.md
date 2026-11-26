@@ -1,5 +1,7 @@
 # Earshot — live AI captions for online video
 
+**Live:** https://live-captions-zeta.vercel.app (bring your own free Deepgram key)
+
 Earshot is an open-source web video player and Chrome extension. They add real-time captions and an interactive transcript to online video using **Deepgram Nova-3** streaming speech-to-text. They don't depend on the video platform's own captions.
 
 - **Web platform** (`apps/web`, Next.js): paste a YouTube video or livestream URL and watch it with live captions, plus a searchable transcript with timestamps you can download and click to jump in the video.
@@ -80,6 +82,8 @@ Open http://localhost:3100, paste a YouTube link, press **Start captions**. In C
 ### Deploying publicly
 
 **Don't set `DEEPGRAM_API_KEY` on a public deployment** unless you mean to pay for every visitor's captions. The token endpoint has no sign-in, so anyone who opens the site can spend your key's credit (they never see the key itself). Without it, each visitor is asked for their own free Deepgram key the first time they press Start. If you do host a key on purpose, set `EARSHOT_EXTENSION_IDS` and add real authentication or quotas. These rules are also in [AGENTS.md](AGENTS.md) for AI coding agents.
+
+**Vercel:** create a project with **Root Directory** `apps/web` (framework Next.js, Node 22) and no environment variables, then deploy from the repo root with `vercel deploy --prod`. The repo's `.vercelignore` keeps local `.env` files from being uploaded, so a key in `apps/web/.env.local` can't leak into a deployment. Afterwards, `GET /api/deepgram/token` on the live site should return `{"serverKey":false}`.
 
 ### Build and load the Chrome extension
 

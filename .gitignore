@@ -9,3 +9,6 @@ dist
 .env.*.local
 .DS_Store
 next-env.d.ts
+.vercel
+.env*
+!.env.example
