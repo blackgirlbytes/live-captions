@@ -1,0 +1,1 @@
+okay lets say i deployed this to vercel..its currently being deployed fyi..how do i ..use the chrome extension?
