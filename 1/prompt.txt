@@ -1,0 +1,13 @@
+landing page is super ai generated. uses em dashes and has a ton of ai smells..can you point them out please
+
+---
+
+but what will you rewrite it to..hold on
+
+---
+
+for now just remove all emdashes
+
+---
+
+commit and push
