@@ -1,0 +1,25 @@
+{
+  "name": "@earshot/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/core/index.ts",
+    "./react": "./src/react/index.ts",
+    "./theme.css": "./src/theme.css"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json",
+    "test:live": "vitest run test/live.deepgram.test.ts --silent=false"
+  },
+  "peerDependencies": {
+    "react": ">=19"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.3",
+    "react": "^19.3.1",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.2"
+  }
+}

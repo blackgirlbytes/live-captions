@@ -1,0 +1,28 @@
+{
+  "name": "@earshot/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
+    "typecheck": "tsc --noEmit",
+    "e2e": "node scripts/e2e.mjs"
+  },
+  "dependencies": {
+    "@deepgram/sdk": "^5.20.0",
+    "@earshot/shared": "*",
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/node": "^22.20.7",
+    "@types/react": "^19.3.3",
+    "@types/react-dom": "^19.3.0",
+    "@types/youtube": "^0.3.0",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "earshot",
+  "private": true,
+  "description": "Open-source real-time AI captions and transcripts for online video, powered by Deepgram Nova-3.",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w @earshot/web",
+    "dev:extension": "npm run dev -w @earshot/extension",
+    "build": "npm run build -w @earshot/web && npm run build -w @earshot/extension",
+    "test": "npm test -w @earshot/shared",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.19.0"
+  }
+}

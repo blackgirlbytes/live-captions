@@ -1,0 +1,71 @@
+@import "tailwindcss";
+@import "@earshot/shared/theme.css";
+@source "../../../../packages/shared/src";
+
+@theme inline {
+  --font-sans: var(--font-inter), "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-bricolage), "Inter", system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background: var(--color-ink-950);
+  color: var(--color-ink-100);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--color-ink-950);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* The fullscreen stage: player grows, caption bar + controls stay underneath it. */
+.stage:fullscreen {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+}
+.stage:fullscreen .stage-player {
+  flex: 1 1 auto;
+  aspect-ratio: auto;
+  height: auto;
+  max-height: none;
+}
+
+/* Hero caption: words land one at a time, like a live caption. */
+@keyframes word-in {
+  from { opacity: 0; filter: blur(3px); }
+  to { opacity: 1; filter: blur(0); }
+}
+.caption-word {
+  opacity: 0;
+  animation: word-in 260ms ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .caption-word { animation: none; opacity: 1; }
+  * { scroll-behavior: auto !important; }
+}
+
+@keyframes sheet-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.sheet-in { animation: sheet-in 180ms ease-out; }
+@media (prefers-reduced-motion: reduce) { .sheet-in { animation: none; } }

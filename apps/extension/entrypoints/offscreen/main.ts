@@ -1,0 +1,89 @@
+/**
+ * Offscreen document: the only place audio is touched, and the source of truth for the
+ * session (the MV3 service worker may be suspended at any time; this page is not).
+ *
+ * tab audio (tabCapture stream id) → getUserMedia → TranscriptionSession (@earshot/shared)
+ * → TranscriptEvents broadcast to the background (relays to the overlay) and to the
+ * popup / side panel. Transcripts live in memory only.
+ */
+import { browser } from "wxt/browser";
+import { createTokenFetcher, initialTranscriptState, reduceTranscript, TranscriptionSession } from "@earshot/shared";
+import {
+  broadcast,
+  errorMessage,
+  isRuntimeMessage,
+  type CommandResult,
+  type OffscreenRequest,
+  type OffscreenResponses,
+  type SessionSnapshot,
+} from "@/utils/messages";
+
+let session: TranscriptionSession | null = null;
+let transcript = initialTranscriptState();
+let meta: Pick<SessionSnapshot, "tabId" | "tabTitle" | "overlayHidden"> = { tabId: null, tabTitle: null, overlayHidden: false };
+
+function snapshot(): SessionSnapshot {
+  return { ...meta, transcript };
+}
+
+function setMeta(next: Partial<typeof meta>) {
+  meta = { ...meta, ...next };
+  broadcast({ to: "broadcast", type: "meta", meta });
+}
+
+async function start(msg: Extract<OffscreenRequest, { type: "start" }>): Promise<CommandResult> {
+  await stop();
+
+  let stream: MediaStream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { mandatory: { chromeMediaSource: "tab", chromeMediaSourceId: msg.streamId } },
+      video: false,
+    } as unknown as MediaStreamConstraints);
+  } catch (err) {
+    return { ok: false, error: `Could not capture the tab's audio: ${errorMessage(err)}` };
+  }
+
+  const tabId = msg.tabId;
+  setMeta({ tabId, tabTitle: msg.tabTitle, overlayHidden: false });
+  const s = new TranscriptionSession({
+    getToken: createTokenFetcher(msg.tokenEndpoint),
+    workletUrl: browser.runtime.getURL("/pcm-worklet.js"),
+    // chrome.tabCapture mutes the tab for the user; route the audio back to the speakers.
+    preservePlayback: true,
+    onEvent: (event) => {
+      transcript = reduceTranscript(transcript, event);
+      broadcast({ to: "broadcast", type: "transcript-event", tabId, event });
+    },
+  });
+  session = s;
+  // start() resolves after the first connect attempt; failures surface as status events.
+  void s.start(stream);
+  return { ok: true };
+}
+
+async function stop(): Promise<CommandResult> {
+  const s = session;
+  session = null;
+  if (s) await s.stop();
+  return { ok: true };
+}
+
+browser.runtime.onMessage.addListener((msg: unknown, _sender, sendResponse) => {
+  if (!isRuntimeMessage(msg) || msg.to !== "offscreen") return;
+  const reply = <K extends OffscreenRequest["type"]>(_type: K, value: OffscreenResponses[K] | Promise<OffscreenResponses[K]>) => {
+    Promise.resolve(value).then(sendResponse, (err) => sendResponse({ ok: false, error: errorMessage(err) }));
+    return true as const;
+  };
+  switch (msg.type) {
+    case "start":
+      return reply("start", start(msg));
+    case "stop":
+      return reply("stop", stop());
+    case "get-state":
+      return reply("get-state", snapshot());
+    case "set-overlay-hidden":
+      setMeta({ overlayHidden: msg.hidden });
+      return reply("set-overlay-hidden", { ok: true });
+  }
+});

@@ -1,0 +1,44 @@
+/*
+ * Earshot visual identity — shared by the web platform and the Chrome extension.
+ * Import after `@import "tailwindcss";` and add `@source` for packages/shared/src.
+ */
+@theme {
+  --color-ink-950: #08080b;
+  --color-ink-900: #0e0e13;
+  --color-ink-850: #13131a;
+  --color-ink-800: #1a1a23;
+  --color-ink-700: #262632;
+  --color-ink-600: #383846;
+  --color-ink-500: #5a5a6c;
+  --color-ink-400: #8a8a9c;
+  --color-ink-300: #b6b6c6;
+  --color-ink-200: #d6d6e0;
+  --color-ink-100: #efeff5;
+
+  --color-accent: #f5b83d;
+  --color-accent-strong: #ffcd62;
+  --color-accent-ink: #1d1404;
+  --color-live: #ff4d5e;
+  --color-ok: #3ddc97;
+
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.82); }
+  }
+}
+
+.earshot-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-600) transparent;
+}
+
+mark.earshot-hit {
+  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 1px;
+}
