@@ -1,0 +1,171 @@
+lets create a github repo for live captions and push up the changes there please
+
+---
+
+is there an entire command like entire import session claude code or something like that for us to import our session or checkpoint to entire
+
+---
+
+Yes, attach it
+
+---
+
+u know ..i didnt give you a deepgram api key..how were u able to make this work
+
+---
+
+what if i want people to be able to use this in the future and i like deploy it but i dont want people to pay for their deepgram usage..whats the smoothest way to solve this..do i have them input a key when the app opens idk
+
+---
+
+Yes, build it
+
+---
+
+wait if ur building this way..does my way that locally works..wont work anymore for me
+
+---
+
+and what do you mean "and keep your server key optional" does this mean that a user may be able to use my api key
+
+---
+
+can you make that rule in an AGENTS.md? 
+
+I think I still dont really understand though
+
+---
+
+<task-notification>
+<task-id>a03cef6385b49abd4</task-id>
+<tool-use-id>toolu_01FAKoUVJzABRFkc1pdxZuY5</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/81ecccbe-aa1d-4f97-8070-a49b0e80faab/tasks/a03cef6385b49abd4.output</output-file>
+<status>completed</status>
+<summary>Agent "Extension: bring-your-own Deepgram key" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>BYOK is in the extension and works without any Earshot server: with my own key and nothing listening at the server URL, real captions reached both the side panel and the in-page overlay. Server mode still works. `npx wxt build` and `npx tsc --noEmit -p apps/extension` both pass, and the manifest permissions are unchanged (`tabCapture, offscreen, sidePanel, storage, activeTab, scripting`, no host permissions).
+
+**How it behaves**
+- **Your own key:** the key is stored in `chrome.storage.local` under `deepgramKey`. When you press Start, the background reads it and passes it to the offscreen document in the start message; that is the only message that carries it. The offscreen document then connects to Deepgram directly. A saved key always wins, and the Earshot server is never contacted.
+- **Server mode:** with no key saved, the background first checks the server with `GET /api/deepgram/token`, then uses the existing token fetcher. If the server is unreachable or reports `serverKey:false`, Start fails straight away with a "needs a Deepgram API key" message and an "Add your Deepgram key" button, without starting capture.
+- **Side panel:** the tab is now called "Settings". A "Deepgram key" section sits above Server URL with everything you specified: password field with Show/Hide, "Verify &amp; save", inline errors, "Forget key", the status line, the console link with the dedicated-key advice, and the privacy line. When no key is available, a "needs a key" notice appears at the top.
+- **Popup:** shows the same "needs a key" notice. "Add your key" opens the side panel on the key field. "Open Earshot web" is hidden when there's no server or you're using your own key.
+- **"API key" errors:** if a session fails with one, both popup and side panel show "Check your key".
+
+**Verification (both runs headful)**
+- **Own key** (`smoke-byok.mjs`): all 24 checks passed, including:
+  - The popup and side panel both said a key was needed.
+  - "Add your key" opened the real side panel with the key field focused.
+  - A bad key showed "Deepgram rejected this key" and wasn't saved; a non-key string was caught before any network call.
+  - The real key saved and showed as masked; the full key never appeared in the page or any console output.
+  - Real tabCapture started, 3 transcript lines arrived, the overlay showed captions and the badge said LIVE.
+  - A rejected saved key ended the session with Deepgram's "didn't accept your API key" error and a "Check your key" button.
+  - "Forget key" cleared storage and the status went back to "no Earshot server is reachable".
+- **Server mode** (`smoke-server.mjs`, the original flow without the service-worker-kill step): passed with exit 0 and no console errors. Real capture, 3 lines, overlay hide/show, fullscreen, navigation and stop all behaved as before; no "needs a key" notice and the web link was shown.
+
+**Things to know**
+- The web agent started its own server on 3100 partway through my first run. So for the own-key test I pointed the extension at `http://localhost:3199`, where nothing is listening, to stand in for "no server". The server-mode run used the web agent's server, so I didn't start or stop any server myself.
+- Not separately checked: the offscreen network capture attached after the WebSocket had opened, so "no traffic to the server" rests on the code path plus the dead server URL. The no-host-permission claim does have practical evidence: Deepgram connected from the offscreen document with no host permissions.
+- The key travels in a runtime message, which extension pages (popup, side panel) also receive and ignore. Content scripts never get it. Extension pages can read the same storage anyway, so this exposes nothing new.
+
+**Possible issues in `packages/shared` (not edited)**
+- `verifyDeepgramKey` reports any socket error while the browser counts as online as `"rejected"`, so a firewall or DNS block would show up as a bad key rather than as offline.
+- The "never connected" error in `describeClose` mentions "API key". In server mode, a connection that fails every retry would therefore also get the "Add your Deepgram key" button.
+
+Cleanup: both browsers closed, my temp profiles deleted, and port 4510 is free. Five older `profile-1795…` folders in the scratchpad predate my work, so I left them.
+
+Files are in `/Users/rizelscarlett/Documents/agent-experiments/voice-experiments/live-captions/apps/extension`:
+- `utils/config.ts`
+- `utils/messages.ts`
+- `entrypoints/background.ts`
+- `entrypoints/offscreen/main.ts`
+- `components/hooks.ts`
+- `entrypoints/sidepanel/App.tsx`
+- `entrypoints/popup/App.tsx`
+- `README.md`
+
+Test scripts and logs:
+- /private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/81ecccbe-aa1d-4f97-8070-a49b0e80faab/scratchpad/smoke-byok.mjs
+- /private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/81ecccbe-aa1d-4f97-8070-a49b0e80faab/scratchpad/byok-run.log
+- /private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/81ecccbe-aa1d-4f97-8070-a49b0e80faab/scratchpad/smoke-server.mjs
+- /private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/81ecccbe-aa1d-4f97-8070-a49b0e80faab/scratchpad/server-run.log
+
+Nothing is committed.</result>
+<usage><subagent_tokens>145066</subagent_tokens><tool_uses>28</tool_uses><duration_ms>624176</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a05d586b375272bca</task-id>
+<tool-use-id>toolu_011NBdVrbXxCvHUgrMuTdDcr</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/81ecccbe-aa1d-4f97-8070-a49b0e80faab/tasks/a05d586b375272bca.output</output-file>
+<status>completed</status>
+<summary>Agent "Web: bring-your-own Deepgram key" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>BYOK now works in the web app, and server-key mode still works as before. Typecheck, build and every e2e run passed on the final build. One BYOK e2e run on `localhost:3101` needed four tries: the first three hit YouTube player error 5 before any audio played, then it passed.
+
+## Behaviour
+- **Server-key mode** (`DEEPGRAM_API_KEY` set): unchanged. `GET /api/deepgram/token` returns `{"serverKey":true}`, POST still mints 60 s JWTs, and no key prompt appears. Settings shows "Using server key" and offers "Use my own Deepgram key".
+- **BYOK mode** (no server key): GET returns `{"serverKey":false}`, and POST returns 503 `{error, code:"no_server_key"}`.
+  - **Start** opens an "Add your Deepgram key" dialog. It has:
+    - a password input with show/hide that trims pasted keys;
+    - a "Verify &amp; save" button, using `verifyDeepgramKey`;
+    - inline errors for empty, malformed, rejected and offline keys;
+    - the console.deepgram.com link;
+    - a tip to create a dedicated key with the Member role and an expiry;
+    - "Your key stays in this browser and goes only to Deepgram."
+  - After saving, the start guide always opens, so the tab-share prompt still comes from the user's click on "Choose this tab". Verifying the key uses up the original click.
+- **Precedence:** a saved user key wins in both modes. The key is read on every connect, stored in localStorage as `earshot:deepgram-key` (in memory if storage is blocked), and synced across tabs.
+- **Settings popover** has a new "Deepgram key" section. It shows "Using server key", "Using your key (••••last4)" or "No key yet", with buttons to add or replace (verified first) and to forget the key.
+- **Key errors during a session:** if a session fails with an "API key" error, the error banner offers "Check Deepgram key", which opens that section with the form showing, plus "Restart captions". With no key at all, the button reads "Add your Deepgram key" and opens the dialog instead.
+- **Home page:** when the server has no key, one line in the privacy card says a free Deepgram key is needed. This is checked in the browser, so the statically built page stays correct whatever the server's settings.
+
+## Verification
+- `npx tsc --noEmit -p apps/web`: passed. `npm run build -w @earshot/web`: passed (`/` static; `/api/deepgram/token` and `/watch` dynamic).
+- **Mode check:** `DEEPGRAM_API_KEY= REDACTED next start -p 3101` worked. The empty value overrides `.env.local`, so I didn't need to copy or touch the owner's file.
+- **Endpoints:**
+  - 3100: GET returns `{"serverKey":true}`; POST returns 200 (token redacted).
+  - 3101: GET returns `{"serverKey":false}`; POST returns 503 `no_server_key`.
+  - Both: OPTIONS allows `GET, POST, OPTIONS`.
+  - A foreign origin gets 403.
+- **e2e runs:**
+
+| Run | Port | Result |
+|---|---|---|
+| Server-key (existing test) | 3100 | PASS four times; 2 transcript lines, 1 server token request |
+| `E2E_USER_KEY`, through the dialog | 3101 | PASS, including the 4th try on `localhost:3101`; 2 lines; key never sent to the Earshot server; 0 POSTs to the token endpoint |
+| `E2E_BAD_KEY=1` | 3101 | PASS; malformed and rejected messages asserted; nothing saved |
+| `E2E_USER_KEY`, through Settings, over a server key | 3100 | PASS; "Using your key", 0 server token requests |
+
+  The last BYOK runs on `localhost:3101` hit player error 5 three times in a row. Each time it was 0 lines, status paused and no Earshot error. The same flow passed on `127.0.0.1:3101` and on 3100 straight after, then on the 4th `localhost:3101` try. I'm treating it as YouTube flakiness, but it was more than the "rerun once" you expected.
+- **Rejected key mid-session** (a separate script in the scratchpad, not added to the repo): a saved fake key with capture started ends in "Deepgram didn't accept your API key…" with status error. "Check Deepgram key" opens the form, and "Forget key" clears storage. This run found that Forget was hidden while the form was open; it's fixed.
+- **Built-in browser:** checked the dialog at about 800 px and at mobile 375 px, including the error state. Also checked the settings key section and the home page note. I fixed a doubled focus ring on the key input and shrank the title on phones. On phones the dialog only appears if you open it before capture is detected as unsupported, because Start is disabled on mobile.
+- I stopped all four servers I started on 3100 and 3101, and port 3000 was never touched. The key was passed to the test with `$(grep …)` and never printed. The e2e log hides even the masked last 4 characters.
+
+## Not verified
+- I didn't run the `apps/extension` build or check that it compiles against these changes. Its contract with the server is unchanged: POST is the same, and the only new failure is the 503 for "no server key", which `createTokenFetcher` already treats as final (no retry).
+- I didn't test the offline error for real; it's only checked in code.
+- I didn't test a key changed or forgotten while captions are running beyond the code path. Settings says the change applies from the next connection.
+
+## Issues to report (not fixed)
+- **`packages/shared`:** `verifyDeepgramKey` reports any socket failure while the browser thinks it's online as "rejected", so a Deepgram outage or a blocked network looks like a bad key.
+- **`packages/shared`:** in `CaptionSettingsForm`, the "Text" row slightly overflows the 20rem popover. This was already there.
+- **Web app:** the global unlayered `:focus-visible` outline beats Tailwind's `focus:outline-none`, so the existing `UrlForm` input probably shows a doubled ring too. I only fixed it on the new key input.
+
+## Files (all under `apps/web`)
+- Changed:
+  - `src/app/api/deepgram/token/route.ts`
+  - `src/app/watch/WatchExperience.tsx`
+  - `src/components/SettingsPopover.tsx` (can now be opened from outside and takes extra sections; its label is now "Settings")
+  - `src/app/page.tsx`
+  - `.env.example`
+  - `scripts/e2e.mjs`
+- New:
+  - `src/lib/deepgram-key.ts`
+  - `src/components/DeepgramKeyForm.tsx`
+  - `src/components/DeepgramKeyDialog.tsx`
+  - `src/components/DeepgramKeySettings.tsx`
+  - `src/components/ByokNote.tsx`</result>
+<usage><subagent_tokens>184045</subagent_tokens><tool_uses>73</tool_uses><duration_ms>705110</duration_ms></usage>
+</task-notification>

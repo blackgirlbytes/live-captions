@@ -1,0 +1,21 @@
+{
+  "tool_use_id": "toolu_011NBdVrbXxCvHUgrMuTdDcr",
+  "agent_id": "a05d586b375272bca",
+  "subagent_type": "general-purpose",
+  "task_description": "Web: bring-your-own Deepgram key",
+  "files": [
+    "apps/web/src/components/DeepgramKeyDialog.tsx",
+    "apps/web/src/components/DeepgramKeyForm.tsx",
+    "apps/web/src/components/DeepgramKeySettings.tsx",
+    "apps/web/src/lib/deepgram-key.ts"
+  ],
+  "token_usage": {
+    "input_tokens": 128,
+    "cache_creation_tokens": 181453,
+    "cache_read_tokens": 9021493,
+    "output_tokens": 50386,
+    "api_call_count": 64
+  },
+  "started_at": "2026-11-26T04:26:09.720375-05:00",
+  "completed_at": "2026-11-26T04:37:54.768474-05:00"
+}

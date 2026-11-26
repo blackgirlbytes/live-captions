@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01FAKoUVJzABRFkc1pdxZuY5",
+  "agent_id": "a03cef6385b49abd4",
+  "subagent_type": "general-purpose",
+  "task_description": "Extension: bring-your-own Deepgram key",
+  "token_usage": {
+    "input_tokens": 54,
+    "cache_creation_tokens": 105226,
+    "cache_read_tokens": 2965530,
+    "output_tokens": 40830,
+    "api_call_count": 27
+  },
+  "started_at": "2026-11-26T04:26:25.901571-05:00",
+  "completed_at": "2026-11-26T04:36:50.018093-05:00"
+}
