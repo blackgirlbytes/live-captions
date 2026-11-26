@@ -64,8 +64,8 @@ export default function Home() {
           <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
             <h2 className="font-display text-3xl font-semibold tracking-tight text-ink-100 sm:text-4xl">How it works</h2>
             <p className="mt-3 max-w-xl text-ink-300">
-              Earshot hears the video through Chrome’s tab sharing, so it works with any video that plays in the page —
-              no YouTube captions required.
+              Earshot hears the video through Chrome’s tab sharing, so it works with any video that plays in the page.
+              No YouTube captions required.
             </p>
             <ol className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
               {[
@@ -97,7 +97,7 @@ export default function Home() {
           <div className="rounded-3xl bg-ink-900 p-7 ring-1 ring-ink-800 sm:p-9">
             <h2 className="font-display text-2xl font-semibold tracking-tight text-ink-100">Your audio, your call</h2>
             <ul className="mt-5 space-y-3 text-[0.95rem] leading-relaxed text-ink-300">
-              <li>Earshot only hears a tab after you pick it and press Share — and only that tab.</li>
+              <li>Earshot only hears a tab after you pick it and press Share, and it only hears that tab.</li>
               <li>
                 Audio streams to Deepgram for transcription while captions are on. Stop captions, or Chrome’s “Stop
                 sharing”, ends it instantly.
@@ -174,7 +174,7 @@ function HeroPreview() {
           ))}
         </p>
       </div>
-      <figcaption className="mt-3 text-sm text-ink-500">Captions appear as words are spoken — usually in under a second.</figcaption>
+      <figcaption className="mt-3 text-sm text-ink-500">Captions appear as words are spoken, usually in under a second.</figcaption>
     </figure>
   );
 }

@@ -53,7 +53,7 @@ export function StepArtAudio() {
 }
 
 export const CAPTURE_STEPS = [
-  { title: "Click Start captions", body: "Earshot asks Chrome to listen to this tab — nothing else.", Art: StepArtStart },
+  { title: "Click Start captions", body: "Earshot asks Chrome to listen to this tab and nothing else.", Art: StepArtStart },
   { title: "Choose “This tab”", body: "Chrome’s sharing picker opens. Pick the tab you’re watching in.", Art: StepArtPicker },
   { title: "Keep “Also share tab audio” on", body: "That switch sends the video’s sound to Earshot. Then press Share.", Art: StepArtAudio },
 ] as const;
