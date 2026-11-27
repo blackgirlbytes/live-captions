@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_012P28BH6dotUUmX863cdEYg",
+  "agent_id": "a7933f1cada85e9a1",
+  "subagent_type": "general-purpose",
+  "task_description": "Translate hero demo labels",
+  "token_usage": {
+    "input_tokens": 8,
+    "cache_creation_tokens": 45130,
+    "cache_read_tokens": 226945,
+    "output_tokens": 7979,
+    "api_call_count": 4
+  },
+  "started_at": "2026-11-27T16:23:08.069105-05:00",
+  "completed_at": "2026-11-27T16:24:08.430637-05:00"
+}

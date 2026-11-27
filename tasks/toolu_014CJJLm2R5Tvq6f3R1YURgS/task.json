@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_014CJJLm2R5Tvq6f3R1YURgS",
+  "agent_id": "a24ead539fea4681a",
+  "subagent_type": "general-purpose",
+  "task_description": "Translate Deepgram key screens",
+  "token_usage": {
+    "input_tokens": 8,
+    "cache_creation_tokens": 39787,
+    "cache_read_tokens": 234477,
+    "output_tokens": 11121,
+    "api_call_count": 4
+  },
+  "started_at": "2026-11-27T16:23:27.383568-05:00",
+  "completed_at": "2026-11-27T16:24:48.497002-05:00"
+}

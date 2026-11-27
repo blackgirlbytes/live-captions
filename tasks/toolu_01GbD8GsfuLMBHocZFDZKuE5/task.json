@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01GbD8GsfuLMBHocZFDZKuE5",
+  "agent_id": "aa23931ea3f0b4aed",
+  "subagent_type": "general-purpose",
+  "task_description": "Translate home page panel",
+  "token_usage": {
+    "input_tokens": 16,
+    "cache_creation_tokens": 84394,
+    "cache_read_tokens": 485005,
+    "output_tokens": 14550,
+    "api_call_count": 8
+  },
+  "started_at": "2026-11-27T16:22:58.501125-05:00",
+  "completed_at": "2026-11-27T16:24:48.526698-05:00"
+}

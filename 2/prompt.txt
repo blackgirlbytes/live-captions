@@ -1,0 +1,165 @@
+okay next..for the words on the page..not the caption..i want to support different languages  ..maybe chromes built in translator api idk
+
+---
+
+okay how d we do it then..support different languages..iin or something..remember this is not for transcribing..just for navigating the site
+
+---
+
+why not =en
+
+---
+
+okay lets do this 
+
+* Languages: I'd suggest Spanish, French, Portuguese, German and Japanese.
+* Web address: keep it the same (simpler), or add the language to it, like `/es` (better for search)?
+
+---
+
+<task-notification>
+<task-id>a7933f1cada85e9a1</task-id>
+<tool-use-id>toolu_012P28BH6dotUUmX863cdEYg</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/43ae5f42-445e-439e-a1a2-03636d17dca8/tasks/a7933f1cada85e9a1.output</output-file>
+<status>completed</status>
+<summary>Agent "Translate hero demo labels" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>I translated the home page demo into all six languages, and `tsc --noEmit` passes with no errors. I have not looked at it in a browser, so whether the longer German and French words fit in the pill and popup is untested.
+
+**Files changed**
+- `/Users/rizelscarlett/Documents/agent-experiments/voice-experiments/live-captions/apps/web/src/i18n/messages/en/demo.ts` holds every English string exactly as it was, plus two small functions: `jumpTo(time)` and `seekValue(now, total)` for the seek bar's spoken value ("0:33 of 1:00").
+- `/Users/rizelscarlett/Documents/agent-experiments/voice-experiments/live-captions/apps/web/src/i18n/messages/{es,fr,pt,de,ja}/demo.ts` are typed as `typeof en`, so they must have the same shape.
+- In `/Users/rizelscarlett/Documents/agent-experiments/voice-experiments/live-captions/apps/web/src/components/hero-demo/`, these five files now use `useT("demo")`: `HeroDemo.tsx`, `ExtensionPopup.tsx`, `PlayerControls.tsx`, `TranscriptCard.tsx` and `VideoFrame.tsx`. That covers visible text, aria-labels and title tooltips: the demo group label, Listening/Not listening, Start/Stop captions, the popup texts, the CC, transcript and full-screen buttons, the transcript card, and play/pause, the badges and the seek bar on the player.
+- I added `whitespace-nowrap` to the Start/Stop captions button, the popup's Live/Off status and the player's Live captions/Captions off badge. I changed no other layout classes.
+
+**Short wording for the controls pill**
+In most languages the Start/Stop button is shortened to fit the pill. The full meaning is still in the popup switch's label:
+
+| | Start | Stop |
+|---|---|---|
+| es | "Subtitular" | "Detener" |
+| fr | "Sous-titrer" | "Arrêter" |
+| pt | "Legendar" | "Parar" |
+| de | "Untertitel an" | "Untertitel aus" |
+| ja | "字幕を開始" | "字幕を停止" |
+
+German "Untertitel aus" is the longest. It should fit in the roughly 300px pill, but that's the first thing to check in the browser.
+
+**Left in English, on purpose**
+- The talk's lines in `SCRIPT` and `VIDEO_TITLE` ("Why curiosity matters"), because captions are never translated.
+- The download file name `heard-transcript.txt`.
+- "Heard", "YouTube", "Chrome" and "youtube.com".
+- The German popup status reads "Live", which is the normal German word for it.
+
+`state.tsx` and `icons.tsx` needed no changes.</result>
+<usage><subagent_tokens>83687</subagent_tokens><tool_uses>3</tool_uses><duration_ms>60475</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a24ead539fea4681a</task-id>
+<tool-use-id>toolu_014CJJLm2R5Tvq6f3R1YURgS</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/43ae5f42-445e-439e-a1a2-03636d17dca8/tasks/a24ead539fea4681a.output</output-file>
+<status>completed</status>
+<summary>Agent "Translate Deepgram key screens" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>I've translated all four bring-your-own-key screens into es, fr, pt, de and ja, and the English reads exactly as it did before. `tsc --noEmit` passes with no errors. I haven't looked at any of the screens in a browser.
+
+**Files changed** (all under `apps/web/src`):
+- `i18n/messages/en/key.ts` holds the English strings, moved over word for word. They're grouped by screen: `dialog`, `form` (including `errors`), `settings` and `byok`.
+- `i18n/messages/{es,fr,pt,de,ja}/key.ts` are the five translations, each typed against the English file so they must have the same shape.
+- `components/DeepgramKeyDialog.tsx`, `DeepgramKeyForm.tsx`, `DeepgramKeySettings.tsx` and `ByokNote.tsx` now read their text with `useT("key")`.
+
+**How the form errors work now:** the form used to store the English error sentence. It now stores a code (`empty`, `malformed`, `rejected` or `offline`) and looks up the translated message when it displays it. The `rejected` and `offline` codes come straight from `verifyDeepgramKey`.
+
+**Logic:** nothing changed in how the key is stored or where it's sent. `lib/deepgram-key.ts` has no text that users see, so I left it alone.
+
+**Promises kept in every language:** "stays in this browser", "goes only to Deepgram", "Heard's server never sees it", and that new accounts get free credit. In Japanese I wrote the key "stays inside this browser" (ブラウザ内に留まり) rather than "is saved in this browser", because "stays" is the actual promise.
+
+**Left in English on purpose:**
+- Heard, Deepgram and the `console.deepgram.com` link, as you asked.
+- The role name "Member", because that is the label Deepgram's console shows.
+- The masked key (`••••1a2b`), which isn't text.
+
+**Sentences with a link or highlighted word inside:** these are now stored as before/after pieces around the link or highlighted word. That covers the "Member" step and the home page note. The word order works in every language, including Japanese (無料の + link + が必要です).</result>
+<usage><subagent_tokens>78135</subagent_tokens><tool_uses>3</tool_uses><duration_ms>81169</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>aa23931ea3f0b4aed</task-id>
+<tool-use-id>toolu_01GbD8GsfuLMBHocZFDZKuE5</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/43ae5f42-445e-439e-a1a2-03636d17dca8/tasks/aa23931ea3f0b4aed.output</output-file>
+<status>completed</status>
+<summary>Agent "Translate home page panel" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>I've translated the home page panel into es, fr, pt, de and ja. The tsc check passes with no errors. I didn't open the page in a browser, so nothing is checked visually yet, including how the longer German and French text fits.
+
+**Files changed:**
+- `/Users/rizelscarlett/Documents/agent-experiments/voice-experiments/live-captions/apps/web/src/i18n/messages/en/home.ts` now holds all the English text, unchanged. `es`, `fr`, `pt`, `de` and `ja` `home.ts` in the same folder follow the same shape.
+- `/Users/rizelscarlett/Documents/agent-experiments/voice-experiments/live-captions/apps/web/src/components/HeroPanel.tsx`: everything except the header uses `useT("home")`. That covers HomeTab, the example details, "Or try one", HowTab, PrivacyTab and its pictures, ExtensionTab, the Terminal copy button and its aria-label, and the "Watch" button in the paste picture. The aria-label is now a function, `copyLabel(lines)`, so each language can order the words its own way.
+- `/Users/rizelscarlett/Documents/agent-experiments/voice-experiments/live-captions/apps/web/src/components/StepArt.tsx`: I added `"use client"` so the three pictures can use the hook. `CAPTURE_STEPS`, which `StartGuide.tsx` uses, keeps its shape and its English text.
+- `/Users/rizelscarlett/Documents/agent-experiments/voice-experiments/live-captions/apps/web/src/components/UrlForm.tsx`: the label, placeholders, buttons and errors are translated.
+
+**Error messages in the link box:** they're written in English in `lib/providers`, which isn't one of my files. So `localizeError()` in UrlForm spots the three link errors by how their English text starts and swaps in the translation:
+- "Paste a full video link…"
+- "Heard doesn't recognize…"
+- "Channel links…"
+
+If someone rewords those in `lib/providers`, the box falls back to the English text. A cleaner fix would be for providers to return an error code instead.
+
+**Left in English on purpose:**
+- `CAPTURE_STEPS` titles and bodies, as you asked.
+- Channel names, terminal commands, paths and URLs, plus "Heard", "Deepgram Nova-3", "README", "Chrome", "Edge" and "YouTube".
+
+**Shorter wording in the small pictures:**
+- "Start captions" is "Sous-titrer" in French.
+- The audio switch is cut down in every language, for example "Compartir audio", "Partager l’audio", "Tab-Audio teilen" and "タブの音声も共有".
+- The French How tab step reads "Cliquez sur Sous-titrer" to match the button in the picture. If the real start button on the watch page is translated differently, the two should be made to match.</result>
+<usage><subagent_tokens>85423</subagent_tokens><tool_uses>7</tool_uses><duration_ms>110089</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a6e5b9aa4b3ed72e2</task-id>
+<tool-use-id>toolu_01B4HWEyGLvhrXDe6nzxJrA3</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/43ae5f42-445e-439e-a1a2-03636d17dca8/tasks/a6e5b9aa4b3ed72e2.output</output-file>
+<status>completed</status>
+<summary>Agent "Translate watch page and shared UI" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>I've translated the watch page and the shared transcript and settings components into all six languages. Both `tsc` runs (web and extension) pass with no errors, and `npm test` passes (39 passed, 2 skipped). I haven't looked at it in a browser: I didn't start the dev server.
+
+**Files changed or added**
+- `packages/shared/src/react/labels.ts` (new): the label types and English defaults. It's exported from `packages/shared/src/react/index.ts`.
+- `packages/shared/src/react/StatusBadge.tsx`, `TranscriptView.tsx`, `TranscriptToolbar.tsx`, `CaptionSettingsForm.tsx`, `LanguageSettings.tsx`: each takes the new `labels` prop.
+- `apps/web/src/app/watch/WatchExperience.tsx`, `apps/web/src/app/watch/WatchShell.tsx`, `apps/web/src/components/StartGuide.tsx`, `apps/web/src/components/SettingsPopover.tsx`
+- `apps/web/src/components/useSharedLabels.ts` (new): a hook that returns `useT("watch").ui` and, for languages other than English, adds language names from `Intl.DisplayNames`. I put it in its own file because `SettingsPopover` importing from `WatchExperience` would have been a circular import.
+- `apps/web/src/i18n/messages/{en,es,fr,pt,de,ja}/watch.ts`: filled in, with sections `shell`, `player`, `hints`, `banners`, `transcript`, `playerError`, `settings`, `guide` (with `steps[3]`) and `ui` (typed as `SharedUiLabels`).
+
+**Labels prop API**
+Every component takes an optional `labels?: Partial&lt;X&gt;`. Anything missing falls back to `DEFAULT_*_LABELS`, which match today's English exactly, so the extension needs no changes.
+- `StatusBadge`: `StatusBadgeLabels { status: Record&lt;TranscriptionStatus,string&gt;; aria(label) }`. `STATUS_LABELS` is still exported and holds the same English values.
+- `TranscriptView`: `TranscriptViewLabels { region, empty, noMatches(q), jumpTo(ts), jumpToLive, jumpToLatest }`
+- `TranscriptToolbar`: `TranscriptToolbarLabels { search, clearSearch, copy, download, formats: { txt|srt|vtt: [label, hint] } }`
+- `CaptionSettingsForm`: `CaptionSettingsLabels { showCaptions, textSize, sizes[6], background, backgrounds{solid,translucent,none}, opacity, text, textColor(c), fonts{sans,serif,mono}, lines, placement, overVideo, belowVideo, reset, language? }`. The `language` part is passed on to `LanguageSettings`.
+- `LanguageSettings` and `TranslationNotice`: `LanguageSettingsLabels` (all the translation status messages, `pair(from, to)`, and an optional `languageName(code)` override).
+- `SharedUiLabels` bundles all of these into one object.
+
+**Other changes**
+- `&lt;LanguagePicker className="ml-auto shrink-0" /&gt;` is now at the right end of the watch page header, after the URL form.
+- `StartGuide` takes its step titles and bodies from `t.steps[i]` and still uses the `Art` components from `CAPTURE_STEPS`. `StepArt.tsx` is unchanged.
+
+**Left in English, and why**
+- Captions, transcript text, video titles, timestamps, the download file name and exported file contents, as you asked.
+- The keyboard hints "(c)" and "(f)", because those are the actual keys.
+- Font names "Sans/Serif/Mono" in every language except Japanese (ゴシック, 明朝, 等幅).
+- Size letters XS through 2XL, except Portuguese, which uses PP, P, M, G, GG, XG.
+- Error text that comes from somewhere else (`support.reason`, capture errors, player error messages, Deepgram session errors) is still English. Only the "Captions stopped:" prefix around it is translated. Those strings are built in `lib/capture`, the player code and the shared session code, and translating them would mean changes there.
+- The language names in the extension are still English. On the web they're shown in the page language through `Intl.DisplayNames`, falling back to English in browsers without it.
+
+The automatic-language check in `WatchExperience` still matches the English wording of session errors with `/API key/` and `/doesn.t provide.../`. I didn't change that, since those error strings themselves aren't translated.</result>
+<usage><subagent_tokens>127015</subagent_tokens><tool_uses>17</tool_uses><duration_ms>259581</duration_ms></usage>
+</task-notification>
