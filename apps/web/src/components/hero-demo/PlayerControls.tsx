@@ -39,7 +39,7 @@ export function PlayerControls() {
           type="button"
           onClick={() => setCaptionsOn(false)}
           title="Stop captions"
-          className={`inline-flex h-9 items-center gap-2 rounded-full bg-live/15 px-3.5 text-[13px] font-semibold text-live transition-colors hover:bg-live/25 ${focusRing}`}
+          className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-live/15 px-4 text-sm font-semibold text-live transition-colors hover:bg-live/25 ${focusRing}`}
         >
           <span className="h-2 w-2 rounded-[3px] bg-live" aria-hidden="true" />
           Stop captions
@@ -49,7 +49,7 @@ export function PlayerControls() {
           type="button"
           onClick={() => setCaptionsOn(true)}
           title="Start captions"
-          className={`inline-flex h-9 items-center gap-2 rounded-full bg-accent px-3.5 text-[13px] font-semibold text-accent-ink transition-colors hover:bg-accent-strong ${focusRing}`}
+          className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-accent px-4 text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-strong ${focusRing}`}
         >
           <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M6 4l15 8-15 8z" />

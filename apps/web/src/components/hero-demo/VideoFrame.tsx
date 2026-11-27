@@ -117,12 +117,12 @@ export function VideoFrame() {
       </button>
 
       {captionsOn ? (
-        <span className="pointer-events-none absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-live backdrop-blur">
+        <span className="pointer-events-none absolute top-3 right-3 inline-flex xl:right-auto xl:left-12 items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-live backdrop-blur">
           <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-live" />
           Live captions
         </span>
       ) : (
-        <span className="pointer-events-none absolute top-3 right-3 inline-flex items-center rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-ink-400 backdrop-blur">
+        <span className="pointer-events-none absolute top-3 right-3 inline-flex xl:right-auto xl:left-12 items-center rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-ink-400 backdrop-blur">
           Captions off
         </span>
       )}
@@ -130,7 +130,7 @@ export function VideoFrame() {
       {/* At most two caption lines; older lines roll off the top as words arrive. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-3 bottom-5 flex max-h-[3.5em] flex-col justify-end overflow-hidden text-[12.5px] leading-[1.75] sm:bottom-6 sm:text-sm"
+        className="pointer-events-none absolute inset-x-3 bottom-5 flex max-h-[3.5em] xl:inset-x-8 xl:bottom-11 flex-col justify-end overflow-hidden text-[12.5px] leading-[1.75] sm:bottom-6 sm:text-sm"
       >
         {line && (
           <p className="text-center font-medium text-white">

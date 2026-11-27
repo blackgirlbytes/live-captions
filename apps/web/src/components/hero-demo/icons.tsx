@@ -22,12 +22,12 @@ export const ToolIcon = forwardRef<
       type="button"
       aria-label={label}
       title={title ?? label}
-      className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-ink-800 hover:text-ink-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+      className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-ink-800 hover:text-ink-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
         active ? "bg-ink-800 text-ink-100" : "text-ink-400"
       } ${className}`}
       {...rest}
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         {children}
       </svg>
     </button>
