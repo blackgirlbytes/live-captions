@@ -3,7 +3,7 @@
   "checkpoint_id": "01M8FCHNW3GK0Y14G2YWZBCAM9",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 5,
+  "checkpoints_count": 6,
   "files_touched": [
     "apps/web/src/app/layout.tsx",
     "apps/web/src/components/HeroPanel.tsx",
@@ -24,25 +24,32 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": "/1/prompt.txt"
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": "/2/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 64,
-    "cache_creation_tokens": 27482,
-    "cache_read_tokens": 9025289,
-    "output_tokens": 13079,
-    "api_call_count": 27
+    "input_tokens": 92,
+    "cache_creation_tokens": 33192,
+    "cache_read_tokens": 12943413,
+    "output_tokens": 16243,
+    "api_call_count": 40
   },
   "redaction": {
-    "replacements": 434,
+    "replacements": 624,
     "layers": {
       "betterleaks": 0,
       "connection_string": 0,
       "credential_key": 0,
       "credential_value": 0,
       "credentialed_uri": 0,
-      "entropy": 366,
-      "key_context": 68,
+      "entropy": 524,
+      "key_context": 100,
       "provider_token": 0,
       "shell_stdin": 0
     }
