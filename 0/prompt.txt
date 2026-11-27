@@ -1,0 +1,27 @@
+can you access / see this design https://dribbble.com/shots/27065921-AI-Video-Generator-Landing-Page
+
+---
+
+i wanna take concepts from this design and apply it to earshot
+
+---
+
+it looks messy.. please use the frontend design skill. ..uncentered.. double layered bordered..some things are too big..i was more interested in the animation..and layout that the design had..i didnt want to copy it word for word..i liked the dark black vibe we had going on..the spacing is bad. this was super lazy
+
+---
+
+okay we still arent getting it for example..
+
+1. something like screenshot is bad...double border..horrible
+
+---
+
+/frontend-design i like this layout if we can do a dark mode version of it thats relevant to the needs of earshot..like the paste youtube link..and try one section
+
+..and the imges on the right hand should represent the product..like actual pieces of the product like the video frame..the sidebar..the chrome extension
+
+this should be mobile responsive..the spacing should be tasteful. things like that
+
+---
+
+Commit and push
