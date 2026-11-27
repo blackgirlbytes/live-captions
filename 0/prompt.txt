@@ -1,0 +1,9 @@
+Push
+
+---
+
+make it look like a terminal for each step that allows people to copy and paste
+
+---
+
+Commit and push
