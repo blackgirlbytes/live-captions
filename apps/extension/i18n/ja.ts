@@ -8,7 +8,7 @@ export const ja: ExtensionMessages = {
   common: {
     thisTab: "このタブ",
     untitledTab: "無題のタブ",
-    privacy: "音声は「開始」を押した後にのみ取り込まれ、文字起こしは保存されません。",
+    privacy: "「開始」を押すと、タブの音声が字幕作成のため Deepgram に送信されます。文字起こしは保存されません。",
     addKeyTitle: "開始するには Deepgram API キーを追加してください。",
     addKeyLink: "キーを追加 →",
     checkKey: "キーを確認",
@@ -60,6 +60,7 @@ export const ja: ExtensionMessages = {
   },
   key: {
     title: "Deepgram キー",
+    useOwn: "自分のキーを使う",
     using: (masked) => `あなたのキーを使用中（${masked}）`,
     unreachable: (url) => `キーが保存されておらず、${url} の Heard サーバーにも接続できません。`,
     noServerKey: (url) => `キーが保存されておらず、${url} の Heard サーバーにも Deepgram キーがありません。`,
@@ -90,7 +91,7 @@ export const ja: ExtensionMessages = {
     about: "ご自身のキーがない場合は、Heard のサーバーが有効期間の短い Deepgram トークンを発行します。API キーはサーバー上に留まります。",
     label: "サーバー URL",
     save: "保存",
-    invalid: "http(s) の完全な URL を入力してください（例：http://localhost:3000）",
+    invalid: "HTTPS の URL を入力してください。ローカルでは http://localhost:3100 も使えます。",
     saved: "保存しました。次に「開始」を押したときから使われます。",
     reset: "リセット",
     resetDone: "既定のサーバーに戻しました。",

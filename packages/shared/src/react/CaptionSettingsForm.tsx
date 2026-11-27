@@ -25,7 +25,7 @@ export function CaptionSettingsForm({ settings, onChange, showPosition = false, 
   const L = { ...DEFAULT_CAPTION_SETTINGS_LABELS, ...labels };
   const set = <K extends keyof CaptionSettings>(key: K, value: CaptionSettings[K]) => onChange({ ...settings, [key]: value });
   const seg = (on: boolean) =>
-    `h-8 flex-1 rounded-md px-2 text-xs font-medium transition-colors ${on ? "bg-ink-600 text-ink-100 shadow-sm" : "text-ink-400 hover:text-ink-100"}`;
+    `h-8 flex-1 rounded-md px-2 text-sm font-medium transition-colors ${on ? "bg-ink-600 text-ink-100 shadow-sm" : "text-ink-300 hover:text-ink-100"}`;
 
   return (
     <div className={`space-y-5 text-sm ${className}`}>
@@ -45,7 +45,7 @@ export function CaptionSettingsForm({ settings, onChange, showPosition = false, 
       <LanguageSettings settings={settings} onChange={onChange} labels={L.language} />
 
       <fieldset className="space-y-2">
-        <legend className="mb-2 text-xs font-medium tracking-wide text-ink-400 uppercase">{L.textSize}</legend>
+        <legend className="mb-2 text-xs font-semibold tracking-wide text-ink-300 uppercase">{L.textSize}</legend>
         <div className="flex gap-1 rounded-lg bg-ink-850 p-1 ring-1 ring-ink-700">
           {CAPTION_FONT_SIZES.map((size, i) => (
             <button key={size} type="button" className={seg(settings.fontSize === size)} onClick={() => set("fontSize", size)} aria-pressed={settings.fontSize === size}>
@@ -56,7 +56,7 @@ export function CaptionSettingsForm({ settings, onChange, showPosition = false, 
       </fieldset>
 
       <fieldset>
-        <legend className="mb-2 text-xs font-medium tracking-wide text-ink-400 uppercase">{L.background}</legend>
+        <legend className="mb-2 text-xs font-semibold tracking-wide text-ink-300 uppercase">{L.background}</legend>
         <div className="flex gap-1 rounded-lg bg-ink-850 p-1 ring-1 ring-ink-700">
           {BACKGROUNDS.map((b) => {
             const on = Math.abs(settings.backgroundOpacity - b.opacity) < 0.05;
@@ -73,7 +73,7 @@ export function CaptionSettingsForm({ settings, onChange, showPosition = false, 
             );
           })}
         </div>
-        <label className="mt-3 flex items-center gap-3 text-xs text-ink-400">
+        <label className="mt-3 flex items-center gap-3 text-sm text-ink-300">
           {L.opacity}
           <input
             type="range"
@@ -89,7 +89,7 @@ export function CaptionSettingsForm({ settings, onChange, showPosition = false, 
       </fieldset>
 
       <fieldset>
-        <legend className="mb-2 text-xs font-medium tracking-wide text-ink-400 uppercase">{L.text}</legend>
+        <legend className="mb-2 text-xs font-semibold tracking-wide text-ink-300 uppercase">{L.text}</legend>
         <div className="flex items-center gap-2">
           {TEXT_COLORS.map((c) => (
             <button
@@ -113,7 +113,7 @@ export function CaptionSettingsForm({ settings, onChange, showPosition = false, 
       </fieldset>
 
       <fieldset>
-        <legend className="mb-2 text-xs font-medium tracking-wide text-ink-400 uppercase">{L.lines}</legend>
+        <legend className="mb-2 text-xs font-semibold tracking-wide text-ink-300 uppercase">{L.lines}</legend>
         <div className="flex gap-1 rounded-lg bg-ink-850 p-1 ring-1 ring-ink-700">
           {[1, 2, 3].map((n) => (
             <button key={n} type="button" className={seg(settings.maxLines === n)} onClick={() => set("maxLines", n)} aria-pressed={settings.maxLines === n}>
@@ -125,7 +125,7 @@ export function CaptionSettingsForm({ settings, onChange, showPosition = false, 
 
       {showPosition && (
         <fieldset>
-          <legend className="mb-2 text-xs font-medium tracking-wide text-ink-400 uppercase">{L.placement}</legend>
+          <legend className="mb-2 text-xs font-semibold tracking-wide text-ink-300 uppercase">{L.placement}</legend>
           <div className="flex gap-1 rounded-lg bg-ink-850 p-1 ring-1 ring-ink-700">
             <button type="button" className={seg(settings.position === "overlay")} onClick={() => set("position", "overlay")} aria-pressed={settings.position === "overlay"}>
               {L.overVideo}
@@ -148,7 +148,7 @@ export function CaptionSettingsForm({ settings, onChange, showPosition = false, 
             captionLanguage: settings.captionLanguage,
           })
         }
-        className="text-xs text-ink-400 underline-offset-2 hover:text-ink-100 hover:underline"
+        className="text-sm text-ink-300 underline-offset-2 hover:text-ink-100 hover:underline"
       >
         {L.reset}
       </button>

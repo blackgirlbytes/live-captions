@@ -13,7 +13,7 @@ export const en = {
   common: {
     thisTab: "This tab",
     untitledTab: "Untitled tab",
-    privacy: "Audio is only captured after you press Start; transcripts are not saved.",
+    privacy: "After you press Start, tab audio goes to Deepgram for captions. Transcripts are not saved.",
     addKeyTitle: "Add a Deepgram API key to start.",
     addKeyLink: "Add your key →",
     checkKey: "Check your key",
@@ -65,6 +65,7 @@ export const en = {
   },
   key: {
     title: "Deepgram key",
+    useOwn: "Use your own key instead",
     using: (masked: string) => `Using your key (${masked})`,
     unreachable: (url: string) => `No key saved, and no Heard server is reachable at ${url}.`,
     noServerKey: (url: string) => `No key saved, and the Heard server at ${url} has no Deepgram key.`,
@@ -95,7 +96,7 @@ export const en = {
     about: "Without a key of your own, a Heard server issues short-lived Deepgram tokens; its API key stays on the server.",
     label: "Server URL",
     save: "Save",
-    invalid: "Enter a full http(s) URL, e.g. http://localhost:3000",
+    invalid: "Enter an HTTPS URL, or http://localhost:3100 for local use.",
     saved: "Saved. Used the next time you press Start.",
     reset: "Reset",
     resetDone: "Reset to the default server.",

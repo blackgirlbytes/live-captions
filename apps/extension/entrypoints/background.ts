@@ -10,6 +10,7 @@ import { browser, type Browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
 import { initialTranscriptState, type TranscriptEvent } from "@heard/shared";
 import { getCaptionSettings, getServerUrl, getUserKey, probeServer, restrictedReason, STORAGE_KEYS, tokenEndpoint } from "@/utils/config";
+import { createCommandQueue } from "@/utils/command-queue";
 import { getMessages, onUiLanguageChange } from "@/utils/i18n";
 import {
   errorMessage,
@@ -33,6 +34,7 @@ const OVERLAY_SCRIPT = "/content-scripts/overlay.js";
 const LIVE_COLOR = "#e5484d";
 
 export default defineBackground(() => {
+  const enqueueCaptureCommand = createCommandQueue();
   /* ------------------------------ offscreen ------------------------------ */
 
   let creatingOffscreen: Promise<void> | null = null;
@@ -257,13 +259,13 @@ export default defineBackground(() => {
     };
     switch (msg.type) {
       case "start":
-        return reply("start", start(msg.tabId));
+        return reply("start", enqueueCaptureCommand(() => start(msg.tabId)));
       case "stop":
-        return reply("stop", stop());
+        return reply("stop", enqueueCaptureCommand(stop));
       case "get-state":
         return reply("get-state", getSnapshot());
       case "show-overlay":
-        return reply("show-overlay", showOverlay());
+        return reply("show-overlay", enqueueCaptureCommand(showOverlay));
       case "overlay-dismissed":
         return reply(
           "overlay-dismissed",
@@ -306,8 +308,9 @@ export default defineBackground(() => {
   });
 
   browser.tabs.onRemoved.addListener((tabId) => {
-    void getSnapshot().then((snap) => {
-      if (snap.tabId === tabId && isCapturing(snap.transcript.status)) void stop();
+    void enqueueCaptureCommand(async () => {
+      const snap = await getSnapshot();
+      if (snap.tabId === tabId && isCapturing(snap.transcript.status)) await stop();
     });
   });
 

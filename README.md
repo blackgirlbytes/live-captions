@@ -98,6 +98,8 @@ npm run build -w @heard/extension
 
 For hot reload during development use `npm run dev:extension`. See [apps/extension/README.md](apps/extension/README.md) for the manual test checklist, permissions rationale and more detail.
 
+For a Chrome Web Store release, follow [the publishing guide](docs/publish-chrome-extension.md). The [listing reference](docs/chrome-web-store-listing.md) includes privacy answers and permission explanations.
+
 ## Testing
 
 | Command | What it covers |

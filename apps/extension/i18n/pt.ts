@@ -8,7 +8,7 @@ export const pt: ExtensionMessages = {
   common: {
     thisTab: "Esta aba",
     untitledTab: "Aba sem título",
-    privacy: "O áudio só é capturado depois que você clica em Iniciar; as transcrições não são salvas.",
+    privacy: "Depois que você clica em Iniciar, o áudio da guia vai para o Deepgram gerar legendas. As transcrições não são salvas.",
     addKeyTitle: "Adicione uma chave de API do Deepgram para começar.",
     addKeyLink: "Adicione sua chave →",
     checkKey: "Verificar sua chave",
@@ -60,6 +60,7 @@ export const pt: ExtensionMessages = {
   },
   key: {
     title: "Chave do Deepgram",
+    useOwn: "Usar sua própria chave",
     using: (masked) => `Usando sua chave (${masked})`,
     unreachable: (url) => `Nenhuma chave salva e nenhum servidor do Heard acessível em ${url}.`,
     noServerKey: (url) => `Nenhuma chave salva e o servidor do Heard em ${url} não tem uma chave do Deepgram.`,
@@ -90,7 +91,7 @@ export const pt: ExtensionMessages = {
     about: "Sem uma chave sua, um servidor do Heard emite tokens temporários do Deepgram; a chave de API fica no servidor.",
     label: "URL do servidor",
     save: "Salvar",
-    invalid: "Digite uma URL http(s) completa, por exemplo http://localhost:3000",
+    invalid: "Digite uma URL HTTPS ou http://localhost:3100 para uso local.",
     saved: "Salvo. Será usado na próxima vez que você clicar em Iniciar.",
     reset: "Redefinir",
     resetDone: "Voltou para o servidor padrão.",

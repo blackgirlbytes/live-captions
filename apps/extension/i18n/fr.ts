@@ -9,7 +9,7 @@ export const fr: ExtensionMessages = {
   common: {
     thisTab: "Cet onglet",
     untitledTab: "Onglet sans titre",
-    privacy: "L’audio n’est capturé qu’après avoir appuyé sur Lancer ; les transcriptions ne sont pas enregistrées.",
+    privacy: "Après avoir appuyé sur Lancer, l’audio de l’onglet est envoyé à Deepgram pour créer des sous-titres. Les transcriptions ne sont pas enregistrées.",
     addKeyTitle: "Ajoutez une clé API Deepgram pour commencer.",
     addKeyLink: "Ajouter votre clé →",
     checkKey: "Vérifier votre clé",
@@ -61,6 +61,7 @@ export const fr: ExtensionMessages = {
   },
   key: {
     title: "Clé Deepgram",
+    useOwn: "Utiliser votre propre clé",
     using: (masked) => `Votre clé est utilisée (${masked})`,
     unreachable: (url) => `Aucune clé enregistrée, et aucun serveur Heard n’est joignable à l’adresse ${url}.`,
     noServerKey: (url) => `Aucune clé enregistrée, et le serveur de Heard à l’adresse ${url} n’a pas de clé Deepgram.`,
@@ -91,7 +92,7 @@ export const fr: ExtensionMessages = {
     about: "Sans clé personnelle, un serveur Heard émet des jetons Deepgram de courte durée ; sa clé API reste sur le serveur.",
     label: "URL du serveur",
     save: "Enregistrer",
-    invalid: "Saisissez une URL http(s) complète, par exemple http://localhost:3000",
+    invalid: "Saisissez une URL HTTPS, ou http://localhost:3100 pour un usage local.",
     saved: "Enregistré. Utilisé au prochain appui sur Lancer.",
     reset: "Réinitialiser",
     resetDone: "Retour au serveur par défaut.",

@@ -21,14 +21,16 @@ const line2 = roundRect(10, 19, 12, 3.2, 1.6);
 
 function render(size) {
   const ss = 4;
+  const designSize = size === 128 ? 40 : 32;
+  const inset = (designSize - 32) / 2;
   const px = Buffer.alloc(size * size * 4);
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       let a = 0, r = 0, g = 0, b = 0;
       for (let sy = 0; sy < ss; sy++) {
         for (let sx = 0; sx < ss; sx++) {
-          const u = ((x + (sx + 0.5) / ss) / size) * 32;
-          const v = ((y + (sy + 0.5) / ss) / size) * 32;
+          const u = ((x + (sx + 0.5) / ss) / size) * designSize - inset;
+          const v = ((y + (sy + 0.5) / ss) / size) * designSize - inset;
           if (!tile(u, v)) continue;
           const c = line1(u, v) ? INK : line2(u, v) ? INK.map((n, i) => Math.round(n * 0.75 + AMBER[i] * 0.25)) : AMBER;
           a += 1; r += c[0]; g += c[1]; b += c[2];

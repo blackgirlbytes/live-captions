@@ -6,6 +6,8 @@ It works **standalone with your own Deepgram API key** (no server at all), or wi
 
 Built with [WXT](https://wxt.dev) (Manifest V3), React 19 and Tailwind v4. Transcription, transcript assembly, exporters and most UI come from `@heard/shared` (`packages/shared`).
 
+For a store release, use the [Chrome Web Store publishing guide](../../docs/publish-chrome-extension.md). The [public extension privacy policy](https://live-captions-zeta.vercel.app/extension/privacy) describes the data flow after the site deploys it.
+
 ## How it works
 
 ```
@@ -87,6 +89,8 @@ Server URL:
 - **Default:** `http://localhost:3100`. Run the web app with `npm run dev:web` from the repo root, with `DEEPGRAM_API_KEY` in `apps/web/.env.local`.
 - **At build time:** `WXT_HEARD_URL=https://heard.example.com npx wxt build`.
 - **At runtime:** side panel → **Settings** → **Server URL**. The value is saved in `chrome.storage.local` and used the next time you press Start. **Reset** returns to the build-time default. It's ignored while your own key is saved.
+
+Remote server URLs must use HTTPS. Plain HTTP is accepted only for `localhost`, `127.0.0.1`, and `::1` during local development, because a token sent over remote HTTP could be intercepted.
 
 ## Manual test checklist
 

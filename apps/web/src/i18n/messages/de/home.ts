@@ -39,6 +39,7 @@ export const home: typeof en = {
     title: "Datenschutz",
     intro: "Was Heard hört, wohin es geht und was gespeichert wird.",
     openSource: "Heard ist Open Source.",
+    policyLink: "Datenschutzerklärung der Chrome-Erweiterung",
     captionsBy: "Untertitel von",
     captionsAfter: ".",
     onlyTabTitle: "Nur der Tab, den du wählst",

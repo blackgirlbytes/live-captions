@@ -1,6 +1,11 @@
 import { defineConfig } from "wxt";
 import tailwindcss from "@tailwindcss/vite";
 import { PCM_WORKLET_SOURCE } from "@heard/shared";
+import { normalizeServerUrl } from "./utils/server-url";
+
+if (process.env.WXT_HEARD_URL && !normalizeServerUrl(process.env.WXT_HEARD_URL)) {
+  throw new Error("WXT_HEARD_URL must use HTTPS, or HTTP on a local loopback address");
+}
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({

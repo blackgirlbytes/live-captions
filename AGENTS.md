@@ -23,4 +23,14 @@ Rules:
 | Public deployment | **unset** | each visitor, with their own key |
 | Chrome extension with a user key | not needed (no server) | that user |
 
+## Enforced extension rules
+
+| Rule | Enforcement |
+|---|---|
+| Capture-changing commands run in order, so only the captured tab can keep a `LIVE` badge. | `createCommandQueue` in `apps/extension/entrypoints/background.ts`; `apps/extension/test/command-queue.test.ts` |
+| A remote token server uses HTTPS. Local loopback servers may use HTTP for development. | `normalizeServerUrl` in `apps/extension/utils/server-url.ts`; `apps/extension/test/server-url.test.ts` |
+| A store package keeps the reviewed permission set and excludes the server-key variable. | `apps/extension/scripts/verify-store-package.mjs`, run by `npm run zip -w @heard/extension` and `.github/workflows/extension-release-check.yml` |
+
+Run `npm test` to check both rules with the shared transcription tests.
+
 See [README.md](README.md) for setup, and [docs/provider-policies.md](docs/provider-policies.md) before changing anything about how YouTube content is shown or captured.

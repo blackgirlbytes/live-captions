@@ -8,6 +8,9 @@
     "build": "wxt build",
     "postbuild": "node scripts/print-load-path.mjs",
     "zip": "wxt zip",
+    "postzip": "node scripts/verify-store-package.mjs",
+    "verify:store": "node scripts/verify-store-package.mjs",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "postinstall": "wxt prepare || true"
   },
@@ -23,6 +26,7 @@
     "@wxt-dev/module-react": "^1.2.2",
     "tailwindcss": "^4.3.5",
     "typescript": "^5.9.3",
+    "vitest": "^5.1.2",
     "wxt": "^0.21.5"
   }
 }

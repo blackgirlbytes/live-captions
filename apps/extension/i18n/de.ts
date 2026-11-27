@@ -8,7 +8,7 @@ export const de: ExtensionMessages = {
   common: {
     thisTab: "Dieser Tab",
     untitledTab: "Tab ohne Titel",
-    privacy: "Audio wird erst nach dem Klick auf Start erfasst; Transkripte werden nicht gespeichert.",
+    privacy: "Nach dem Klick auf Start wird das Audio des Tabs für Untertitel an Deepgram gesendet. Transkripte werden nicht gespeichert.",
     addKeyTitle: "Füge einen Deepgram-API-Schlüssel hinzu, um zu starten.",
     addKeyLink: "Schlüssel hinzufügen →",
     checkKey: "Schlüssel prüfen",
@@ -60,6 +60,7 @@ export const de: ExtensionMessages = {
   },
   key: {
     title: "Deepgram-Schlüssel",
+    useOwn: "Stattdessen eigenen Schlüssel verwenden",
     using: (masked) => `Dein Schlüssel wird verwendet (${masked})`,
     unreachable: (url) => `Kein Schlüssel gespeichert, und unter ${url} ist kein Heard-Server erreichbar.`,
     noServerKey: (url) => `Kein Schlüssel gespeichert, und der Heard-Server unter ${url} hat keinen Deepgram-Schlüssel.`,
@@ -90,7 +91,7 @@ export const de: ExtensionMessages = {
     about: "Ohne eigenen Schlüssel stellt ein Heard-Server kurzlebige Deepgram-Tokens aus; sein API-Schlüssel bleibt auf dem Server.",
     label: "Server-URL",
     save: "Speichern",
-    invalid: "Gib eine vollständige http(s)-URL ein, z. B. http://localhost:3000",
+    invalid: "Gib eine HTTPS-URL ein oder http://localhost:3100 für die lokale Nutzung.",
     saved: "Gespeichert. Gilt ab dem nächsten Klick auf Start.",
     reset: "Zurücksetzen",
     resetDone: "Auf den Standardserver zurückgesetzt.",

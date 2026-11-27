@@ -38,6 +38,7 @@ export const home = {
     title: "Privacy",
     intro: "What Heard hears, where it goes, and what it keeps.",
     openSource: "Heard is open source.",
+    policyLink: "Chrome extension privacy policy",
     captionsBy: "Captions by",
     captionsAfter: ".",
     onlyTabTitle: "Only the tab you choose",

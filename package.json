@@ -10,7 +10,7 @@
     "dev:web": "npm run dev -w @heard/web",
     "dev:extension": "npm run dev -w @heard/extension",
     "build": "npm run build -w @heard/web && npm run build -w @heard/extension",
-    "test": "npm test -w @heard/shared",
+    "test": "npm test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "engines": {

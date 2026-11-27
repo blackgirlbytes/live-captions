@@ -153,6 +153,9 @@ function HomeTab() {
             </Link>
           ))}
         </div>
+        <Link href="/extension/privacy" className="mt-5 inline-block text-xs text-ink-500 underline-offset-4 hover:text-ink-200 hover:underline">
+          {t.privacy.policyLink}
+        </Link>
       </div>
     </>
   );
@@ -286,6 +289,7 @@ function PrivacyTab() {
   const t = useT("home").privacy;
   return (
     <TabBody title={t.title} intro={t.intro} footer={
+      <div className="space-y-2">
         <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
           <a
             href="https://github.com/blackgirlbytes/live-captions"
@@ -306,6 +310,8 @@ function PrivacyTab() {
             {t.captionsAfter}
           </span>
         </p>
+        <p><Link href="/extension/privacy" className="text-ink-300 underline-offset-4 hover:text-ink-100 hover:underline">{t.policyLink}</Link></p>
+      </div>
       }
     >
       <Points

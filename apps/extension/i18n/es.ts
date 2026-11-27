@@ -8,7 +8,7 @@ export const es: ExtensionMessages = {
   common: {
     thisTab: "Esta pestaña",
     untitledTab: "Pestaña sin título",
-    privacy: "El audio solo se captura después de presionar Iniciar; las transcripciones no se guardan.",
+    privacy: "Después de pulsar Iniciar, el audio de la pestaña se envía a Deepgram para crear subtítulos. Las transcripciones no se guardan.",
     addKeyTitle: "Agrega una clave de API de Deepgram para empezar.",
     addKeyLink: "Agrega tu clave →",
     checkKey: "Revisa tu clave",
@@ -60,6 +60,7 @@ export const es: ExtensionMessages = {
   },
   key: {
     title: "Clave de Deepgram",
+    useOwn: "Usar tu propia clave",
     using: (masked) => `Usando tu clave (${masked})`,
     unreachable: (url) => `No hay clave guardada y no se puede conectar con ningún servidor de Heard en ${url}.`,
     noServerKey: (url) => `No hay clave guardada y el servidor de Heard en ${url} no tiene una clave de Deepgram.`,
@@ -90,7 +91,7 @@ export const es: ExtensionMessages = {
     about: "Sin una clave propia, un servidor de Heard emite tokens de Deepgram de corta duración; su clave de API se queda en el servidor.",
     label: "URL del servidor",
     save: "Guardar",
-    invalid: "Ingresa una URL http(s) completa, p. ej. http://localhost:3000",
+    invalid: "Ingresa una URL HTTPS o http://localhost:3100 para uso local.",
     saved: "Guardado. Se usará la próxima vez que presiones Iniciar.",
     reset: "Restablecer",
     resetDone: "Se restableció el servidor predeterminado.",

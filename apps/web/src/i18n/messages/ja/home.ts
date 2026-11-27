@@ -39,6 +39,7 @@ export const home: typeof en = {
     title: "プライバシー",
     intro: "Heard が聞くもの、送る先、保存するもの。",
     openSource: "Heard はオープンソースです。",
+    policyLink: "Chrome 拡張機能のプライバシーポリシー",
     captionsBy: "字幕:",
     captionsAfter: "",
     onlyTabTitle: "選んだタブだけ",

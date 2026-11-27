@@ -1,10 +1,11 @@
 import { browser } from "wxt/browser";
 import { normalizeCaptionSettings, type CaptionSettings } from "@heard/shared";
+import { normalizeServerUrl } from "./server-url";
 
 /** Build-time default (`WXT_HEARD_URL=https://heard.example npx wxt build`). */
-export const DEFAULT_HEARD_URL: string = (
-  (import.meta.env.WXT_HEARD_URL as string | undefined) || "http://localhost:3100"
-).replace(/\/+$/, "");
+export const DEFAULT_HEARD_URL: string = normalizeServerUrl(
+  (import.meta.env.WXT_HEARD_URL as string | undefined) || "http://localhost:3100",
+) ?? "http://localhost:3100";
 
 /** chrome.storage.local keys. Transcripts are never stored. */
 export const STORAGE_KEYS = {
@@ -42,17 +43,6 @@ export interface OverlayLayout {
   width: number;
   /** The user placed the box themselves; otherwise it sits on the page's main video. */
   manual?: boolean;
-}
-
-/** Normalize a user-entered server URL; returns null when it's not an http(s) origin. */
-export function normalizeServerUrl(input: string): string | null {
-  try {
-    const url = new URL(input.trim());
-    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
-    return url.origin + url.pathname.replace(/\/+$/, "");
-  } catch {
-    return null;
-  }
 }
 
 export async function getServerUrl(): Promise<string> {

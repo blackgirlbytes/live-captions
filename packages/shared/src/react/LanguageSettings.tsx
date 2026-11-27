@@ -74,9 +74,9 @@ export function LanguageSettings({
 
   return (
     <fieldset className="space-y-5">
-      <legend className="mb-3 text-xs font-medium tracking-wide text-ink-400 uppercase">{L.legend}</legend>
+      <legend className="mb-3 text-xs font-semibold tracking-wide text-ink-300 uppercase">{L.legend}</legend>
       <div className="space-y-2">
-        <span id={`${id}-spoken`} className="block text-xs text-ink-400">
+        <span id={`${id}-spoken`} className="block text-sm text-ink-200">
           {L.spoken}
         </span>
         <Select
@@ -90,7 +90,7 @@ export function LanguageSettings({
         />
       </div>
       <div className="space-y-2">
-        <span id={`${id}-show`} className="block text-xs text-ink-400">
+        <span id={`${id}-show`} className="block text-sm text-ink-200">
           {L.showIn}
         </span>
         <Select
@@ -124,7 +124,7 @@ function PairStatusNote({
   const r = resolve(labels);
   const { L } = r;
   const pair = r.pair(spoken, target);
-  const note = "text-xs leading-relaxed text-ink-400";
+  const note = "text-sm leading-relaxed text-ink-300";
   switch (status.kind) {
     case "none":
     case "checking":

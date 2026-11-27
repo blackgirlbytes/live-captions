@@ -28,7 +28,6 @@ import {
 } from "@/components/hooks";
 import {
   DEFAULT_HEARD_URL,
-  normalizeServerUrl,
   restrictedReason,
   SESSION_KEYS,
   SIDEPANEL_VIEW_REQUEST_TTL_MS,
@@ -36,6 +35,7 @@ import {
   type ServerStatus,
   type SidepanelViewRequest,
 } from "@/utils/config";
+import { normalizeServerUrl } from "@/utils/server-url";
 import { describeError, isKeyError, isNeedsKey } from "@/utils/messages";
 
 type View = "transcript" | "settings";
@@ -238,7 +238,7 @@ export default function App() {
         </main>
       )}
 
-      <footer className="border-t border-ink-800 px-4 py-2.5 text-[11px] leading-relaxed text-ink-500">
+      <footer className="border-t border-ink-800 px-4 py-2.5 text-xs leading-relaxed text-ink-400">
         {m.common.privacy}
       </footer>
     </div>
@@ -369,24 +369,45 @@ function KeySection({
     return t.key.usingServer(where);
   })();
   const statusOk = Boolean(masked) || serverStatus === "ready" || serverStatus === "unknown";
+  // The server already works: the own-key form is optional, so keep it folded away.
+  const optional = !masked && statusOk;
+  const showForm = !optional || expanded;
 
   return (
     <section ref={sectionRef} aria-labelledby="key-heading">
-      <h2 id="key-heading" className="mb-1 text-sm font-semibold text-ink-100">
+      <h2 id="key-heading" className="mb-3 text-base font-semibold text-ink-100">
         {t.key.title}
       </h2>
-      <p data-testid="key-status" className={`mb-2 text-xs font-medium ${statusOk ? "text-ok" : "text-accent"}`}>
-        {status}
+      <p
+        data-testid="key-status"
+        className="flex items-start gap-2.5 rounded-lg bg-ink-850 px-3 py-2.5 text-sm leading-snug text-ink-100 ring-1 ring-ink-700"
+      >
+        <span aria-hidden="true" className={`mt-1.5 size-2 shrink-0 rounded-full ${statusOk ? "bg-ok" : "bg-accent"}`} />
+        <span className="min-w-0 break-words">{status}</span>
       </p>
-      <p className="mb-3 text-xs leading-relaxed text-ink-400">
+      {optional && (
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          aria-expanded={expanded}
+          aria-controls="key-form"
+          className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:text-accent-strong"
+        >
+          {t.key.useOwn}
+          <ChevronDownIcon size={14} className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
+        </button>
+      )}
+      {showForm && (
+      <div id="key-form" className="mt-4 space-y-4">
+      <p className="text-sm leading-relaxed text-ink-300">
         {t.key.introBefore}
-        <a href={DEEPGRAM_CONSOLE_URL} target="_blank" rel="noreferrer" className="text-accent hover:underline">
+        <a href={DEEPGRAM_CONSOLE_URL} target="_blank" rel="noreferrer" className="font-medium text-accent hover:underline">
           console.deepgram.com
         </a>
         {t.key.introAfter}
       </p>
-      <form onSubmit={save} className="space-y-2">
-        <label className="sr-only" htmlFor="deepgram-key">
+      <form onSubmit={save} className="space-y-3">
+        <label className="block text-sm font-medium text-ink-200" htmlFor="deepgram-key">
           {t.key.label}
         </label>
         <div className="flex gap-2">
@@ -402,14 +423,14 @@ function KeySection({
             placeholder={masked ? t.key.placeholderReplace : t.key.placeholder}
             autoComplete="off"
             spellCheck={false}
-            className="h-9 min-w-0 flex-1 rounded-lg bg-ink-850 px-3 font-mono text-xs text-ink-100 ring-1 ring-ink-700 placeholder:font-sans placeholder:text-ink-500 focus:ring-accent focus:outline-none"
+            className="h-10 min-w-0 flex-1 rounded-lg bg-ink-850 px-3 font-mono text-sm text-ink-100 ring-1 ring-ink-600 placeholder:font-sans placeholder:text-ink-400 focus:ring-2 focus:ring-accent focus:outline-none"
           />
           <button
             type="button"
             onClick={() => setReveal((r) => !r)}
             aria-pressed={reveal}
             aria-controls="deepgram-key"
-            className="h-9 shrink-0 rounded-lg px-2.5 text-xs text-ink-300 ring-1 ring-ink-700 hover:bg-ink-800 hover:text-ink-100"
+            className="h-10 shrink-0 rounded-lg px-3 text-sm font-medium text-ink-200 ring-1 ring-ink-600 hover:bg-ink-800 hover:text-ink-100"
           >
             {reveal ? t.key.hide : t.key.show}
           </button>
@@ -418,25 +439,25 @@ function KeySection({
           <button
             type="submit"
             disabled={busy}
-            className="h-9 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-ink hover:bg-accent-strong disabled:opacity-50"
+            className="h-10 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-ink hover:bg-accent-strong disabled:opacity-50"
           >
             {busy ? t.key.verifying : t.key.save}
           </button>
           {masked && (
-            <button type="button" onClick={() => void forget()} className="text-xs text-ink-400 hover:text-ink-100 hover:underline">
+            <button type="button" onClick={() => void forget()} className="text-sm text-ink-300 hover:text-ink-100 hover:underline">
               {t.key.forget}
             </button>
           )}
         </div>
       </form>
+      <p className="text-xs leading-relaxed text-ink-400">{t.key.privacy}</p>
+      </div>
+      )}
       {message && (
-        <p role={message.ok ? "status" : "alert"} data-testid="key-message" className={`mt-2 text-xs leading-relaxed ${message.ok ? "text-ok" : "text-live"}`}>
+        <p role={message.ok ? "status" : "alert"} data-testid="key-message" className={`mt-3 text-sm leading-relaxed ${message.ok ? "text-ok" : "text-live"}`}>
           {message.text}
         </p>
       )}
-      <p className="mt-2 text-[11px] leading-relaxed text-ink-500">
-        {t.key.privacy}
-      </p>
     </section>
   );
 }
@@ -468,8 +489,8 @@ function ServerUrlSection({ usingUserKey, t }: { usingUserKey: boolean; t: Exten
 
   return (
     <section>
-      <h2 className="mb-1 text-sm font-semibold text-ink-100">{t.server.title}</h2>
-      <p className="mb-3 text-xs leading-relaxed text-ink-400">
+      <h2 className="mb-1.5 text-base font-semibold text-ink-100">{t.server.title}</h2>
+      <p className="mb-4 text-sm leading-relaxed text-ink-300">
         {usingUserKey ? t.server.unused : t.server.about}
       </p>
       <form onSubmit={save} className="flex gap-2">
@@ -486,16 +507,16 @@ function ServerUrlSection({ usingUserKey, t }: { usingUserKey: boolean; t: Exten
           }}
           placeholder={DEFAULT_HEARD_URL}
           spellCheck={false}
-          className="h-9 min-w-0 flex-1 rounded-lg bg-ink-850 px-3 font-mono text-xs text-ink-100 ring-1 ring-ink-700 placeholder:text-ink-500 focus:ring-accent focus:outline-none"
+          className="h-10 min-w-0 flex-1 rounded-lg bg-ink-850 px-3 font-mono text-sm text-ink-100 ring-1 ring-ink-600 placeholder:text-ink-400 focus:ring-2 focus:ring-accent focus:outline-none"
         />
-        <button type="submit" className="h-9 rounded-lg bg-ink-700 px-3 text-sm font-medium text-ink-100 hover:bg-ink-600">
+        <button type="submit" className="h-10 rounded-lg bg-ink-700 px-4 text-sm font-medium text-ink-100 hover:bg-ink-600">
           {t.server.save}
         </button>
       </form>
-      <div className="mt-2 flex items-center justify-between gap-2 text-xs">
-        <span className={message ? (message.ok ? "text-ok" : "text-live") : "text-ink-500"}>{message?.text ?? t.server.defaultIs(DEFAULT_HEARD_URL)}</span>
+      <div className="mt-2.5 flex items-center justify-between gap-2 text-sm">
+        <span className={message ? (message.ok ? "text-ok" : "text-live") : "text-ink-400"}>{message?.text ?? t.server.defaultIs(DEFAULT_HEARD_URL)}</span>
         {current !== DEFAULT_HEARD_URL && (
-          <button type="button" onClick={() => void reset()} className="shrink-0 text-ink-400 hover:text-ink-100 hover:underline">
+          <button type="button" onClick={() => void reset()} className="shrink-0 text-ink-300 hover:text-ink-100 hover:underline">
             {t.server.reset}
           </button>
         )}
