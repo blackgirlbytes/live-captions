@@ -3,15 +3,21 @@
   "checkpoint_id": "01M8FJ29W4N67K17R70GNM5DT4",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 2,
+  "checkpoints_count": 12,
   "files_touched": [
     "apps/extension/components/hooks.ts",
+    "apps/extension/components/useI18n.ts",
     "apps/extension/entrypoints/background.ts",
     "apps/extension/entrypoints/offscreen/main.ts",
     "apps/extension/entrypoints/overlay.content/Overlay.tsx",
     "apps/extension/entrypoints/popup/App.tsx",
     "apps/extension/entrypoints/popup/index.html",
     "apps/extension/entrypoints/sidepanel/App.tsx",
+    "apps/extension/i18n/de.ts",
+    "apps/extension/i18n/es.ts",
+    "apps/extension/i18n/fr.ts",
+    "apps/extension/i18n/ja.ts",
+    "apps/extension/i18n/pt.ts",
     "apps/extension/public/_locales/de/messages.json",
     "apps/extension/public/_locales/en/messages.json",
     "apps/extension/public/_locales/es/messages.json",
@@ -34,8 +40,15 @@
     "packages/shared/src/core/index.ts",
     "packages/shared/src/core/translate.ts",
     "packages/shared/src/core/types.ts",
+    "packages/shared/src/react/CaptionText.tsx",
     "packages/shared/src/react/LanguageSettings.tsx",
     "packages/shared/src/react/Select.tsx",
+    "packages/shared/src/react/i18n/de.ts",
+    "packages/shared/src/react/i18n/en.ts",
+    "packages/shared/src/react/i18n/es.ts",
+    "packages/shared/src/react/i18n/fr.ts",
+    "packages/shared/src/react/i18n/ja.ts",
+    "packages/shared/src/react/i18n/pt.ts",
     "packages/shared/src/react/icons.tsx",
     "packages/shared/src/react/index.ts",
     "packages/shared/src/react/labels.ts",
@@ -48,25 +61,39 @@
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
       "prompt": "/0/prompt.txt"
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
+      "prompt": "/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 30,
-    "cache_creation_tokens": 15505,
-    "cache_read_tokens": 1715668,
-    "output_tokens": 7858,
-    "api_call_count": 14
+    "input_tokens": 212,
+    "cache_creation_tokens": 191675,
+    "cache_read_tokens": 17274460,
+    "output_tokens": 82513,
+    "api_call_count": 95,
+    "subagent_tokens": {
+      "input_tokens": 34,
+      "cache_creation_tokens": 193493,
+      "cache_read_tokens": 880553,
+      "output_tokens": 19989,
+      "api_call_count": 17
+    }
   },
   "redaction": {
-    "replacements": 260,
+    "replacements": 517,
     "layers": {
       "betterleaks": 0,
       "connection_string": 0,
       "credential_key": 0,
       "credential_value": 4,
       "credentialed_uri": 0,
-      "entropy": 198,
-      "key_context": 58,
+      "entropy": 392,
+      "key_context": 121,
       "provider_token": 0,
       "shell_stdin": 0
     }

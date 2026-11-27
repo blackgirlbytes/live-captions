@@ -1,0 +1,18 @@
+{
+  "tool_use_id": "toolu_01CGtptuo4smwH5N6E8H2FBv",
+  "agent_id": "a85d91ae1db243ec6",
+  "subagent_type": "general-purpose",
+  "task_description": "Translate extension strings to ja",
+  "files": [
+    "apps/extension/i18n/ja.ts"
+  ],
+  "token_usage": {
+    "input_tokens": 6,
+    "cache_creation_tokens": 30620,
+    "cache_read_tokens": 156777,
+    "output_tokens": 3617,
+    "api_call_count": 3
+  },
+  "started_at": "2026-11-27T16:59:19.876225-05:00",
+  "completed_at": "2026-11-27T16:59:40.015695-05:00"
+}

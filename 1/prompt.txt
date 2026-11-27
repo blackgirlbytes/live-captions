@@ -1,0 +1,115 @@
+is this still an issue
+
+Partly. The caption work applies to the extension, but the site translations don't.
+
+---
+
+okay make a plan for doing this
+
+---
+
+lets add that language support for the extension using the plan you made
+
+---
+
+<task-notification>
+<task-id>a19b5290ab6343fdd</task-id>
+<tool-use-id>toolu_01Bt9Bc3pATQkEo3DYY5df9L</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/ad81c77a-d3ac-4a43-8ebc-8aa81a818ff1/tasks/a19b5290ab6343fdd.output</output-file>
+<status>completed</status>
+<summary>Agent "Translate extension strings to es" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Done: wrote `apps/extension/i18n/es.ts`, and the typecheck reports no errors in that file.</result>
+<usage><subagent_tokens>68522</subagent_tokens><tool_uses>5</tool_uses><duration_ms>21685</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a349abb5a80e237b5</task-id>
+<tool-use-id>toolu_01Y5ZK9fEG6TPpVmmxwfF7uU</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/ad81c77a-d3ac-4a43-8ebc-8aa81a818ff1/tasks/a349abb5a80e237b5.output</output-file>
+<status>completed</status>
+<summary>Agent "Translate extension strings to fr" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Done: I wrote `apps/extension/i18n/fr.ts` and the typecheck shows no errors in that file.</result>
+<usage><subagent_tokens>69356</subagent_tokens><tool_uses>6</tool_uses><duration_ms>24576</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>acb1415db9c04e023</task-id>
+<tool-use-id>toolu_01N6asUao6qaD6Zs69F92NWj</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/ad81c77a-d3ac-4a43-8ebc-8aa81a818ff1/tasks/acb1415db9c04e023.output</output-file>
+<status>completed</status>
+<summary>Agent "Translate extension strings to pt" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Done: I wrote `apps/extension/i18n/pt.ts`, and the typecheck shows no errors in that file.
+
+I used "legendas", "transcrição", "chave de API do Deepgram" and "aba" as the website does. One difference from the site: the site writes "do Deepgram" in `key.ts` but "da Deepgram" in `watch.ts`, and I used "do Deepgram" throughout.</result>
+<usage><subagent_tokens>68783</subagent_tokens><tool_uses>6</tool_uses><duration_ms>22157</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a5776647f27b1dc89</task-id>
+<tool-use-id>toolu_01UBV8sqAm2UTXUdKL5tjzYp</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/ad81c77a-d3ac-4a43-8ebc-8aa81a818ff1/tasks/a5776647f27b1dc89.output</output-file>
+<status>completed</status>
+<summary>Agent "Translate extension strings to de" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Done: `apps/extension/i18n/de.ts` is written, and the typecheck shows no errors in that file.</result>
+<usage><subagent_tokens>69121</subagent_tokens><tool_uses>5</tool_uses><duration_ms>22782</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a85d91ae1db243ec6</task-id>
+<tool-use-id>toolu_01CGtptuo4smwH5N6E8H2FBv</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/ad81c77a-d3ac-4a43-8ebc-8aa81a818ff1/tasks/a85d91ae1db243ec6.output</output-file>
+<status>completed</status>
+<summary>Agent "Translate extension strings to ja" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Done: I wrote `apps/extension/i18n/ja.ts`, and `tsc` reports no errors for that file.</result>
+<usage><subagent_tokens>68212</subagent_tokens><tool_uses>5</tool_uses><duration_ms>20193</duration_ms></usage>
+</task-notification>
+
+---
+
+im on the extension and when i say show captions in a different language..its not working
+
+---
+
+<pasted_content id="24ef">
+The requested language options are not supported.
+Context
+offscreen.html
+Stack Trace
+
+* offscreen.html:0 (anonymous function)
+</pasted_content id="24ef">
+
+when i pressed update
+
+---
+
+okay so when i pressed update..i got that error..will it still work??
+
+---
+
+yeah the translation still doesnt work
+
+---
+
+ohyou know what it is..it translate in the transcript sidebar..but not the literal captions
+
+---
+
+Yes, it works
+
+---
+
+Commit and push
