@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Heard — Sous-titres IA en direct",
+    "description": "Extension name in Chrome and the Web Store."
+  },
+  "extDescription": {
+    "message": "Sous-titres IA en temps réel et transcription consultable pour toute vidéo ou tout audio d’un onglet. Avec Deepgram Nova-3.",
+    "description": "Extension description in Chrome and the Web Store."
+  }
+}

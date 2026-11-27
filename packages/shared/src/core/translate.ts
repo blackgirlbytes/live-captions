@@ -65,6 +65,31 @@ export async function translatorAvailability(source: string, target: string): Pr
 }
 
 const AVAILABILITY_TIMEOUT_MS = 4000;
+/** Loading a downloaded model, and translating one caption, take well under these. */
+const CREATE_TIMEOUT_MS = 20_000;
+const TRANSLATE_TIMEOUT_MS = 10_000;
+
+class TimeoutError extends Error {
+  constructor(what: string, ms: number) {
+    super(`Chrome's translator didn't answer (${what}, ${ms / 1000}s)`);
+  }
+}
+
+/** Some contexts expose the translator but never settle its promises: never wait forever. */
+function withTimeout<T>(promise: Promise<T>, ms: number, what: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new TimeoutError(what, ms)), ms);
+    }),
+  ]).finally(() => clearTimeout(timer));
+}
+
+function describe(err: unknown): string {
+  if (err instanceof Error) return err.name && err.name !== "Error" ? `${err.name}: ${err.message}` : err.message;
+  return String(err);
+}
 
 /**
  * Start (or finish) the one-time download for a language pair. Call it straight from a click
@@ -96,23 +121,26 @@ export async function prepareTranslator(source: string, target: string, onProgre
   }
 }
 
+type NotReady = Pick<TranslationIssue, "kind" | "detail">;
+
 /** A ready translator for the pair, or the reason there isn't one. Never downloads. */
-async function readyTranslator(source: string, target: string): Promise<ChromeTranslator | TranslationIssue["kind"]> {
+async function readyTranslator(source: string, target: string): Promise<ChromeTranslator | NotReady> {
   const key = pairKey(source, target);
-  const existing = translators.get(key);
-  if (existing) return existing.catch(() => "unsupported" as const);
-  const availability = await translatorAvailability(source, target);
-  if (availability === "no-api") return "no-api";
-  if (availability === "unavailable") return "unsupported";
-  if (availability !== "available") return "download";
-  const api = translatorApi()!;
-  const created = api.create({ sourceLanguage: source, targetLanguage: target });
-  translators.set(key, created);
+  let created = translators.get(key);
+  if (!created) {
+    const availability = await translatorAvailability(source, target);
+    if (availability === "no-api") return { kind: "no-api" };
+    if (availability === "unavailable") return { kind: "unsupported" };
+    if (availability !== "available") return { kind: "download" };
+    created = translatorApi()!.create({ sourceLanguage: source, targetLanguage: target });
+    translators.set(key, created);
+  }
   try {
-    return await created;
-  } catch {
+    return await withTimeout(created, CREATE_TIMEOUT_MS, "loading the model");
+  } catch (err) {
     translators.delete(key);
-    return "download";
+    console.warn(`Heard: couldn't load the ${source}→${target} translator`, err);
+    return { kind: "failed", detail: describe(err) };
   }
 }
 
@@ -174,16 +202,21 @@ export class TranslationEngine {
     const key = pairKey(source, target);
     if ((this.notReadyUntil.get(key) ?? 0) > Date.now()) return null;
     const translator = await readyTranslator(source, target);
-    if (typeof translator === "string") {
+    if ("kind" in translator) {
       this.notReadyUntil.set(key, Date.now() + RECHECK_MS);
-      this.setIssue({ source, target, kind: translator });
+      this.setIssue({ source, target, ...translator });
       return null;
     }
     try {
-      const out = await translator.translate(text);
+      const out = await withTimeout(translator.translate(text), TRANSLATE_TIMEOUT_MS, "translating");
       if (this.issue) this.setIssue(null);
       return out;
-    } catch {
+    } catch (err) {
+      // Start over with a fresh translator on the next try.
+      translators.delete(key);
+      this.notReadyUntil.set(key, Date.now() + RECHECK_MS);
+      console.warn(`Heard: ${source}→${target} translation failed`, err);
+      this.setIssue({ source, target, kind: "failed", detail: describe(err) });
       return null;
     }
   }
@@ -191,7 +224,12 @@ export class TranslationEngine {
   private setIssue(issue: TranslationIssue | null) {
     const same =
       issue === this.issue ||
-      (issue && this.issue && issue.kind === this.issue.kind && issue.source === this.issue.source && issue.target === this.issue.target);
+      (issue &&
+        this.issue &&
+        issue.kind === this.issue.kind &&
+        issue.source === this.issue.source &&
+        issue.target === this.issue.target &&
+        issue.detail === this.issue.detail);
     if (same) return;
     this.issue = issue;
     this.emit({ type: "translation-config", target: this.target, issue });

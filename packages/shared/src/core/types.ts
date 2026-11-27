@@ -45,8 +45,12 @@ export interface TranslationIssue {
   /** Translator language codes. */
   source: string;
   target: string;
-  /** `download`: the language pair needs a one-time download, which only a click can start. */
-  kind: "download" | "unsupported" | "no-api";
+  /**
+   * `download`: the language pair needs a one-time download, which only a click can start.
+   * `failed`: Chrome has the translator but it errored or stopped answering; `detail` says why.
+   */
+  kind: "download" | "unsupported" | "no-api" | "failed";
+  detail?: string;
 }
 
 /** Translated captions, kept beside the original transcript. */

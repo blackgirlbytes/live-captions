@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/core/index.ts",
+    "./locales": "./src/core/locales.ts",
     "./react": "./src/react/index.ts",
     "./theme.css": "./src/theme.css"
   },

@@ -1,0 +1,61 @@
+import type { SharedUiLabels } from "../labels";
+
+export const de: SharedUiLabels = {
+  status: {
+    status: { idle: "Aus", connecting: "Verbinde", live: "Live", paused: "Pause", reconnecting: "Neu verbinden", error: "Fehler" },
+    aria: (label) => `Transkription: ${label}`,
+  },
+  transcript: {
+    region: "Transkript",
+    empty: "Das Transkript erscheint hier.",
+    noMatches: (q) => `Keine Treffer für „${q}“`,
+    jumpTo: (ts) => `Springe zu ${ts}`,
+    jumpToLive: "Zu live",
+    jumpToLatest: "Zum Ende",
+  },
+  toolbar: {
+    search: "Transkript durchsuchen",
+    clearSearch: "Suche löschen",
+    copy: "Transkript kopieren",
+    download: "Transkript herunterladen",
+    formats: { txt: ["Text", ".txt mit Zeitstempeln"], srt: ["SubRip", ".srt-Untertitel"], vtt: ["WebVTT", ".vtt-Untertitel"] },
+  },
+  settings: {
+    showCaptions: "Untertitel anzeigen",
+    textSize: "Textgröße",
+    sizes: ["XS", "S", "M", "L", "XL", "2XL"],
+    background: "Hintergrund",
+    backgrounds: { solid: "Deckend", translucent: "Halbtransp.", none: "Keiner" },
+    opacity: "Deckkraft",
+    text: "Text",
+    textColor: (c) => `Textfarbe ${c}`,
+    fonts: { sans: "Sans", serif: "Serif", mono: "Mono" },
+    lines: "Zeilen",
+    placement: "Position",
+    overVideo: "Über Video",
+    belowVideo: "Unter Video",
+    reset: "Zurücksetzen",
+  },
+  language: {
+    legend: "Sprache",
+    spoken: "Gesprochen im Video",
+    detect: "Automatisch erkennen",
+    showIn: "Untertitel in",
+    sameAsSpoken: "Gesprochene Sprache",
+    pair: (from, to) => `${from} → ${to}`,
+    ready: (pair) => `Übersetze ${pair} auf diesem Gerät. Der Text verlässt nie deinen Browser.`,
+    needsDownload: (pair) => `Für ${pair} ist ein einmaliger Download in Chrome nötig.`,
+    downloadNow: "Jetzt laden",
+    downloading: (pair, pct) => `Lade ${pair}… ${pct} %`,
+    unsupported: (pair) => `Chrome kann ${pair} noch nicht übersetzen. Die Untertitel bleiben in der gesprochenen Sprache.`,
+    noApi:
+      "Die Übersetzung nutzt den eingebauten Übersetzer von Chrome, den dieser Browser nicht hat. Nutze Chrome auf einem Computer oder lass die Untertitel in der gesprochenen Sprache.",
+    auto: (target) =>
+      `Untertitel werden auf diesem Gerät nach ${target} übersetzt. Braucht eine Sprache zuerst einen Download, wirst du gefragt. Wähle die gesprochene Sprache, um sie jetzt vorzubereiten.`,
+    noticeNoApi: "Untertitel können in diesem Browser nicht übersetzt werden. Chrome auf einem Computer hat einen eingebauten Übersetzer.",
+    noticeUnsupported: (pair, source) => `Chrome kann ${pair} nicht übersetzen, daher bleiben diese Untertitel auf ${source}.`,
+    noticeNeedsDownload: (pair) => `Für ${pair} ist ein einmaliger Download nötig.`,
+    noticeDownload: "Laden",
+    noticeFailed: (pair, detail) => `Die Übersetzung ${pair} funktioniert nicht mehr, daher bleiben die Untertitel in der gesprochenen Sprache. Chrome meldet: ${detail}`,
+  },
+};

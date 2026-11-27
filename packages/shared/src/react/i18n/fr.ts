@@ -1,0 +1,61 @@
+import type { SharedUiLabels } from "../labels";
+
+export const fr: SharedUiLabels = {
+  status: {
+    status: { idle: "Arrêté", connecting: "Connexion", live: "Direct", paused: "Pause", reconnecting: "Reconnexion", error: "Erreur" },
+    aria: (label) => `Transcription : ${label.toLowerCase()}`,
+  },
+  transcript: {
+    region: "Transcription",
+    empty: "La transcription s’affichera ici.",
+    noMatches: (q) => `Aucun résultat pour « ${q} »`,
+    jumpTo: (ts) => `Aller à ${ts}`,
+    jumpToLive: "Revenir au direct",
+    jumpToLatest: "Aller à la fin",
+  },
+  toolbar: {
+    search: "Rechercher",
+    clearSearch: "Effacer la recherche",
+    copy: "Copier la transcription",
+    download: "Télécharger la transcription",
+    formats: { txt: ["Texte", ".txt horodaté"], srt: ["SubRip", "Sous-titres .srt"], vtt: ["WebVTT", "Sous-titres .vtt"] },
+  },
+  settings: {
+    showCaptions: "Afficher les sous-titres",
+    textSize: "Taille du texte",
+    sizes: ["XS", "S", "M", "L", "XL", "2XL"],
+    background: "Fond",
+    backgrounds: { solid: "Opaque", translucent: "Translucide", none: "Aucun" },
+    opacity: "Opacité",
+    text: "Texte",
+    textColor: (c) => `Couleur du texte ${c}`,
+    fonts: { sans: "Sans", serif: "Serif", mono: "Mono" },
+    lines: "Lignes",
+    placement: "Position",
+    overVideo: "Sur la vidéo",
+    belowVideo: "Sous la vidéo",
+    reset: "Réinitialiser",
+  },
+  language: {
+    legend: "Langue",
+    spoken: "Langue de la vidéo",
+    detect: "Détection automatique",
+    showIn: "Sous-titres en",
+    sameAsSpoken: "La langue parlée",
+    pair: (from, to) => `${from} → ${to}`,
+    ready: (pair) => `Traduction ${pair} sur cet appareil. Le texte ne quitte jamais votre navigateur.`,
+    needsDownload: (pair) => `La traduction ${pair} nécessite un téléchargement unique dans Chrome.`,
+    downloadNow: "Télécharger",
+    downloading: (pair, pct) => `Téléchargement ${pair}… ${pct} %`,
+    unsupported: (pair) => `Chrome ne sait pas encore traduire ${pair}. Les sous-titres restent dans la langue parlée.`,
+    noApi:
+      "La traduction utilise le traducteur intégré de Chrome, absent de ce navigateur. Utilisez Chrome sur ordinateur, ou gardez les sous-titres dans la langue parlée.",
+    auto: (target) =>
+      `Les sous-titres sont traduits en ${target} sur cet appareil. Si une langue doit être téléchargée, on vous le demandera. Choisissez la langue parlée pour la préparer dès maintenant.`,
+    noticeNoApi: "Les sous-titres ne peuvent pas être traduits dans ce navigateur. Chrome sur ordinateur a un traducteur intégré.",
+    noticeUnsupported: (pair, source) => `Chrome ne sait pas traduire ${pair} : ces sous-titres restent en ${source}.`,
+    noticeNeedsDownload: (pair) => `La traduction ${pair} nécessite un téléchargement unique.`,
+    noticeDownload: "Télécharger",
+    noticeFailed: (pair, detail) => `La traduction ${pair} a cessé de fonctionner, les sous-titres restent dans la langue parlée. Chrome a indiqué : ${detail}`,
+  },
+};

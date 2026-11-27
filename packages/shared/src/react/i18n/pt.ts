@@ -1,0 +1,61 @@
+import type { SharedUiLabels } from "../labels";
+
+export const pt: SharedUiLabels = {
+  status: {
+    status: { idle: "Desligado", connecting: "Conectando", live: "Ao vivo", paused: "Pausado", reconnecting: "Reconectando", error: "Erro" },
+    aria: (label) => `Transcrição: ${label.toLowerCase()}`,
+  },
+  transcript: {
+    region: "Transcrição",
+    empty: "A transcrição vai aparecer aqui.",
+    noMatches: (q) => `Nenhum resultado para “${q}”`,
+    jumpTo: (ts) => `Ir para ${ts}`,
+    jumpToLive: "Ir para o ao vivo",
+    jumpToLatest: "Ir para o fim",
+  },
+  toolbar: {
+    search: "Buscar na transcrição",
+    clearSearch: "Limpar busca",
+    copy: "Copiar transcrição",
+    download: "Baixar transcrição",
+    formats: { txt: ["Texto", ".txt com horários"], srt: ["SubRip", "Legendas .srt"], vtt: ["WebVTT", "Legendas .vtt"] },
+  },
+  settings: {
+    showCaptions: "Mostrar legendas",
+    textSize: "Tamanho do texto",
+    sizes: ["PP", "P", "M", "G", "GG", "XG"],
+    background: "Fundo",
+    backgrounds: { solid: "Sólido", translucent: "Translúcido", none: "Nenhum" },
+    opacity: "Opacidade",
+    text: "Texto",
+    textColor: (c) => `Cor do texto ${c}`,
+    fonts: { sans: "Sans", serif: "Serif", mono: "Mono" },
+    lines: "Linhas",
+    placement: "Posição",
+    overVideo: "Sobre o vídeo",
+    belowVideo: "Abaixo do vídeo",
+    reset: "Restaurar padrão",
+  },
+  language: {
+    legend: "Idioma",
+    spoken: "Idioma do vídeo",
+    detect: "Detectar automaticamente",
+    showIn: "Mostrar legendas em",
+    sameAsSpoken: "O idioma falado",
+    pair: (from, to) => `de ${from} para ${to}`,
+    ready: (pair) => `Traduzindo ${pair} neste dispositivo. O texto nunca sai do seu navegador.`,
+    needsDownload: (pair) => `Traduzir ${pair} precisa de um download único no Chrome.`,
+    downloadNow: "Baixar agora",
+    downloading: (pair, pct) => `Baixando ${pair}… ${pct}%`,
+    unsupported: (pair) => `O Chrome ainda não traduz ${pair}. As legendas ficam no idioma falado.`,
+    noApi:
+      "A tradução usa o tradutor integrado do Chrome, que este navegador não tem. Use o Chrome em um computador ou deixe as legendas no idioma falado.",
+    auto: (target) =>
+      `As legendas são traduzidas para ${target} neste dispositivo. Se um idioma precisar de download, vamos perguntar. Escolha o idioma falado para prepará-lo agora.`,
+    noticeNoApi: "As legendas não podem ser traduzidas neste navegador. O Chrome em um computador tem um tradutor integrado.",
+    noticeUnsupported: (pair, source) => `O Chrome não traduz ${pair}, então essas legendas ficam em ${source}.`,
+    noticeNeedsDownload: (pair) => `Traduzir ${pair} precisa de um download único.`,
+    noticeDownload: "Baixar",
+    noticeFailed: (pair, detail) => `A tradução de ${pair} parou de funcionar, então as legendas ficam como foram faladas. O Chrome disse: ${detail}`,
+  },
+};

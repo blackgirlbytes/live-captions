@@ -7,20 +7,25 @@ export default defineConfig({
   modules: ["@wxt-dev/module-react"],
   vite: () => ({ plugins: [tailwindcss()] }),
   manifest: {
-    name: "Heard — Live AI Captions",
+    // Name and description in Chrome's language: public/_locales/<locale>/messages.json.
+    name: "__MSG_extName__",
     short_name: "Heard",
-    description:
-      "Real-time AI captions and a searchable transcript for any video or audio playing in a tab. Powered by Deepgram Nova-3.",
+    description: "__MSG_extDescription__",
+    default_locale: "en",
     minimum_chrome_version: "116",
     // Deliberately minimal: no host permissions and no always-on content scripts.
     permissions: ["tabCapture", "offscreen", "sidePanel", "storage", "activeTab", "scripting"],
     icons: { 16: "icon/16.png", 32: "icon/32.png", 48: "icon/48.png", 128: "icon/128.png" },
     action: {
-      default_title: "Heard — Live AI Captions",
+      default_title: "__MSG_extName__",
       default_icon: { 16: "icon/16.png", 32: "icon/32.png" },
     },
   },
   hooks: {
+    // WXT fills the toolbar tooltip from the popup's <title>; use the translated name instead.
+    "build:manifestGenerated": (_wxt, manifest) => {
+      if (manifest.action) manifest.action.default_title = "__MSG_extName__";
+    },
     // Ship the AudioWorklet from the single source of truth in @heard/shared.
     "build:publicAssets": (_wxt, files) => {
       files.push({ relativeDest: "pcm-worklet.js", contents: PCM_WORKLET_SOURCE });

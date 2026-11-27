@@ -1,9 +1,10 @@
 import { browser } from "wxt/browser";
-import { CaptionsIcon, ExternalIcon, PanelIcon, StatusBadge, STATUS_LABELS } from "@heard/shared/react";
+import { CaptionsIcon, ExternalIcon, PanelIcon, StatusBadge } from "@heard/shared/react";
 import { Wordmark } from "@/components/Logo";
 import { needsKey, useActiveTab, useCommands, useServerStatus, useServerUrl, useSession, useUserKey } from "@/components/hooks";
 import { restrictedReason, SESSION_KEYS, type SidepanelViewRequest } from "@/utils/config";
-import { isKeyError } from "@/utils/messages";
+import { useI18n } from "@/components/useI18n";
+import { describeError, isKeyError, isNeedsKey } from "@/utils/messages";
 
 export default function App() {
   const tab = useActiveTab();
@@ -13,14 +14,16 @@ export default function App() {
   const server = useServerStatus(serverUrl, userKey.loaded && !userKey.hasKey);
   const missingKey = needsKey(userKey.hasKey, server.status);
   const cmd = useCommands();
+  const { t, ui } = useI18n();
 
   const status = snap.transcript.status;
   const here = tab?.id !== undefined && snap.tabId === tab.id;
   const onHere = capturing && here;
   const elsewhere = capturing && !here;
   const restricted = restrictedReason(tab?.url);
-  const error = cmd.error ?? (here && status === "error" ? snap.transcript.error : null);
-  const keyAction = Boolean(error) && (cmd.errorCode === "needs_key" || isKeyError(error));
+  const sessionError = here && status === "error" ? snap.transcript.error : null;
+  const error = cmd.error ? describeError(t, cmd.error) : sessionError;
+  const keyAction = cmd.error ? isNeedsKey(cmd.error) : isKeyError(sessionError);
   // An Heard web app only exists in server mode; hide the link when nothing is there.
   const showWebLink = !userKey.hasKey && (server.status === "ready" || server.status === "no_server_key" || server.status === "unknown");
 
@@ -60,23 +63,23 @@ export default function App() {
   };
 
   const statusLine = (() => {
-    if (!loaded) return "Checking…";
-    if (restricted) return restricted;
+    if (!loaded) return t.popup.checking;
+    if (restricted) return t.errors[restricted];
     if (onHere) {
-      if (status === "live") return "Captioning this tab's audio.";
-      if (status === "connecting") return "Connecting to Deepgram…";
-      if (status === "reconnecting") return "Connection lost — reconnecting…";
-      return STATUS_LABELS[status];
+      if (status === "live") return t.popup.live;
+      if (status === "connecting") return t.popup.connecting;
+      if (status === "reconnecting") return t.popup.reconnecting;
+      return ui.status.status[status];
     }
-    if (elsewhere) return `Captions are running on another tab${snap.tabTitle ? `: “${snap.tabTitle}”` : ""}. Starting here stops that one.`;
-    return "Turn on to caption whatever is playing in this tab.";
+    if (elsewhere) return t.popup.elsewhere(snap.tabTitle);
+    return t.popup.idle;
   })();
 
   return (
     <div className="w-[340px] space-y-3 p-4">
       <header className="flex items-center justify-between">
         <Wordmark />
-        <StatusBadge status={capturing || here ? status : "idle"} />
+        <StatusBadge status={capturing || here ? status : "idle"} labels={ui.status} />
       </header>
 
       <section className="rounded-2xl bg-ink-850 p-4 ring-1 ring-ink-700">
@@ -85,16 +88,16 @@ export default function App() {
             <CaptionsIcon size={20} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[15px] font-semibold text-ink-100">AI captions</p>
+            <p className="text-[15px] font-semibold text-ink-100">{t.popup.title}</p>
             <p className="truncate text-xs text-ink-400" title={tab?.title}>
-              {tab?.title || "This tab"}
+              {tab?.title || t.common.thisTab}
             </p>
           </div>
           <button
             type="button"
             role="switch"
             aria-checked={onHere}
-            aria-label={onHere ? "Stop captions" : "Start captions"}
+            aria-label={onHere ? t.popup.stop : t.popup.start}
             disabled={!tab?.id || Boolean(restricted) || cmd.pending || !loaded}
             onClick={toggle}
             className={`relative h-8 w-14 shrink-0 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-40 ${
@@ -114,7 +117,7 @@ export default function App() {
             <p>{error}</p>
             {keyAction && (
               <button type="button" onClick={() => openPanel("settings")} className="mt-1.5 font-semibold underline hover:no-underline">
-                {userKey.hasKey ? "Check your key" : "Add your Deepgram key"}
+                {userKey.hasKey ? t.common.checkKey : t.common.addDeepgramKey}
               </button>
             )}
           </div>
@@ -122,13 +125,11 @@ export default function App() {
         {missingKey && !capturing && !error && !restricted && (
           <div data-testid="needs-key" className="mt-2 rounded-lg bg-ink-800 px-3 py-2.5 text-xs leading-relaxed text-ink-200">
             <p>
-              <span className="font-semibold text-ink-100">Add a Deepgram API key to start.</span>{" "}
-              {server.status === "no_server_key"
-                ? "The Heard server has no Deepgram key."
-                : "No Heard server is running, so Heard needs your own key. It stays in this browser."}
+              <span className="font-semibold text-ink-100">{t.common.addKeyTitle}</span>{" "}
+              {server.status === "no_server_key" ? t.popup.noServerKey : t.popup.noServer}
             </p>
             <button type="button" onClick={() => openPanel("settings")} className="mt-1.5 font-semibold text-accent hover:underline">
-              Add your key →
+              {t.common.addKeyLink}
             </button>
           </div>
         )}
@@ -140,7 +141,7 @@ export default function App() {
           onClick={() => void cmd.showOverlay()}
           className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-accent-ink hover:bg-accent-strong"
         >
-          <CaptionsIcon size={16} /> Show captions overlay
+          <CaptionsIcon size={16} /> {t.popup.showOverlay}
         </button>
       )}
 
@@ -151,7 +152,7 @@ export default function App() {
           disabled={!tab?.id}
           className="flex h-10 items-center gap-2.5 rounded-xl px-3 text-sm text-ink-200 ring-1 ring-ink-700 hover:bg-ink-800 disabled:opacity-40"
         >
-          <PanelIcon size={16} /> Open transcript panel
+          <PanelIcon size={16} /> {t.popup.openPanel}
         </button>
         {showWebLink && (
           <button
@@ -159,13 +160,13 @@ export default function App() {
             onClick={() => serverUrl && void browser.tabs.create({ url: serverUrl })}
             className="flex h-10 items-center gap-2.5 rounded-xl px-3 text-sm text-ink-200 ring-1 ring-ink-700 hover:bg-ink-800"
           >
-            <ExternalIcon size={16} /> Open Heard web
+            <ExternalIcon size={16} /> {t.popup.openWeb}
           </button>
         )}
       </div>
 
       <p className="text-[11px] leading-relaxed text-ink-500">
-        Audio is only captured after you press Start; transcripts are not saved.
+        {t.common.privacy}
       </p>
     </div>
   );

@@ -74,7 +74,10 @@ export function CaptionText({ caption, settings, translation, fadeAfterMs = 6000
           WebkitBoxDecorationBreak: "clone",
         }}
       >
-        <span>{caption.text || " "}</span>
+        {/* dir="auto" keeps right-to-left languages (Arabic, Hebrew…) in the right order. */}
+        <span dir="auto" lang={translation ? undefined : caption.language}>
+          {(caption.text && translation) || caption.text || " "}
+        </span>
       </div>
     </div>
   );

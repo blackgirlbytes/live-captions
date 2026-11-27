@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { browser, type Browser } from "wxt/browser";
-import { initialTranscriptState, reduceTranscript, type CaptionSettings, type TranscriptEvent } from "@heard/shared";
+import {
+  initialTranscriptState,
+  reduceTranscript,
+  TranslationEngine,
+  type CaptionSettings,
+  type TranscriptEvent,
+} from "@heard/shared";
 import {
   getCaptionSettings,
   getServerUrl,
@@ -10,15 +16,27 @@ import {
   STORAGE_KEYS,
   type ServerStatus,
 } from "@/utils/config";
-import { isCapturing, isRuntimeMessage, sendToBackground, type CommandResult, type SessionSnapshot } from "@/utils/messages";
+import {
+  errorMessage,
+  isCapturing,
+  isRuntimeMessage,
+  sendToBackground,
+  type CommandError,
+  type CommandResult,
+  type SessionSnapshot,
+} from "@/utils/messages";
 
 const EMPTY: SessionSnapshot = { tabId: null, tabTitle: null, overlayHidden: false, transcript: initialTranscriptState() };
 
 /**
  * Session snapshot from the offscreen document (via the background), kept current by
  * applying the offscreen's broadcast events with the shared pure reducer.
+ *
+ * With `translate`, this page also translates the transcript into the chosen caption
+ * language and sends caption translations on to the overlay. That happens here rather than
+ * in the offscreen document because Chrome's built-in translator refuses to run there.
  */
-export function useSession() {
+export function useSession({ translate = false }: { translate?: boolean } = {}) {
   const [snap, setSnap] = useState<SessionSnapshot>(EMPTY);
   const [loaded, setLoaded] = useState(false);
 
@@ -27,11 +45,32 @@ export function useSession() {
     const early: Array<(s: SessionSnapshot) => SessionSnapshot> = [];
     const apply = (fn: (s: SessionSnapshot) => SessionSnapshot) => (ready ? setSnap(fn) : early.push(fn));
 
+    let alive = true;
+    const engine = translate
+      ? new TranslationEngine((event) => {
+          if (!alive) return; // a translation finishing after this panel closed
+          apply((s) => ({ ...s, transcript: reduceTranscript(s.transcript, event) }));
+          if (event.type === "caption-translated" || event.type === "translation-config") {
+            void sendToBackground({ to: "background", type: "overlay-translation", event }).catch(() => undefined);
+          }
+        })
+      : null;
+    const configure = () =>
+      void getCaptionSettings().then((s) => engine?.configure(s.spokenLanguage, s.captionLanguage));
+    const onSettings = (changes: Record<string, unknown>, area: string) => {
+      if (area === "local" && STORAGE_KEYS.captionSettings in changes) configure();
+    };
+    if (engine) {
+      configure();
+      browser.storage.onChanged.addListener(onSettings);
+    }
+
     const onMessage = (msg: unknown) => {
       if (!isRuntimeMessage(msg) || msg.to !== "broadcast") return;
       if (msg.type === "transcript-event") {
         const { event, tabId } = msg as { event: TranscriptEvent; tabId: number | null };
         apply((s) => ({ ...s, tabId: tabId ?? s.tabId, transcript: reduceTranscript(s.transcript, event) }));
+        engine?.handle(event);
       } else if (msg.type === "meta") {
         apply((s) => ({ ...s, ...msg.meta }));
       }
@@ -44,11 +83,19 @@ export function useSession() {
       .then((s) => {
         ready = true;
         // Replay events that raced the snapshot (line events are de-duplicated by id).
-        setSnap(early.reduce((acc, fn) => fn(acc), s));
+        const merged = early.reduce((acc, fn) => fn(acc), s);
+        setSnap(merged);
         setLoaded(true);
+        // Translate what was said before this panel opened.
+        for (const line of merged.transcript.lines) engine?.handle({ type: "line", line });
+        if (merged.transcript.caption.text) engine?.handle({ type: "caption", caption: merged.transcript.caption });
       });
-    return () => browser.runtime.onMessage.removeListener(onMessage);
-  }, []);
+    return () => {
+      alive = false;
+      browser.runtime.onMessage.removeListener(onMessage);
+      if (engine) browser.storage.onChanged.removeListener(onSettings);
+    };
+  }, [translate]);
 
   return { snap, loaded, capturing: isCapturing(snap.transcript.status) };
 }
@@ -160,22 +207,17 @@ export function needsKey(hasKey: boolean, server: ServerStatus | "checking" | nu
 /** Start/stop/show-overlay commands with pending + error state. */
 export function useCommands() {
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [errorCode, setErrorCode] = useState<string | null>(null);
+  const [error, setError] = useState<CommandError | null>(null);
 
   const run = useCallback(async (fn: () => Promise<CommandResult>) => {
     setPending(true);
     setError(null);
-    setErrorCode(null);
     try {
       const res = await fn();
-      if (!res?.ok) {
-        setError(res?.error ?? "Something went wrong.");
-        setErrorCode(res?.code ?? null);
-      }
+      if (!res?.ok) setError(res?.error ?? { code: "unknown" });
       return Boolean(res?.ok);
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError({ code: "unknown", detail: errorMessage(err) });
       return false;
     } finally {
       setPending(false);
@@ -184,13 +226,9 @@ export function useCommands() {
 
   return {
     pending,
+    /** Why the last command failed; show it with `describeError`. */
     error,
-    /** "needs_key" when the fix is adding a Deepgram key. */
-    errorCode,
-    clearError: () => {
-      setError(null);
-      setErrorCode(null);
-    },
+    clearError: () => setError(null),
     start: (tabId: number) => run(() => sendToBackground({ to: "background", type: "start", tabId })),
     stop: () => run(() => sendToBackground({ to: "background", type: "stop" })),
     showOverlay: () => run(() => sendToBackground({ to: "background", type: "show-overlay" })),

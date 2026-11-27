@@ -13,6 +13,8 @@ export const STORAGE_KEYS = {
   overlayLayout: "overlayLayout",
   /** The user's own Deepgram API key ("bring your own key"). Only ever sent to Deepgram. */
   deepgramKey: "deepgramKey",
+  /** Interface language ("en", "es", …); missing means "follow Chrome". */
+  uiLanguage: "uiLanguage",
 } as const;
 
 /** chrome.storage.session keys (cleared when the browser closes). */
@@ -111,13 +113,13 @@ export async function getCaptionSettings(): Promise<CaptionSettings> {
  * Pages Chrome never lets extensions capture or script. `url` is only known when we have
  * activeTab for the tab (popup) — undefined means "can't tell", so we let Chrome decide.
  */
-export function restrictedReason(url: string | undefined): string | null {
+export function restrictedReason(url: string | undefined): "restricted_chrome" | "restricted_webstore" | null {
   if (!url) return null;
   if (/^(chrome|edge|brave|about|devtools|view-source|chrome-extension|chrome-search|chrome-untrusted):/i.test(url)) {
-    return "Chrome doesn't allow extensions to capture its own pages. Open a site with video or audio.";
+    return "restricted_chrome";
   }
   if (/^https:\/\/(chromewebstore\.google\.com|chrome\.google\.com\/webstore)/i.test(url)) {
-    return "Chrome doesn't allow extensions to run on the Chrome Web Store.";
+    return "restricted_webstore";
   }
   return null;
 }

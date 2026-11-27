@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Heard — Live AI Captions",
+    "description": "Extension name in Chrome and the Web Store."
+  },
+  "extDescription": {
+    "message": "Real-time AI captions and a searchable transcript for any video or audio playing in a tab. Powered by Deepgram Nova-3.",
+    "description": "Extension description in Chrome and the Web Store."
+  }
+}

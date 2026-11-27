@@ -117,6 +117,48 @@ describe("TranslationEngine", () => {
     expect(state.translation.caption).toBe("hallo");
   });
 
+  it("reports a translator that never answers instead of waiting forever", async () => {
+    vi.useFakeTimers();
+    try {
+      g.Translator = {
+        availability: vi.fn(async () => "available"),
+        create: vi.fn(() => new Promise(() => undefined)),
+      };
+      let state = initialTranscriptState();
+      const engine = new TranslationEngine((e) => (state = reduceTranscript(state, e)));
+      // A pair no earlier test created (translators are cached per page).
+      engine.configure("ko", "en");
+      engine.handle({ type: "caption", caption: { text: "안녕하세요", hasInterim: false, updatedAt: 1 } });
+      await vi.advanceTimersByTimeAsync(21_000);
+      expect(state.translation.issue?.kind).toBe("failed");
+      expect(state.translation.issue?.detail).toMatch(/didn't answer/);
+      expect(state.translation.caption).toBe("안녕하세요");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("reports a translation that throws", async () => {
+    g.Translator = {
+      availability: vi.fn(async () => "available"),
+      create: vi.fn(async () => ({
+        translate: async () => {
+          throw new DOMException("The model crashed", "OperationError");
+        },
+        destroy() {},
+      })),
+    };
+    let state = initialTranscriptState();
+    const engine = new TranslationEngine((e) => (state = reduceTranscript(state, e)));
+    engine.configure("nl", "en");
+    engine.handle({ type: "caption", caption: { text: "hallo daar", hasInterim: false, updatedAt: 1 } });
+    await flush();
+    await flush();
+    await flush();
+    expect(state.translation.issue).toMatchObject({ kind: "failed", detail: "OperationError: The model crashed" });
+    expect(state.translation.caption).toBe("hallo daar");
+  });
+
   it("does nothing when the caption language matches the spoken one", () => {
     const events: TranscriptEvent[] = [];
     const engine = new TranslationEngine((e) => events.push(e));

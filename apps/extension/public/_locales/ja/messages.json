@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Heard — AI ライブ字幕",
+    "description": "Extension name in Chrome and the Web Store."
+  },
+  "extDescription": {
+    "message": "タブで再生中の動画や音声に、AI によるリアルタイム字幕と検索できる文字起こしを表示します。Deepgram Nova-3 を使用。",
+    "description": "Extension description in Chrome and the Web Store."
+  }
+}

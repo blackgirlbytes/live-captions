@@ -12,6 +12,7 @@
  */
 import { browser } from "wxt/browser";
 import type { CaptionState, TranscriptEvent, TranscriptionStatus, TranscriptState } from "@heard/shared";
+import type { ExtensionMessages } from "@/i18n/en";
 
 /** Everything the UI needs to render one capture session. Lives in the offscreen document. */
 export interface SessionSnapshot {
@@ -25,8 +26,30 @@ export interface SessionSnapshot {
 
 export type SessionMeta = Pick<SessionSnapshot, "tabId" | "tabTitle" | "overlayHidden">;
 
-/** Generic reply for commands. `code: "needs_key"` means "the user should add their own Deepgram key". */
-export type CommandResult = { ok: true } | { ok: false; error: string; code?: "needs_key" };
+/**
+ * Why a command failed. Contexts send codes, not sentences, so each page can say it in its
+ * own interface language (see `describeError`). `detail` fills the message's blank: a server
+ * URL or Chrome's own error text.
+ */
+export type ErrorCode = keyof ExtensionMessages["errors"];
+export interface CommandError {
+  code: ErrorCode;
+  detail?: string;
+}
+
+/** Generic reply for commands. */
+export type CommandResult = { ok: true } | { ok: false; error: CommandError };
+
+export function describeError(t: ExtensionMessages, error: CommandError): string {
+  const m = t.errors[error.code] as string | ((detail: string) => string) | undefined;
+  if (typeof m === "function") return m(error.detail ?? "");
+  return m ?? t.errors.unknown(error.detail ?? "");
+}
+
+/** Failures that adding the user's own Deepgram key fixes. */
+export function isNeedsKey(error: CommandError | null | undefined): boolean {
+  return error?.code === "needs_key_unreachable" || error?.code === "needs_key_no_server_key";
+}
 
 /**
  * How the offscreen document authenticates to Deepgram. Chosen by the background, which
@@ -45,7 +68,12 @@ export type BackgroundRequest =
   /** From the overlay: the user closed the caption box. */
   | { to: "background"; type: "overlay-dismissed" }
   /** From a freshly injected overlay: "what should I show?" (tab comes from sender). */
-  | { to: "background"; type: "overlay-hello" };
+  | { to: "background"; type: "overlay-hello" }
+  /** From the side panel, which translates: a caption translation for the captured tab's overlay. */
+  | { to: "background"; type: "overlay-translation"; event: TranslationEvent };
+
+/** Translation events the side panel produces and the overlay shows. */
+export type TranslationEvent = Extract<TranscriptEvent, { type: "caption-translated" | "translation-config" }>;
 
 export interface BackgroundResponses {
   start: CommandResult;
@@ -54,6 +82,7 @@ export interface BackgroundResponses {
   "show-overlay": CommandResult;
   "overlay-dismissed": CommandResult;
   "overlay-hello": OverlayHello;
+  "overlay-translation": CommandResult;
 }
 
 export interface OverlayHello {
@@ -145,11 +174,18 @@ export function isCapturing(status: TranscriptionStatus): boolean {
   return status === "connecting" || status === "live" || status === "paused" || status === "reconnecting";
 }
 
-/** Session errors that the user's (or the server's) Deepgram key can fix. */
+/**
+ * Session errors that the user's (or the server's) Deepgram key can fix. These come from the
+ * shared transcription code, which reports English sentences, hence the text match.
+ */
 export function isKeyError(message: string | null | undefined): boolean {
   return Boolean(message && /API key|Deepgram key/i.test(message));
 }
 
 export function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
+}
+
+export function unknownError(err: unknown): { ok: false; error: CommandError } {
+  return { ok: false, error: { code: "unknown", detail: errorMessage(err) } };
 }

@@ -18,6 +18,7 @@ import {
   broadcast,
   errorMessage,
   isRuntimeMessage,
+  unknownError,
   type CommandResult,
   type OffscreenRequest,
   type OffscreenResponses,
@@ -52,7 +53,7 @@ async function start(msg: Extract<OffscreenRequest, { type: "start" }>): Promise
       video: false,
     } as unknown as MediaStreamConstraints);
   } catch (err) {
-    return { ok: false, error: `Could not capture the tab's audio: ${errorMessage(err)}` };
+    return { ok: false, error: { code: "tab_audio_failed", detail: errorMessage(err) } };
   }
 
   const tabId = msg.tabId;
@@ -72,7 +73,9 @@ async function start(msg: Extract<OffscreenRequest, { type: "start" }>): Promise
       broadcast({ to: "broadcast", type: "transcript-event", tabId, event });
     },
   });
-  s.setLanguages(msg.languages.spoken, msg.languages.caption);
+  // Only the spoken language matters here. Chrome's translator refuses to run in this hidden
+  // page, so the side panel translates (see useSession in components/hooks.ts).
+  s.setLanguages(msg.languages.spoken, "");
   session = s;
   // start() resolves after the first connect attempt; failures surface as status events.
   void s.start(stream);
@@ -89,7 +92,7 @@ async function stop(): Promise<CommandResult> {
 browser.runtime.onMessage.addListener((msg: unknown, _sender, sendResponse) => {
   if (!isRuntimeMessage(msg) || msg.to !== "offscreen") return;
   const reply = <K extends OffscreenRequest["type"]>(_type: K, value: OffscreenResponses[K] | Promise<OffscreenResponses[K]>) => {
-    Promise.resolve(value).then(sendResponse, (err) => sendResponse({ ok: false, error: errorMessage(err) }));
+    Promise.resolve(value).then(sendResponse, (err) => sendResponse(unknownError(err)));
     return true as const;
   };
   switch (msg.type) {
@@ -100,7 +103,7 @@ browser.runtime.onMessage.addListener((msg: unknown, _sender, sendResponse) => {
     case "get-state":
       return reply("get-state", snapshot());
     case "set-languages":
-      session?.setLanguages(msg.languages.spoken, msg.languages.caption);
+      session?.setLanguages(msg.languages.spoken, "");
       return reply("set-languages", { ok: true });
     case "set-overlay-hidden":
       setMeta({ overlayHidden: msg.hidden });

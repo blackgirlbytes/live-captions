@@ -1,5 +1,3 @@
-import type { SharedUiLabels } from "@heard/shared/react";
-
 /** English words for the "watch" area. Other languages copy this exact shape. */
 export const watch = {
   shell: {
@@ -79,63 +77,4 @@ export const watch = {
     footnote:
       "Only this tab’s sound is used, and only while captions are on. Audio goes to Deepgram for transcription; transcripts stay in this tab.",
   },
-  /** Words inside the shared transcript/settings components (also used, in English, by the extension). */
-  ui: {
-    status: {
-      status: { idle: "Off", connecting: "Connecting", live: "Live", paused: "Paused", reconnecting: "Reconnecting", error: "Error" },
-      aria: (label: string) => `Transcription ${label.toLowerCase()}`,
-    },
-    transcript: {
-      region: "Transcript",
-      empty: "The transcript will appear here.",
-      noMatches: (q: string) => `No matches for “${q}”`,
-      jumpTo: (ts: string) => `Jump to ${ts}`,
-      jumpToLive: "Jump to live",
-      jumpToLatest: "Jump to latest",
-    },
-    toolbar: {
-      search: "Search transcript",
-      clearSearch: "Clear search",
-      copy: "Copy transcript",
-      download: "Download transcript",
-      formats: { txt: ["Text", "Timestamped .txt"], srt: ["SubRip", ".srt subtitles"], vtt: ["WebVTT", ".vtt subtitles"] },
-    },
-    settings: {
-      showCaptions: "Show captions",
-      textSize: "Text size",
-      sizes: ["XS", "S", "M", "L", "XL", "2XL"],
-      background: "Background",
-      backgrounds: { solid: "Solid", translucent: "Translucent", none: "None" },
-      opacity: "Opacity",
-      text: "Text",
-      textColor: (c: string) => `Text color ${c}`,
-      fonts: { sans: "Sans", serif: "Serif", mono: "Mono" },
-      lines: "Lines",
-      placement: "Placement",
-      overVideo: "Over video",
-      belowVideo: "Below video",
-      reset: "Reset to defaults",
-    },
-    language: {
-      legend: "Language",
-      spoken: "Spoken in the video",
-      detect: "Detect automatically",
-      showIn: "Show captions in",
-      sameAsSpoken: "The spoken language",
-      pair: (from: string, to: string) => `${from} to ${to}`,
-      ready: (pair: string) => `Translating ${pair} on this device. Text never leaves your browser.`,
-      needsDownload: (pair: string) => `Translating ${pair} needs a one-time download in Chrome.`,
-      downloadNow: "Download now",
-      downloading: (pair: string, pct: number) => `Downloading ${pair}… ${pct}%`,
-      unsupported: (pair: string) => `Chrome can’t translate ${pair} yet. Captions stay in the spoken language.`,
-      noApi:
-        "Translation uses Chrome’s built-in translator, which this browser doesn’t have. Use Chrome on a computer, or keep captions in the spoken language.",
-      auto: (target: string) =>
-        `Captions are translated to ${target} on this device. If a language needs a download first, you’ll be asked. Pick the spoken language to get it ready now.`,
-      noticeNoApi: "Captions can’t be translated in this browser. Chrome on a computer has a built-in translator.",
-      noticeUnsupported: (pair: string, source: string) => `Chrome can’t translate ${pair}, so those captions stay in ${source}.`,
-      noticeNeedsDownload: (pair: string) => `Translating ${pair} needs a one-time download.`,
-      noticeDownload: "Download",
-    },
-  } satisfies SharedUiLabels as SharedUiLabels,
 };

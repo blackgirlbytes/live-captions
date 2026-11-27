@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Heard — Legendas com IA ao vivo",
+    "description": "Extension name in Chrome and the Web Store."
+  },
+  "extDescription": {
+    "message": "Legendas com IA em tempo real e uma transcrição pesquisável para qualquer vídeo ou áudio tocando em uma aba. Com Deepgram Nova-3.",
+    "description": "Extension description in Chrome and the Web Store."
+  }
+}

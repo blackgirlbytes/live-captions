@@ -8,3 +8,4 @@ export * from "./deepgram";
 export * from "./session";
 export * from "./token";
 export * from "./translate";
+export * from "./locales";

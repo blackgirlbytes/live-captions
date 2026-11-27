@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { AUTO_LANGUAGE, CAPTION_LANGUAGES, languageName, SPOKEN_LANGUAGES } from "../core/settings";
 import { hasTranslator, prepareTranslator, translatorAvailability, translatorCode } from "../core/translate";
 import type { CaptionSettings, TranslationIssue } from "../core/types";
 import { DEFAULT_LANGUAGE_SETTINGS_LABELS, type LanguageSettingsLabels } from "./labels";
+import { Select } from "./Select";
 
 function resolve(labels?: Partial<LanguageSettingsLabels>) {
   const L = { ...DEFAULT_LANGUAGE_SETTINGS_LABELS, ...labels };
@@ -20,9 +21,6 @@ type PairStatus =
   | { kind: "no-api" }
   | { kind: "auto" };
 
-const selectClass =
-  "h-9 w-full rounded-lg bg-ink-850 px-2.5 text-sm text-ink-100 ring-1 ring-ink-700 focus-visible:outline-2 focus-visible:outline-accent";
-
 /** Spoken language (Deepgram) and caption language (Chrome's on-device translator). */
 export function LanguageSettings({
   settings,
@@ -37,6 +35,10 @@ export function LanguageSettings({
   const spoken = settings.spokenLanguage;
   const target = settings.captionLanguage;
   const [status, setStatus] = useState<PairStatus>({ kind: "none" });
+  const id = useId();
+  const label = (code: string, english: string) => (L.languageName ? name(code) : english);
+  const spokenOptions = [{ value: AUTO_LANGUAGE, label: L.detect }, ...SPOKEN_LANGUAGES.map(([code, english]) => ({ value: code, label: label(code, english) }))];
+  const captionOptions = [{ value: "", label: L.sameAsSpoken }, ...CAPTION_LANGUAGES.map(([code, english]) => ({ value: code, label: label(code, english) }))];
 
   const translating = Boolean(target) && !(spoken !== AUTO_LANGUAGE && translatorCode(spoken) === translatorCode(target));
 
@@ -71,46 +73,36 @@ export function LanguageSettings({
   };
 
   return (
-    <fieldset className="space-y-3">
-      <legend className="mb-2 text-xs font-medium tracking-wide text-ink-400 uppercase">{L.legend}</legend>
-      <label className="block space-y-1.5">
-        <span className="text-xs text-ink-400">{L.spoken}</span>
-        <select
-          className={selectClass}
+    <fieldset className="space-y-5">
+      <legend className="mb-3 text-xs font-medium tracking-wide text-ink-400 uppercase">{L.legend}</legend>
+      <div className="space-y-2">
+        <span id={`${id}-spoken`} className="block text-xs text-ink-400">
+          {L.spoken}
+        </span>
+        <Select
+          aria-labelledby={`${id}-spoken`}
           value={spoken}
-          onChange={(e) => {
-            const next = e.target.value;
+          options={spokenOptions}
+          onChange={(next) => {
             onChange({ ...settings, spokenLanguage: next });
             download(next, target);
           }}
-        >
-          <option value={AUTO_LANGUAGE}>{L.detect}</option>
-          {SPOKEN_LANGUAGES.map(([code, english]) => (
-            <option key={code} value={code}>
-              {L.languageName ? name(code) : english}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="block space-y-1.5">
-        <span className="text-xs text-ink-400">{L.showIn}</span>
-        <select
-          className={selectClass}
+        />
+      </div>
+      <div className="space-y-2">
+        <span id={`${id}-show`} className="block text-xs text-ink-400">
+          {L.showIn}
+        </span>
+        <Select
+          aria-labelledby={`${id}-show`}
           value={target}
-          onChange={(e) => {
-            const next = e.target.value;
+          options={captionOptions}
+          onChange={(next) => {
             onChange({ ...settings, captionLanguage: next });
             download(spoken, next);
           }}
-        >
-          <option value="">{L.sameAsSpoken}</option>
-          {CAPTION_LANGUAGES.map(([code, english]) => (
-            <option key={code} value={code}>
-              {L.languageName ? name(code) : english}
-            </option>
-          ))}
-        </select>
-      </label>
+        />
+      </div>
       <PairStatusNote status={status} spoken={spoken} target={target} onDownload={() => download(spoken, target)} labels={labels} />
     </fieldset>
   );
@@ -183,6 +175,8 @@ export function TranslationNotice({
   let body;
   if (issue.kind === "no-api") {
     body = <>{L.noticeNoApi}</>;
+  } else if (issue.kind === "failed") {
+    body = <>{L.noticeFailed(pair, issue.detail ?? "")}</>;
   } else if (issue.kind === "unsupported" || state === "failed") {
     body = <>{L.noticeUnsupported(pair, r.name(issue.source))}</>;
   } else if (state === "downloading") {

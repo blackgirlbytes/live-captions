@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExter
 import { browser } from "wxt/browser";
 import { CaptionText } from "@heard/shared/react";
 import { DEFAULT_CAPTION_SETTINGS, type CaptionSettings, type CaptionState, type TranscriptionStatus } from "@heard/shared";
+import { useI18n } from "@/components/useI18n";
 import { getCaptionSettings, STORAGE_KEYS, type OverlayLayout } from "@/utils/config";
 
 /* ------------------------------ tiny store ------------------------------ */
@@ -142,15 +143,9 @@ function onVideo(video: Rect, boxHeight: number) {
 
 /* ------------------------------ component ------------------------------ */
 
-const STATUS_TEXT: Partial<Record<TranscriptionStatus, string>> = {
-  live: "Live",
-  connecting: "Connecting…",
-  reconnecting: "Reconnecting…",
-  paused: "Paused",
-};
-
 export function Overlay({ store, onDismiss }: { store: OverlayStore; onDismiss: () => void }) {
   const { status, caption, translation, hidden } = useSyncExternalStore(store.subscribe, store.get);
+  const { t } = useI18n();
   const [settings, setSettings] = useState<CaptionSettings>({ ...DEFAULT_CAPTION_SETTINGS, position: "overlay" });
   const [layout, setLayout] = useState<OverlayLayout>(defaultLayout);
   const video = useMainVideoRect();
@@ -247,14 +242,14 @@ export function Overlay({ store, onDismiss }: { store: OverlayStore; onDismiss: 
 
   if (hidden || !settings.enabled) return null;
 
-  const label = STATUS_TEXT[status] ?? "";
+  const label = (t.overlay.status as Partial<Record<TranscriptionStatus, string>>)[status] ?? "";
   return (
     <div
       ref={boxRef}
       className={`box ${mode !== "idle" ? "active" : ""} ${mode === "drag" ? "dragging" : ""}`}
       style={{ left: pos.left, top: pos.top, width: pos.width }}
       onPointerDown={(e) => track(e, "drag")}
-      aria-label="Heard live captions. Drag to move."
+      aria-label={t.overlay.region}
     >
       <div className={`live ${status === "live" ? "on" : ""}`} title={`Heard: ${label || status}`}>
         <span className="dot" aria-hidden="true" />
@@ -262,7 +257,7 @@ export function Overlay({ store, onDismiss }: { store: OverlayStore; onDismiss: 
       </div>
 
       <div className="bar">
-        <span className="btn grip" title="Drag to move" aria-hidden="true">
+        <span className="btn grip" title={t.overlay.drag} aria-hidden="true">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <circle cx="9" cy="6" r="1.6" />
             <circle cx="15" cy="6" r="1.6" />
@@ -276,8 +271,8 @@ export function Overlay({ store, onDismiss }: { store: OverlayStore; onDismiss: 
           <button
             type="button"
             className="btn"
-            title="Put captions back on the video"
-            aria-label="Put captions back on the video"
+            title={t.overlay.backOnVideo}
+            aria-label={t.overlay.backOnVideo}
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => {
               const next = { ...layout, manual: false };
@@ -294,8 +289,8 @@ export function Overlay({ store, onDismiss }: { store: OverlayStore; onDismiss: 
         <button
           type="button"
           className="btn"
-          title="Hide captions on this tab (the transcript keeps going in the side panel)"
-          aria-label="Hide captions"
+          title={t.overlay.hideTitle}
+          aria-label={t.overlay.hide}
           onPointerDown={(e) => e.stopPropagation()}
           onClick={onDismiss}
         >
@@ -307,7 +302,7 @@ export function Overlay({ store, onDismiss }: { store: OverlayStore; onDismiss: 
 
       <CaptionText caption={caption} settings={scaled} translation={translation} style={{ minHeight: `${1.35 * scaled.fontSize}px` }} />
 
-      <span className="resize" title="Drag to resize" aria-hidden="true" onPointerDown={(e) => track(e, "resize")} />
+      <span className="resize" title={t.overlay.resize} aria-hidden="true" onPointerDown={(e) => track(e, "resize")} />
     </div>
   );
 }

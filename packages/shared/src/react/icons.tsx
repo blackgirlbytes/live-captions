@@ -92,3 +92,14 @@ export const WaveIcon = (p: IconProps) => (
     <path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 7v10M21 12h0" />
   </Icon>
 );
+export const ChevronDownIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="m6 9 6 6 6-6" />
+  </Icon>
+);
+export const GlobeIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18M12 3c2.5 2.8 2.5 15.2 0 18M12 3c-2.5 2.8-2.5 15.2 0 18" />
+  </Icon>
+);

@@ -10,14 +10,17 @@ import { browser, type Browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
 import { initialTranscriptState, type TranscriptEvent } from "@heard/shared";
 import { getCaptionSettings, getServerUrl, getUserKey, probeServer, restrictedReason, STORAGE_KEYS, tokenEndpoint } from "@/utils/config";
+import { getMessages, onUiLanguageChange } from "@/utils/i18n";
 import {
   errorMessage,
   isCapturing,
   isRuntimeMessage,
   sendToOffscreen,
   sendToOverlay,
+  unknownError,
   type BackgroundRequest,
   type BackgroundResponses,
+  type CommandError,
   type CommandResult,
   type CredentialSource,
   type OverlayHello,
@@ -83,10 +86,8 @@ export default defineBackground(() => {
         await browser.action.setBadgeBackgroundColor({ tabId, color: LIVE_COLOR });
         await browser.action.setBadgeTextColor?.({ tabId, color: "#ffffff" });
       }
-      await browser.action.setTitle({
-        tabId,
-        title: live ? "Heard — capturing this tab's audio (click to stop)" : "Heard — Live AI Captions",
-      });
+      const t = await getMessages();
+      await browser.action.setTitle({ tabId, title: live ? t.action.live : t.action.idle });
     } catch {
       /* tab is gone */
     }
@@ -104,18 +105,12 @@ export default defineBackground(() => {
 
   /* ------------------------------ commands ------------------------------ */
 
-  function explainCaptureError(err: unknown): string {
+  function explainCaptureError(err: unknown): CommandError {
     const msg = errorMessage(err);
-    if (/invoked|activeTab/i.test(msg)) {
-      return "Chrome only allows capture after you use Heard on this tab. Click the Heard toolbar icon on this tab, then Start.";
-    }
-    if (/active stream/i.test(msg)) {
-      return "This tab's audio is already being captured (by Heard or another extension). Stop that capture and try again.";
-    }
-    if (/chrome pages|cannot be captured/i.test(msg)) {
-      return "Chrome doesn't allow capturing this page.";
-    }
-    return `Could not capture this tab: ${msg}`;
+    if (/invoked|activeTab/i.test(msg)) return { code: "capture_not_invoked" };
+    if (/active stream/i.test(msg)) return { code: "capture_busy" };
+    if (/chrome pages|cannot be captured/i.test(msg)) return { code: "capture_blocked" };
+    return { code: "capture_failed", detail: msg };
   }
 
   /**
@@ -128,28 +123,16 @@ export default defineBackground(() => {
     if (userKey) return { ok: true, credential: { kind: "user-key", userKey } };
     const serverUrl = await getServerUrl();
     const status = await probeServer(serverUrl);
-    if (status === "unreachable") {
-      return {
-        ok: false,
-        code: "needs_key",
-        error: `Heard needs a Deepgram API key. Add your own key in settings (the Heard server at ${serverUrl} isn't reachable).`,
-      };
-    }
-    if (status === "no_server_key") {
-      return {
-        ok: false,
-        code: "needs_key",
-        error: `Heard needs a Deepgram API key. Add your own key in settings (the Heard server at ${serverUrl} has no Deepgram key).`,
-      };
-    }
+    if (status === "unreachable") return { ok: false, error: { code: "needs_key_unreachable", detail: serverUrl } };
+    if (status === "no_server_key") return { ok: false, error: { code: "needs_key_no_server_key", detail: serverUrl } };
     return { ok: true, credential: { kind: "server", tokenEndpoint: tokenEndpoint(serverUrl) } };
   }
 
   async function start(tabId: number): Promise<CommandResult> {
     const tab = await browser.tabs.get(tabId).catch(() => null);
-    if (!tab) return { ok: false, error: "That tab no longer exists." };
+    if (!tab) return { ok: false, error: { code: "tab_gone" } };
     const restricted = restrictedReason(tab.url);
-    if (restricted) return { ok: false, error: restricted };
+    if (restricted) return { ok: false, error: { code: restricted } };
 
     const cred = await resolveCredential();
     if (!cred.ok) return cred;
@@ -178,11 +161,11 @@ export default defineBackground(() => {
       });
       if (!res?.ok) {
         await closeOffscreen();
-        return res ?? { ok: false, error: "The audio capture page did not respond." };
+        return res ?? { ok: false, error: { code: "offscreen_silent" } };
       }
     } catch (err) {
       await closeOffscreen();
-      return { ok: false, error: `Could not start audio capture: ${errorMessage(err)}` };
+      return { ok: false, error: { code: "start_failed", detail: errorMessage(err) } };
     }
 
     await setLiveBadge(tabId, true);
@@ -207,7 +190,7 @@ export default defineBackground(() => {
   async function showOverlay(): Promise<CommandResult> {
     const snap = await getSnapshot();
     if (snap.tabId === null || !isCapturing(snap.transcript.status)) {
-      return { ok: false, error: "Captions aren't running." };
+      return { ok: false, error: { code: "not_running" } };
     }
     await sendToOffscreen({ to: "offscreen", type: "set-overlay-hidden", hidden: false });
     try {
@@ -216,7 +199,7 @@ export default defineBackground(() => {
     } catch {
       return (await injectOverlay(snap.tabId))
         ? { ok: true }
-        : { ok: false, error: "Chrome didn't allow showing captions on this page. Use the transcript panel instead." };
+        : { ok: false, error: { code: "overlay_blocked" } };
     }
   }
 
@@ -269,7 +252,7 @@ export default defineBackground(() => {
     if (msg.to !== "background") return;
 
     const reply = <K extends BackgroundRequest["type"]>(_type: K, value: Promise<BackgroundResponses[K]>) => {
-      value.then(sendResponse, (err) => sendResponse({ ok: false, error: errorMessage(err) }));
+      value.then(sendResponse, (err) => sendResponse(unknownError(err)));
       return true as const;
     };
     switch (msg.type) {
@@ -293,6 +276,16 @@ export default defineBackground(() => {
         );
       case "overlay-hello":
         return reply("overlay-hello", overlayHello(sender.tab?.id));
+      case "overlay-translation":
+        return reply(
+          "overlay-translation",
+          getSnapshot().then((snap) => {
+            if (snap.tabId !== null && isCapturing(snap.transcript.status)) {
+              sendToOverlay(snap.tabId, { to: "overlay", type: "event", event: msg.event }).catch(() => undefined);
+            }
+            return { ok: true } as const;
+          }),
+        );
     }
   });
 
@@ -303,6 +296,13 @@ export default defineBackground(() => {
       if (!(await hasOffscreen())) return;
       await sendToOffscreen({ to: "offscreen", type: "set-languages", languages: await currentLanguages() }).catch(() => undefined);
     })();
+  });
+
+  // A new interface language retitles the toolbar icon of a running capture.
+  onUiLanguageChange(() => {
+    void getSnapshot().then((snap) => {
+      if (snap.tabId !== null && isCapturing(snap.transcript.status)) void setLiveBadge(snap.tabId, true);
+    });
   });
 
   browser.tabs.onRemoved.addListener((tabId) => {

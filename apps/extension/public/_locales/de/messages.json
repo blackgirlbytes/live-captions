@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Heard – Live-KI-Untertitel",
+    "description": "Extension name in Chrome and the Web Store."
+  },
+  "extDescription": {
+    "message": "KI-Untertitel in Echtzeit und ein durchsuchbares Transkript für jedes Video und Audio, das in einem Tab läuft. Mit Deepgram Nova-3.",
+    "description": "Extension description in Chrome and the Web Store."
+  }
+}

@@ -84,6 +84,8 @@ export interface LanguageSettingsLabels {
   noticeUnsupported: (pair: string, source: string) => string;
   noticeNeedsDownload: (pair: string) => string;
   noticeDownload: string;
+  /** Chrome's translator errored; `detail` is Chrome's own message. Captions stay as spoken. */
+  noticeFailed: (pair: string, detail: string) => string;
 }
 
 export const DEFAULT_LANGUAGE_SETTINGS_LABELS: LanguageSettingsLabels = {
@@ -106,6 +108,7 @@ export const DEFAULT_LANGUAGE_SETTINGS_LABELS: LanguageSettingsLabels = {
   noticeUnsupported: (pair, source) => `Chrome can’t translate ${pair}, so those captions stay in ${source}.`,
   noticeNeedsDownload: (pair) => `Translating ${pair} needs a one-time download.`,
   noticeDownload: "Download",
+  noticeFailed: (pair, detail) => `Translating ${pair} stopped working, so captions stay as spoken. Chrome said: ${detail}`,
 };
 
 export interface CaptionSettingsLabels {
