@@ -1,0 +1,27 @@
+/frontend-design the stop captions element doesnt look right because it's so small
+
+..it doesnt have to be like in 4..here's some examples of other things that do this
+
+---
+
+i still dont like it the positions of it
+
+---
+
+its not just the player controls ..its all of the elements or examples of the app that just dont seem good enough positioned
+
+---
+
+no show me different options..like 7 and then ill choose one..i prefer a more vertical and titled
+
+---
+
+i cany see them so idk
+
+---
+
+7 Diagonal
+
+---
+
+Commit and push
