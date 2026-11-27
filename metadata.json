@@ -3,9 +3,17 @@
   "checkpoint_id": "01M8FJZBBXHC78SVQXV38HGD4E",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 3,
+  "checkpoints_count": 4,
   "files_touched": [
-    "apps/extension/entrypoints/sidepanel/App.tsx"
+    "apps/extension/entrypoints/sidepanel/App.tsx",
+    "apps/extension/i18n/de.ts",
+    "apps/extension/i18n/en.ts",
+    "apps/extension/i18n/es.ts",
+    "apps/extension/i18n/fr.ts",
+    "apps/extension/i18n/ja.ts",
+    "apps/extension/i18n/pt.ts",
+    "packages/shared/src/react/CaptionSettingsForm.tsx",
+    "packages/shared/src/react/LanguageSettings.tsx"
   ],
   "sessions": [
     {
@@ -21,25 +29,32 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": "/1/prompt.txt"
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": "/2/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 6,
-    "cache_creation_tokens": 987,
-    "cache_read_tokens": 703222,
-    "output_tokens": 444,
-    "api_call_count": 3
+    "input_tokens": 36,
+    "cache_creation_tokens": 22283,
+    "cache_read_tokens": 2757613,
+    "output_tokens": 11465,
+    "api_call_count": 18
   },
   "redaction": {
-    "replacements": 517,
+    "replacements": 537,
     "layers": {
       "betterleaks": 0,
       "connection_string": 0,
       "credential_key": 0,
       "credential_value": 4,
       "credentialed_uri": 0,
-      "entropy": 392,
-      "key_context": 121,
+      "entropy": 410,
+      "key_context": 123,
       "provider_token": 0,
       "shell_stdin": 0
     }

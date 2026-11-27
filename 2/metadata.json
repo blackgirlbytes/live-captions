@@ -1,0 +1,64 @@
+{
+  "cli_version": "0.13.4",
+  "checkpoint_id": "01M8FJZBBXHC78SVQXV38HGD4E",
+  "session_id": "b5695ee4-ee1d-4134-8dd7-abe974c2ef07",
+  "strategy": "manual-commit",
+  "created_at": "2026-11-27T22:45:49.632696Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "save_step_count": 2,
+  "files_touched": [
+    "apps/extension/entrypoints/sidepanel/App.tsx",
+    "apps/extension/i18n/de.ts",
+    "apps/extension/i18n/en.ts",
+    "apps/extension/i18n/es.ts",
+    "apps/extension/i18n/fr.ts",
+    "apps/extension/i18n/ja.ts",
+    "apps/extension/i18n/pt.ts",
+    "packages/shared/src/react/CaptionSettingsForm.tsx",
+    "packages/shared/src/react/LanguageSettings.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "4de68480320a",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 30,
+    "cache_creation_tokens": 21296,
+    "cache_read_tokens": 2054391,
+    "output_tokens": 11021,
+    "api_call_count": 15
+  },
+  "session_token_usage": {
+    "input_tokens": 96,
+    "cache_creation_tokens": 86978,
+    "cache_read_tokens": 5022618,
+    "output_tokens": 23415,
+    "api_call_count": 46,
+    "subagent_tokens": {
+      "input_tokens": 28,
+      "cache_creation_tokens": 90975,
+      "cache_read_tokens": 998837,
+      "output_tokens": 15621,
+      "api_call_count": 14
+    },
+    "subagent_tokens_complete": true
+  },
+  "redaction": {
+    "replacements": 20,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 0,
+      "credentialed_uri": 0,
+      "entropy": 18,
+      "key_context": 2,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  },
+  "session_metrics": {
+    "turn_count": 3
+  }
+}
