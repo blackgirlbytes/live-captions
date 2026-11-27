@@ -51,9 +51,9 @@ The manifest requests no host permissions and registers no always-on content scr
 
 ## Images and reviewer notes
 
-Provide a 128 × 128 icon from `apps/extension/public/icon/128.png`. Capture at least one real 1280 × 800 or 640 × 400 screenshot of the extension with captions and the transcript panel visible. A second screenshot can show the key setup and caption settings. Do not include an API key or private transcript in an image. A 440 × 280 promotional tile is optional in the [current dashboard guide](https://developer.chrome.com/docs/webstore/cws-dashboard-listing); prepare one if you want a richer listing.
+Provide a 128 × 128 icon from `apps/extension/public/icon/128.png`. Upload at least one real 1280 × 800 or 640 × 400 screenshot of the extension. A second screenshot can show the key setup and caption settings. Do not include an API key or private transcript in an image. A 440 × 280 promotional tile is optional in the [current dashboard guide](https://developer.chrome.com/docs/webstore/cws-dashboard-listing); prepare one if you want a richer listing.
 
-Draft artwork is in [`docs/store-assets`](store-assets). The 1280 × 800 overview is a designed composition based on two captured UI images; it is a mockup, so replace it with a real screenshot of a live caption session before submission. The 440 × 280 promotional tile is brand artwork and can be used as the optional small tile after visual review.
+Artwork is in [`docs/store-assets`](store-assets). The 1280 × 800 session image combines two actual extension captures without redrawing the interface. The transcript was produced during a live session; the controls show `OFF` at the moment of capture. The 440 × 280 promotional tile is brand artwork and can be used as the optional small tile after visual review.
 
 In **Test instructions**, say that reviewers can create their own Deepgram key at https://console.deepgram.com, then open the side panel, select **Settings**, and choose **Verify & save**. They can play a permitted video, click the Heard toolbar icon, and turn on **AI captions**. The publisher must decide whether review requires a dedicated test credential. Do not put any credential in this repository or in the public listing.
 

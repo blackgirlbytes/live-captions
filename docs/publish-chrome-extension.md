@@ -8,7 +8,7 @@ This guide prepares the extension package and listing for a first release. Read 
 2. Run `npm install`, `npm test`, `npm run typecheck`, and `npm run build -w @heard/extension` from the repository root.
 3. Load `apps/extension/.output/chrome-mv3` through `chrome://extensions` and run the [extension manual test checklist](../apps/extension/README.md#manual-test-checklist). Test with a dedicated user key and no Heard server. Check start, stop, audio playback, captions, transcript export, translation, and recovery after navigation.
 4. Deploy the web app changes, then open `https://live-captions-zeta.vercel.app/extension/privacy`. Confirm that the policy is public and that the home page links to it from the Privacy tab. Also check that `GET /api/deepgram/token` on the public site reports `{"serverKey":false}`.
-5. Capture real screenshots that show the current extension UI. Keep private audio, transcript text, and keys out of the images. Use the sizes in the [image guidance](https://developer.chrome.com/docs/webstore/images).
+5. Review `docs/store-assets/heard-extension-session-1280x800.png` against the current extension UI. It combines two real captures from a caption session. Confirm that the transcript is suitable for public display and that no key or private text appears. Add more screenshots if you want to show captions over video or the settings panel. Use the sizes in the [image guidance](https://developer.chrome.com/docs/webstore/images).
 6. Run `npm run zip -w @heard/extension`. Upload `apps/extension/.output/heardextension-0.1.0-chrome.zip`. The ZIP must contain `manifest.json` at its root. Increase `apps/extension/package.json`'s version before any later upload.
 
 ## Fill out the dashboard
