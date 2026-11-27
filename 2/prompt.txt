@@ -1,0 +1,7 @@
+right now we show this as any video can get captions added but my goal is more streamed video..so first off..the example videos it has are not good..basically lofi girl has no actual words so it wouldnt need captiosn and then the ted talk video is already recorded and should already have generated captions so we dont want that. also the title on the main hero Live AI captions for any video.
+
+maybe it should be more..live transcription for any stream?
+
+---
+
+Miss Rachel always has a stream going.. and theyre talking alot..we should also show supported platforms

@@ -3,7 +3,7 @@
   "checkpoint_id": "01M8FC594XSTJZRH21525M3139",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 7,
+  "checkpoints_count": 9,
   "files_touched": [
     "apps/web/src/components/hero-demo/HeroDemo.tsx",
     "apps/web/src/components/hero-demo/PlayerControls.tsx",
@@ -24,25 +24,32 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": "/1/prompt.txt"
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": "/2/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 104,
-    "cache_creation_tokens": 99282,
-    "cache_read_tokens": 12871267,
-    "output_tokens": 43804,
-    "api_call_count": 45
+    "input_tokens": 114,
+    "cache_creation_tokens": 102382,
+    "cache_read_tokens": 14060559,
+    "output_tokens": 45479,
+    "api_call_count": 49
   },
   "redaction": {
-    "replacements": 424,
+    "replacements": 611,
     "layers": {
       "betterleaks": 0,
       "connection_string": 0,
       "credential_key": 0,
       "credential_value": 0,
       "credentialed_uri": 0,
-      "entropy": 360,
-      "key_context": 64,
+      "entropy": 516,
+      "key_context": 95,
       "provider_token": 0,
       "shell_stdin": 0
     }
