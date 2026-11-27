@@ -77,7 +77,7 @@ export function TranscriptView({
             {q ? `No matches for “${query.trim()}”` : emptyState ?? "The transcript will appear here."}
           </div>
         ) : (
-          <ol className="grid grid-cols-[auto_minmax(0,1fr)] gap-y-1">
+          <ol className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-1">
             {/* One shared timestamp column, as wide as the widest timestamp, so long livestream times never touch the text. */}
             {visible.map((line) => {
               const t = lineTimes(line, timeBase);
@@ -86,7 +86,7 @@ export function TranscriptView({
               return (
                 <li
                   key={line.id}
-                  className={`group col-span-2 grid grid-cols-subgrid items-baseline gap-x-4 rounded-lg px-2 py-1.5 transition-colors ${
+                  className={`group col-span-2 grid grid-cols-subgrid items-baseline rounded-lg px-2 py-1.5 transition-colors ${
                     active ? "bg-ink-800" : "hover:bg-ink-850"
                   }`}
                 >
@@ -109,7 +109,7 @@ export function TranscriptView({
               );
             })}
             {draft && (
-              <li className="col-span-2 grid grid-cols-subgrid gap-x-4 px-2 py-1.5">
+              <li className="col-span-2 grid grid-cols-subgrid px-2 py-1.5">
                 <span className="mt-1.5 flex items-start">
                   <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-live" aria-hidden="true" />
                 </span>
