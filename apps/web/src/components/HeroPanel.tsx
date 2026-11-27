@@ -158,7 +158,20 @@ function HomeTab() {
  * Shared frame for the non-home tabs. The title sits at the same fixed spot below the nav on every
  * tab (not centered), so switching tabs never moves the headline.
  */
-function TabBody({ title, intro, children, footer }: { title: string; intro?: ReactNode; children: ReactNode; footer?: ReactNode }) {
+function TabBody({
+  title,
+  intro,
+  children,
+  footer,
+  hideIntroWhenShort = false,
+}: {
+  title: string;
+  intro?: ReactNode;
+  children: ReactNode;
+  footer?: ReactNode;
+  /** Drop the intro on short desktop screens so long content still fits the panel. */
+  hideIntroWhenShort?: boolean;
+}) {
   return (
     <>
       <div className="pt-14 sm:pt-20 xl:pt-12 2xl:pt-16">
@@ -166,7 +179,7 @@ function TabBody({ title, intro, children, footer }: { title: string; intro?: Re
           {title}
         </h2>
         {intro && (
-          <p className="mt-4 max-w-[28rem] text-[1.0625rem] leading-normal text-pretty text-ink-400 2xl:max-w-[34rem] 2xl:text-xl">{intro}</p>
+          <p className={`mt-4 max-w-[28rem] ${hideIntroWhenShort ? "xl:[@media(max-height:820px)]:hidden" : ""} text-[1.0625rem] leading-normal text-pretty text-ink-400 2xl:max-w-[34rem] 2xl:text-xl`}>{intro}</p>
         )}
         <div className="mt-9 2xl:mt-12">{children}</div>
       </div>
@@ -185,13 +198,13 @@ function Points({ items, numbered = false }: { items: { title: string; body: Rea
       {items.map((item, i) => (
         <li key={item.title} className="hero-step flex items-center gap-6" style={{ animationDelay: `${120 + i * 160}ms` }}>
           {item.art && <div className={`hidden w-36 shrink-0 sm:block 2xl:w-44 ${ART_TILT[i % ART_TILT.length]}`}>{item.art}</div>}
-          <div className="flex gap-4">
+          <div className="flex min-w-0 flex-1 gap-4">
             {numbered && (
               <span className="font-display text-lg leading-7 font-semibold text-accent tabular-nums 2xl:text-xl 2xl:leading-8">{i + 1}</span>
             )}
-            <div>
+            <div className="min-w-0 flex-1">
               <h3 className="font-display text-lg leading-7 font-semibold tracking-tight text-ink-100 2xl:text-xl 2xl:leading-8">{item.title}</h3>
-              <p className="mt-0.5 text-[0.9375rem] leading-snug text-pretty text-ink-400 2xl:text-lg">{item.body}</p>
+              <div className="mt-0.5 text-[0.9375rem] leading-snug text-pretty text-ink-400 2xl:text-lg">{item.body}</div>
             </div>
           </div>
         </li>
@@ -300,10 +313,10 @@ function PrivacyTab() {
 }
 
 function ExtensionTab() {
-  const code = "rounded-md bg-ink-850 px-1.5 py-0.5 text-[0.9em] text-ink-200";
   return (
     <TabBody
       title="Captions on YouTube itself"
+      hideIntroWhenShort
       intro="For videos that won’t play outside youtube.com. Captions appear on the page, with the transcript in a side panel."
       footer="Works in Chrome and Edge on desktop. Full setup is in the README."
     >
@@ -312,19 +325,48 @@ function ExtensionTab() {
         items={[
           {
             title: "Get the code",
-            body: (
-              <>
-                <code className={code}>git clone https://github.com/blackgirlbytes/live-captions.git</code> then{" "}
-                <code className={code}>cd live-captions</code>
-              </>
-            ),
+            body: <Terminal lines={["git clone https://github.com/blackgirlbytes/live-captions.git", "cd live-captions"]} />,
           },
-          { title: "Build it", body: <code className={code}>npm install && npm run build -w @heard/extension</code> },
-          { title: "Turn on Developer mode", body: <>In <code className={code}>chrome://extensions</code></> },
-          { title: "Load unpacked", body: <code className={code}>apps/extension/.output/chrome-mv3</code> },
+          { title: "Build it", body: <Terminal lines={["npm install", "npm run build -w @heard/extension"]} /> },
+          { title: "Turn on Developer mode in Chrome", body: <Terminal lines={["chrome://extensions"]} prompt={false} /> },
+          { title: "Load unpacked, then pick this folder", body: <Terminal lines={["apps/extension/.output/chrome-mv3"]} prompt={false} /> },
         ]}
       />
     </TabBody>
+  );
+}
+
+/** A small terminal window holding commands, with a button that copies them all. */
+function Terminal({ lines, prompt = true }: { lines: string[]; prompt?: boolean }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard blocked: the text is still selectable */
+    }
+  };
+  return (
+    <div className="relative mt-1.5 rounded-xl bg-[#050507] ring-1 ring-white/[0.08]">
+      <pre className="heard-scroll overflow-x-auto py-2 pr-16 pl-3.5 font-mono text-[12.5px] leading-relaxed text-ink-100">
+        {lines.map((l) => (
+          <div key={l}>
+            {prompt && <span className="text-accent select-none">$ </span>}
+            {l}
+          </div>
+        ))}
+      </pre>
+      <button
+        type="button"
+        onClick={copy}
+        className="absolute top-1.5 right-1.5 rounded-md bg-ink-900 px-2 py-1 text-xs font-medium text-ink-300 ring-1 ring-white/[0.08] transition-colors hover:bg-ink-800 hover:text-ink-100"
+        aria-label={copied ? "Copied" : `Copy ${lines.join(" and ")}`}
+      >
+        {copied ? "Copied" : "Copy"}
+      </button>
+    </div>
   );
 }
 
