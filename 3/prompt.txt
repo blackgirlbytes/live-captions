@@ -1,0 +1,5 @@
+extension should when you toggle on captions..open up the panel or maybe even when you click the extension the panel should immediately open..i dont get why i would press start captions and it wouldnt show the panel for me
+
+---
+
+okay the other thing is the captions are too small..and should overlay the video itself when its using the extension..like right now..its in the middle of the page..and i didnt even realize..it was like on top of the video title
