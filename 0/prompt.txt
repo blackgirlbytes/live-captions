@@ -1,0 +1,129 @@
+can you access / see this design https://dribbble.com/shots/27065921-AI-Video-Generator-Landing-Page
+
+---
+
+i wanna take concepts from this design and apply it to earshot
+
+---
+
+it looks messy.. please use the frontend design skill. ..uncentered.. double layered bordered..some things are too big..i was more interested in the animation..and layout that the design had..i didnt want to copy it word for word..i liked the dark black vibe we had going on..the spacing is bad. this was super lazy
+
+---
+
+okay we still arent getting it for example..
+
+1. something like screenshot is bad...double border..horrible
+
+---
+
+/frontend-design i like this layout if we can do a dark mode version of it thats relevant to the needs of earshot..like the paste youtube link..and try one section
+
+..and the imges on the right hand should represent the product..like actual pieces of the product like the video frame..the sidebar..the chrome extension
+
+this should be mobile responsive..the spacing should be tasteful. things like that
+
+---
+
+Commit and push
+
+---
+
+start running the project
+
+---
+
+this should be the full screen and how it works etc shouldnt be a scroll down but would act as tabs replacing the hero
+
+also run subagents to make the examples of the app in the hero on the right..interactive!
+
+---
+
+dont supresshydration warning. do the other stuff i told you to do
+
+---
+
+<task-notification>
+<task-id>a491415a72e2c6615</task-id>
+<tool-use-id>toolu_01CoReasigivt4iDqcSAB4pJ</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/ad81c77a-d3ac-4a43-8ebc-8aa81a818ff1/tasks/a491415a72e2c6615.output</output-file>
+<status>completed</status>
+<summary>Agent "Make demo player interactive" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>`VideoFrame.tsx` is now interactive and runs off the shared demo state. Only that file changed, and `npx tsc --noEmit -p .` passes. I haven't looked at it in the browser, so the visual check is still yours.
+
+**What it does now**
+- **Live caption:** shows the current script line when captions are on and the CC overlay is showing. Words appear at about 3 per second from the moment the line starts. Each word keeps its own `bg-black/85` background, with rounded first and last words. New words get a 220ms fade using the existing `word-in` keyframes, and the fade is skipped under reduced motion. I removed `caption-word` and its delays from the caption.
+- **Two-line limit:** the caption box is two lines tall and fills from the bottom. When a third line wraps in, the oldest line slides out of view at the top, like real rolling captions.
+- **Play/pause:** a transparent full-frame `&lt;button&gt;` sits under the badge and caption (both ignore clicks). It's labelled "Pause video" or "Play video", and its focus ring is drawn inside the frame because `overflow-hidden` would cut off the global outline. A play icon in a dark see-through circle stays up while paused. On resume a pause icon shows for 650ms and fades out, except under reduced motion. While paused, the speaker silhouette dims to 60%.
+- **Badge:** "Live captions" in red with the pulsing dot when captions are on, and a muted "Captions off" pill in `text-ink-400` when off.
+- **Progress bar:** the width follows `time / DURATION`. The clickable area is 12px tall over the 3px bar, which grows to 5px on hover or focus. Clicking or dragging seeks, and a time label like "0:36" follows the pointer on hover.
+- **Keyboard seeking (I added this):** the bar is also a focusable slider. Arrow keys jump 5s, Shift+arrow 10s, and Home/End go to the start or end. It has its own focus ring.
+
+The caption overlay is hidden from screen readers (`aria-hidden`), because reading out each word as it appears would be noisy. I'm assuming the transcript card is the accessible version of the text.
+
+I didn't need anything from `state.tsx`.</result>
+<usage><subagent_tokens>70658</subagent_tokens><tool_uses>4</tool_uses><duration_ms>58354</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a0676ede184947dde</task-id>
+<tool-use-id>toolu_013xqqgD8eKaQJx713SUJncx</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/ad81c77a-d3ac-4a43-8ebc-8aa81a818ff1/tasks/a0676ede184947dde.output</output-file>
+<status>completed</status>
+<summary>Agent "Make demo popup and controls interactive" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>I made the extension popup and the player controls clickable. Both now use the shared demo state, so they stay in sync. `npx tsc --noEmit -p .` passes. I haven't looked at it in the browser and didn't touch the dev server. I only changed `ExtensionPopup.tsx`, `PlayerControls.tsx` and `icons.tsx`.
+
+**Extension popup**
+- **Switch:** it's a real switch bound to `captionsOn`, labelled "Stop captions" / "Start captions" like the real popup. When on, the track is amber and the knob slides right. When off, the track is `ink-600`, the colour the real popup uses.
+- **Icon tile:** amber when on, `ink-800` when off.
+- **Badge:** red pulsing "Live" when on. When off, a muted "Off", which is what the real status badge shows when idle.
+- **Status line:** "Captioning this tab on youtube.com" when on. When off, I used the real popup's idle text: "Turn on to caption whatever is playing in this tab." The line is announced to screen readers when it changes.
+- The card's look and size are unchanged.
+
+**Player controls**
+- **Stop / Start captions:** "Stop captions" keeps its red square. Turning it off shows "Start captions" in amber with a play icon, matching the real watch page.
+- **CC button:** toggles `showCaptions`. It's labelled "Show captions", with a "Show captions" / "Hide captions" tooltip, and gets the darker pressed style when on.
+- **Transcript button:** toggles `showTranscript`. It's labelled "Transcript panel" with a "Show transcript" / "Hide transcript" tooltip, the same wording as the watch page.
+- **Full screen button:** finds the nearest `[data-hero-demo]` element and makes it full screen, or exits if something is already full screen. If that element is missing or the browser doesn't support it, nothing happens. The label and icon switch between "Full screen" and "Exit full screen".
+- Every control has a label, a tooltip, a hover state and an amber keyboard focus outline. The pill's look is unchanged.
+
+**Icons:** `ToolIcon` is now a real button. It takes a required `label` and passes extra props like `aria-pressed`, `onClick` and `ref` through to the button.
+
+**Differences from the real UI**
+- The real watch page's Stop button is grey, but I kept the demo's red one as you asked.
+- The real popup says "Captioning this tab's audio." when on. I used your "on youtube.com" wording instead.
+
+**What you need to do:** add `data-hero-demo` to the demo root in `HeroDemo.tsx`. Until then the full screen button does nothing. I didn't need anything from `state.tsx`.</result>
+<usage><subagent_tokens>77045</subagent_tokens><tool_uses>6</tool_uses><duration_ms>47539</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a1290368dd6249af1</task-id>
+<tool-use-id>toolu_01Ks2F91gXSu47BxTbgZLyzW</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/ad81c77a-d3ac-4a43-8ebc-8aa81a818ff1/tasks/a1290368dd6249af1.output</output-file>
+<status>completed</status>
+<summary>Agent "Make demo transcript interactive" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>I rewrote `apps/web/src/components/hero-demo/TranscriptCard.tsx` (the only file I touched) so it runs off `useHeroDemo()`. `npx tsc --noEmit -p .` passes with no errors. I didn't start the dev server or look at it in a browser, so the visual check is still yours.
+
+- **Lines:** each heard line shows its `formatTime` timestamp and text. The `current` line gets the existing amber style and `aria-current`. New lines fade and slide in through Tailwind's `starting:` variant, and there's no motion under prefers-reduced-motion. The list is a `role="log"` region labelled "Transcript", like the real `TranscriptView`.
+- **Height and scroll:** the list has a fixed `h-[6.5rem]` (about 3.3 single-line rows, so the card stays about the size it was) with `earshot-scroll` and `overscroll-contain`. When the current or latest line changes it adjusts the list's own scroll position, smoothly unless reduced motion is on, so the page never scrolls. While a search is active it stops auto-scrolling so it doesn't fight the user.
+- **Seek:** each line is a full-width button that calls `seek(line.t)`. It has a "Jump to m:ss" tooltip, a hover state and an amber focus outline drawn inside the edge so the scroll area doesn't clip it.
+- **Search:** the input is bound to `query`/`setQuery`, with the placeholder and aria-label "Search the transcript". Matching is case-insensitive and ignores leading and trailing spaces. Matches are wrapped in `&lt;mark className="earshot-hit"&gt;` using the same highlight logic as `TranscriptView`. Lines that don't match are hidden, and "No matches" shows when nothing matches. Escape clears the search. The right-hand button shows an x labelled "Clear search" when there's a query, and a search icon that focuses the input when there isn't.
+- **Download:** a button that saves `earshot-transcript.txt` with one "0:12 Good morning…" line per heard line, using a Blob and an object URL that's released afterwards. It's disabled while nothing has been heard.
+- **Empty state:** when `heard` is empty it shows "Lines appear here as they're spoken." This also appears after the clock loops back and clears the lines, until the first line comes round again at 0:12.
+
+Two behaviours you'll see when checking it. The lines already heard when the page loads fade in once on first render. Lines that come back when you clear a search animate in again.
+
+I didn't need anything changed in `state.tsx`.</result>
+<usage><subagent_tokens>73516</subagent_tokens><tool_uses>9</tool_uses><duration_ms>61345</duration_ms></usage>
+</task-notification>
+
+---
+
+Commit and push

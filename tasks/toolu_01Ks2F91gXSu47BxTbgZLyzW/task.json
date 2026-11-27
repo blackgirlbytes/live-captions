@@ -1,0 +1,18 @@
+{
+  "tool_use_id": "toolu_01Ks2F91gXSu47BxTbgZLyzW",
+  "agent_id": "a1290368dd6249af1",
+  "subagent_type": "general-purpose",
+  "task_description": "Make demo transcript interactive",
+  "files": [
+    "apps/web/src/components/hero-demo/TranscriptCard.tsx"
+  ],
+  "token_usage": {
+    "input_tokens": 18,
+    "cache_creation_tokens": 34923,
+    "cache_read_tokens": 551488,
+    "output_tokens": 7116,
+    "api_call_count": 9
+  },
+  "started_at": "2026-11-27T13:04:27.477043-05:00",
+  "completed_at": "2026-11-27T13:05:28.700467-05:00"
+}

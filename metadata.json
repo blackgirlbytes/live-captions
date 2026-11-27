@@ -1,0 +1,53 @@
+{
+  "cli_version": "0.13.4",
+  "checkpoint_id": "01M8F3WY7BYC3JQM6VQKQG0CCA",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "apps/web/src/app/globals.css",
+    "apps/web/src/app/page.tsx",
+    "apps/web/src/components/HeroPanel.tsx",
+    "apps/web/src/components/hero-demo/HeroDemo.tsx",
+    "apps/web/src/components/hero-demo/TranscriptCard.tsx",
+    "apps/web/src/components/hero-demo/VideoFrame.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 90,
+    "cache_creation_tokens": 73913,
+    "cache_read_tokens": 8097775,
+    "output_tokens": 35308,
+    "api_call_count": 41,
+    "subagent_tokens": {
+      "input_tokens": 42,
+      "cache_creation_tokens": 143313,
+      "cache_read_tokens": 1234856,
+      "output_tokens": 19707,
+      "api_call_count": 21
+    },
+    "subagent_tokens_complete": true
+  },
+  "redaction": {
+    "replacements": 92,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 0,
+      "credentialed_uri": 0,
+      "entropy": 80,
+      "key_context": 12,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  }
+}
