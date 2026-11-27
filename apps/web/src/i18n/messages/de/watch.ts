@@ -60,6 +60,7 @@ export const watch: typeof en = {
   settings: {
     title: "Einstellungen",
     noOverlay: "YouTube erlaubt nichts über seinem Player, daher erscheinen die Untertitel direkt unter dem Video.",
+    close: "Einstellungen schließen",
   },
   guide: {
     title: "Lass Heard diesen Tab hören",

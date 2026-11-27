@@ -60,6 +60,7 @@ export const watch: typeof en = {
   settings: {
     title: "Configurações",
     noOverlay: "O YouTube não permite nada sobre o player, então as legendas aparecem logo abaixo do vídeo.",
+    close: "Fechar configurações",
   },
   guide: {
     title: "Deixe o Heard ouvir esta aba",

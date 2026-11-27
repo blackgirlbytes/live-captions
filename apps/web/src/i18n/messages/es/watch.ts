@@ -60,6 +60,7 @@ export const watch: typeof en = {
   settings: {
     title: "Configuración",
     noOverlay: "YouTube no permite nada encima de su reproductor, así que los subtítulos aparecen debajo del video.",
+    close: "Cerrar ajustes",
   },
   guide: {
     title: "Deja que Heard escuche esta pestaña",

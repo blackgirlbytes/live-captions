@@ -1,31 +1,29 @@
 "use client";
 
 import type { CaptionSettings } from "@heard/shared";
-import { CaptionSettingsForm, SettingsIcon } from "@heard/shared/react";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { CaptionSettingsForm, CloseIcon } from "@heard/shared/react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useSharedLabels } from "./useSharedLabels";
 import { useT } from "@/i18n/I18nProvider";
 
-export function SettingsPopover({
+export const SETTINGS_PANEL_ID = "caption-settings";
+
+/**
+ * Caption settings as a panel: it takes the transcript's place in the sidebar (or a sheet
+ * beside the video in fullscreen), so the captions it changes stay in view while you adjust them.
+ */
+export function SettingsPanel({
   settings,
   onChange,
   showPosition,
-  buttonClassName,
-  sheet = false,
-  open: openProp,
-  onOpenChange,
+  onClose,
   children,
   scrollToChildren = false,
 }: {
   settings: CaptionSettings;
   onChange: (s: CaptionSettings) => void;
   showPosition: boolean;
-  buttonClassName: string;
-  /** Render as a full-height side sheet (fullscreen), instead of a dropdown below the button. */
-  sheet?: boolean;
-  /** Controlled open state (optional). */
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  onClose: () => void;
   /** Extra sections below the caption settings (e.g. the Deepgram key). */
   children?: ReactNode;
   /** Scroll the extra sections into view when opening. */
@@ -33,82 +31,54 @@ export function SettingsPopover({
 }) {
   const t = useT("watch").settings;
   const ui = useSharedLabels();
-  const [openState, setOpenState] = useState(false);
-  const open = openProp ?? openState;
-  const setOpen = (next: boolean) => {
-    if (openProp === undefined) setOpenState(next);
-    onOpenChange?.(next);
-  };
-  const setOpenRef = useRef(setOpen);
-  setOpenRef.current = setOpen;
   const extra = useRef<HTMLDivElement>(null);
-  const root = useRef<HTMLDivElement>(null);
-  const button = useRef<HTMLButtonElement>(null);
-  const id = useId();
+  const heading = useRef<HTMLHeadingElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (!root.current?.contains(e.target as Node)) setOpenRef.current(false);
-    };
+    heading.current?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setOpenRef.current(false);
-        button.current?.focus();
-      }
+      if (e.key === "Escape") onCloseRef.current();
     };
-    document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
-    if (open && scrollToChildren) extra.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, [open, scrollToChildren]);
+    if (scrollToChildren) extra.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+  }, [scrollToChildren]);
 
   return (
-    <div className="relative" ref={root}>
-      <button
-        ref={button}
-        type="button"
-        className={buttonClassName}
-        onClick={() => setOpen(!open)}
-        aria-expanded={open}
-        aria-controls={id}
-        aria-label={t.title}
-        title={t.title}
-      >
-        <SettingsIcon size={18} />
-      </button>
-      {open && (
-        <div
-          id={id}
-          role="dialog"
-          aria-label={t.title}
-          className={
-            // Never drawn over the video: it drops below the controls, or (in fullscreen) the
-            // stage makes room for it on the right.
-            sheet
-              ? "fixed top-0 right-0 bottom-0 z-40 w-80 overflow-y-auto bg-ink-900 p-5 ring-1 ring-ink-700"
-              : "sheet-in absolute top-full right-0 z-40 mt-2 max-h-[calc(100dvh-5rem)] w-[min(20rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl bg-ink-900 p-5 shadow-2xl ring-1 ring-ink-700"
-          }
+    <div id={SETTINGS_PANEL_ID} role="region" aria-labelledby={`${SETTINGS_PANEL_ID}-title`} className="flex min-h-0 flex-1 flex-col">
+      <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-3">
+        <h2
+          ref={heading}
+          id={`${SETTINGS_PANEL_ID}-title`}
+          tabIndex={-1}
+          className="font-display text-lg font-semibold tracking-tight text-ink-100 focus:outline-none"
         >
-          <CaptionSettingsForm settings={settings} onChange={onChange} showPosition={showPosition} labels={{ ...ui.settings, language: ui.language }} />
-          {!showPosition && (
-            <p className="mt-4 border-t border-ink-800 pt-3 text-xs leading-relaxed text-ink-500">
-              {t.noOverlay}
-            </p>
-          )}
-          {children && (
-            <div ref={extra} className="mt-5 scroll-mt-4 border-t border-ink-800 pt-5">
-              {children}
-            </div>
-          )}
-        </div>
-      )}
+          {t.title}
+        </h2>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t.close}
+          title={t.close}
+          className="grid h-9 w-9 place-items-center rounded-full text-ink-400 transition-colors hover:bg-ink-800 hover:text-ink-100 focus-visible:outline-2 focus-visible:outline-accent"
+        >
+          <CloseIcon size={18} />
+        </button>
+      </div>
+      <div className="heard-scroll min-h-0 flex-1 overflow-y-auto border-t border-ink-800 px-4 py-5">
+        <CaptionSettingsForm settings={settings} onChange={onChange} showPosition={showPosition} labels={{ ...ui.settings, language: ui.language }} />
+        {!showPosition && <p className="mt-4 border-t border-ink-800 pt-3 text-xs leading-relaxed text-ink-500">{t.noOverlay}</p>}
+        {children && (
+          <div ref={extra} className="mt-5 scroll-mt-4 border-t border-ink-800 pt-5">
+            {children}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

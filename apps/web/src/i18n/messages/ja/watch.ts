@@ -60,6 +60,7 @@ export const watch: typeof en = {
   settings: {
     title: "設定",
     noOverlay: "YouTube はプレーヤーの上に何も重ねられないため、字幕は動画のすぐ下に表示されます。",
+    close: "設定を閉じる",
   },
   guide: {
     title: "Heard にこのタブの音を聞かせる",

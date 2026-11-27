@@ -61,6 +61,7 @@ export const watch = {
   settings: {
     title: "Settings",
     noOverlay: "YouTube doesn’t allow anything on top of its player, so captions show just below the video.",
+    close: "Close settings",
   },
   guide: {
     title: "Let Heard hear this tab",

@@ -20,13 +20,14 @@ import {
   TranscriptView,
   TranslationNotice,
   useTranscriptionSession,
+  SettingsIcon,
 } from "@heard/shared/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSharedLabels } from "@/components/useSharedLabels";
 import { useT } from "@/i18n/I18nProvider";
 import { DeepgramKeyDialog } from "@/components/DeepgramKeyDialog";
 import { DeepgramKeySettings } from "@/components/DeepgramKeySettings";
-import { SettingsPopover } from "@/components/SettingsPopover";
+import { SETTINGS_PANEL_ID, SettingsPanel } from "@/components/SettingsPopover";
 import { StartGuide } from "@/components/StartGuide";
 import { captureTabAudio, detectCaptureSupport } from "@/lib/capture";
 import { createGetToken, keyMode, TOKEN_ENDPOINT_PATH, useServerKeyStatus, useUserDeepgramKey } from "@/lib/deepgram-key";
@@ -313,29 +314,30 @@ export function WatchExperience({ url }: { url: string }) {
     "inline-flex h-10 w-10 items-center justify-center rounded-xl text-ink-300 transition-colors hover:bg-ink-800 hover:text-ink-100 aria-pressed:text-accent disabled:opacity-40";
 
   const captionHint = playerError ? null : hintFor(ts.status, support.ok, t);
+  // Settings open in the sidebar (in the transcript's place), or beside the video in fullscreen.
+  const sidebarSettings = settingsOpen && !fullscreen;
+  const sidebarOpen = panelOpen || sidebarSettings;
+  const closeSettings = () => onSettingsOpenChange(false);
+  const settingsPanel = (
+    <SettingsPanel settings={settings} onChange={setSettings} showPosition={overlayAllowed} onClose={closeSettings} scrollToChildren={keyFocus}>
+      <DeepgramKeySettings userKey={userKey} serverKey={serverKey} initiallyEditing={keyFocus} running={running} />
+    </SettingsPanel>
+  );
 
   return (
     <div
       className={`mx-auto grid w-full max-w-[1600px] flex-1 gap-0 lg:gap-6 lg:px-6 lg:py-5 ${
-        panelOpen ? "lg:grid-cols-[minmax(0,1fr)_400px]" : "lg:grid-cols-[minmax(0,1fr)]"
+        sidebarOpen ? "lg:grid-cols-[minmax(0,1fr)_400px]" : "lg:grid-cols-[minmax(0,1fr)]"
       }`}
     >
       {/* Stage: player + caption bar + controls. This is what goes fullscreen. */}
       <section aria-label={t.player.region} className="min-w-0">
         <div ref={stageRef} className={`stage relative flex flex-col bg-ink-950 ${fullscreen && settingsOpen ? "pr-80" : ""}`}>
-          <div className="stage-player relative aspect-video max-h-[calc(100dvh-15rem)] min-h-[200px] w-full min-w-[200px] overflow-hidden bg-black lg:rounded-t-2xl">
-            <div ref={hostRef} className={`absolute inset-0 ${playerError ? "hidden" : ""}`} />
-            {!playerReady && !playerError && <div className="absolute inset-0 animate-pulse bg-ink-900" aria-hidden="true" />}
-            {playerError && <PlayerErrorPanel error={playerError} canonicalUrl={video.canonicalUrl} providerName={provider.name} t={t} />}
-            {placement === "overlay" && settings.enabled && (
-              <CaptionText caption={ts.caption} settings={settings} translation={captionTranslation} className="absolute inset-x-4 bottom-[8%]" />
-            )}
-          </div>
-
-          {placement === "below" && settings.enabled && <CaptionBar caption={ts.caption} settings={settings} translation={captionTranslation} hint={captionHint} />}
-
-          {/* Controls */}
-          <div className={`flex flex-wrap items-center gap-2 border-ink-800 bg-ink-900 px-3 py-2.5 sm:px-4 ${fullscreen ? "" : "lg:rounded-b-2xl lg:border-x lg:border-b"}`}>
+          {fullscreen && settingsOpen && (
+            <div className="fixed top-0 right-0 bottom-0 z-40 flex w-80 flex-col bg-ink-900 ring-1 ring-ink-700">{settingsPanel}</div>
+          )}
+          {/* Controls: above the video, so captions sit directly under the picture. */}
+          <div className={`flex flex-wrap items-center gap-2 border-ink-800 bg-ink-900 px-3 py-2.5 sm:px-4 ${fullscreen ? "" : "lg:rounded-t-2xl lg:border-x lg:border-t"}`}>
             {running ? (
               <button
                 type="button"
@@ -375,24 +377,29 @@ export function WatchExperience({ url }: { url: string }) {
               >
                 <CaptionsIcon size={20} />
               </button>
-              <SettingsPopover
-                settings={settings}
-                onChange={setSettings}
-                showPosition={overlayAllowed}
-                buttonClassName={iconBtn}
-                sheet={fullscreen}
-                open={settingsOpen}
-                onOpenChange={onSettingsOpenChange}
-                scrollToChildren={keyFocus}
+              <button
+                type="button"
+                className={`${iconBtn} ${settingsOpen ? "bg-ink-800 text-ink-100" : ""}`}
+                onClick={() => onSettingsOpenChange(!settingsOpen)}
+                aria-expanded={settingsOpen}
+                aria-controls={SETTINGS_PANEL_ID}
+                aria-label={t.settings.title}
+                title={t.settings.title}
               >
-                <DeepgramKeySettings userKey={userKey} serverKey={serverKey} initiallyEditing={keyFocus} running={running} />
-              </SettingsPopover>
+                <SettingsIcon size={18} />
+              </button>
               {!fullscreen && (
                 <button
                   type="button"
                   className={iconBtn}
-                  onClick={() => setPanelOpen((o) => !o)}
-                  aria-pressed={panelOpen}
+                  onClick={() => {
+                    // With settings in the sidebar, this button brings the transcript back.
+                    if (sidebarSettings) {
+                      closeSettings();
+                      setPanelOpen(true);
+                    } else setPanelOpen((o) => !o);
+                  }}
+                  aria-pressed={panelOpen && !sidebarSettings}
                   aria-label={t.player.panel}
                   title={panelOpen ? t.player.hideTranscript : t.player.showTranscript}
                 >
@@ -410,6 +417,21 @@ export function WatchExperience({ url }: { url: string }) {
               </button>
             </div>
           </div>
+
+          <div
+            className={`stage-player relative aspect-video max-h-[calc(100dvh-15rem)] min-h-[200px] w-full min-w-[200px] overflow-hidden bg-black ${
+              placement === "below" && settings.enabled ? "" : "lg:rounded-b-2xl"
+            }`}
+          >
+            <div ref={hostRef} className={`absolute inset-0 ${playerError ? "hidden" : ""}`} />
+            {!playerReady && !playerError && <div className="absolute inset-0 animate-pulse bg-ink-900" aria-hidden="true" />}
+            {playerError && <PlayerErrorPanel error={playerError} canonicalUrl={video.canonicalUrl} providerName={provider.name} t={t} />}
+            {placement === "overlay" && settings.enabled && (
+              <CaptionText caption={ts.caption} settings={settings} translation={captionTranslation} className="absolute inset-x-4 bottom-[8%]" />
+            )}
+          </div>
+
+          {placement === "below" && settings.enabled && <CaptionBar caption={ts.caption} settings={settings} translation={captionTranslation} hint={captionHint} />}
 
           {guideOpen && (
             <StartGuide
@@ -453,12 +475,19 @@ export function WatchExperience({ url }: { url: string }) {
         </div>
       </section>
 
-      {/* Transcript */}
-      {panelOpen && (
+      {/* Sidebar: the transcript, or caption settings in its place (a sheet on phones). */}
+      {sidebarSettings && <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={closeSettings} aria-hidden="true" />}
+      {sidebarOpen && (
         <aside
-          aria-label={t.transcript.title}
-          className="mt-3 flex h-[65dvh] min-h-[320px] flex-col border-t border-ink-800 bg-ink-900 lg:sticky lg:top-[4.5rem] lg:mt-0 lg:h-[calc(100dvh-6rem)] lg:rounded-2xl lg:border lg:border-ink-800"
+          aria-label={sidebarSettings ? t.settings.title : t.transcript.title}
+          className={`flex flex-col bg-ink-900 lg:sticky lg:top-[4.5rem] lg:mt-0 lg:h-[calc(100dvh-6rem)] lg:rounded-2xl lg:border lg:border-ink-800 ${
+            sidebarSettings
+              ? "sheet-in fixed inset-x-0 bottom-0 z-40 h-[75dvh] rounded-t-2xl shadow-2xl ring-1 ring-ink-700 lg:static lg:z-auto lg:ring-0 lg:shadow-none lg:[animation:none]"
+              : ""
+          } ${sidebarSettings ? "" : "mt-3 h-[65dvh] min-h-[320px] border-t border-ink-800"}`}
         >
+          {sidebarSettings && settingsPanel}
+          <div className={sidebarSettings ? "hidden" : "contents"}>
           <div className="flex items-center justify-between gap-3 px-4 pt-4">
             <h2 className="font-display text-lg font-semibold tracking-tight text-ink-100">{t.transcript.title}</h2>
             <span className="text-xs text-ink-500 tabular-nums">
@@ -484,6 +513,7 @@ export function WatchExperience({ url }: { url: string }) {
           <p className="border-t border-ink-800 px-4 py-2.5 text-xs text-ink-500">
             {t.transcript.privacy}
           </p>
+          </div>
         </aside>
       )}
     </div>
@@ -506,7 +536,7 @@ function CaptionBar({
   // Reserve room for the configured number of lines so the layout doesn't jump.
   const minHeight = `calc(${settings.maxLines * settings.fontSize * 1.35}px + 1.25rem)`;
   return (
-    <div className="relative flex items-center justify-center bg-black px-4 py-2.5" style={{ minHeight }}>
+    <div className="relative flex items-center justify-center bg-black px-4 py-2.5 lg:rounded-b-2xl" style={{ minHeight }}>
       {hint && !caption.text && <p className="pointer-events-none absolute inset-x-4 text-center text-sm text-ink-500">{hint}</p>}
       <CaptionText caption={caption} settings={settings} translation={translation} className="relative w-full" />
     </div>
