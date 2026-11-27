@@ -45,17 +45,18 @@ interface Layout {
 }
 
 /*
- * The composition: the pieces step down from top left to bottom right, each tilted a little,
- * video first, then the transcript, then the extension popup. Sizes: the video is 16:9 at its
+ * The composition: a tight diagonal from top left to bottom right, each piece tilted a little and
+ * tucked against the one before: the video, the transcript just under its controls, then the
+ * extension popup over the transcript's bottom corner. Sizes: the video is 16:9 at its
  * width, the controls pill is about 300×52, the popup about 256×150.
  */
 const LAYOUT: Layout = {
-  w: 600,
-  h: 760,
-  video: { x: 0, y: 0, w: 470, r: -3 },
-  controls: { x: 70, y: 245, r: -2 },
-  transcript: { x: 170, y: 320, w: 270, h: 260, r: 1.5 },
-  popup: { x: 340, y: 600, w: 256, r: 4 },
+  w: 560,
+  h: 660,
+  video: { x: 0, y: 0, w: 440, r: -3 },
+  controls: { x: 40, y: 220, r: -2 },
+  transcript: { x: 150, y: 262, w: 260, h: 250, r: 1.5 },
+  popup: { x: 300, y: 500, w: 256, r: 4 },
 };
 
 const MAX_SCALE = 1.4;
@@ -121,7 +122,7 @@ function DemoLayout() {
     <>
       <Backdrop className="hidden rounded-[32px] xl:block" />
       <div
-        className="relative mt-14 overflow-hidden rounded-[28px] px-5 pt-9 pb-8 sm:px-10 sm:pt-12 sm:pb-12 xl:absolute xl:inset-y-0 xl:right-0 xl:left-[46%] xl:mt-0 xl:overflow-visible xl:rounded-none xl:p-0 2xl:left-[41%]"
+        className="relative mt-14 overflow-hidden rounded-[28px] px-5 pt-9 pb-8 sm:px-10 sm:pt-12 sm:pb-12 xl:absolute xl:inset-y-0 xl:right-0 xl:left-[52%] xl:mt-0 xl:overflow-visible xl:rounded-none xl:p-0 2xl:left-[48%]"
         data-hero-demo
         role="group"
         aria-label="Try Heard: a demo player with live captions, the Chrome extension popup and the transcript"

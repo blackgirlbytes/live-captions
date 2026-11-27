@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { ByokNote } from "@/components/ByokNote";
 import { LogoMark } from "@/components/Logo";
 import { StepArtPicker, StepArtStart } from "@/components/StepArt";
 import { UrlForm } from "@/components/UrlForm";
 import { watchHref } from "@/lib/providers";
 
 const EXAMPLES = [
-  { label: "TED talk", detail: "Sir Ken Robinson, 19 min", live: false, url: "https://www.youtube.com/watch?v=iG9CE55wbtY" },
-  { label: "24/7 livestream", detail: "Lofi Girl radio", live: true, url: "https://www.youtube.com/watch?v=rFZHOHl-L8A" },
+  { label: "Ms Rachel", detail: "Live toddler learning", live: true, url: "https://www.youtube.com/watch?v=jBvzOfT8_44" },
+  { label: "Sky News", detail: "Live 24/7 news", live: true, url: "https://www.youtube.com/watch?v=53SxFKpbKDE" },
 ];
 
 export type HeroTab = "home" | "how" | "privacy" | "extension";
@@ -48,7 +47,7 @@ export function HeroPanel() {
 
   return (
     <>
-      <div className="hero-panel relative z-20 flex flex-col xl:absolute xl:inset-y-4 xl:left-4 xl:w-[calc(46%-1rem)] 2xl:w-[calc(41%-1rem)] xl:rounded-[24px] xl:bg-ink-950 xl:px-12 xl:py-10 2xl:px-16 2xl:py-12 xl:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)]">
+      <div className="hero-panel relative z-20 flex flex-col xl:absolute xl:inset-y-4 xl:left-4 xl:w-[calc(52%-1rem)] 2xl:w-[calc(48%-1rem)] xl:rounded-[24px] xl:bg-ink-950 xl:px-12 xl:py-10 2xl:px-16 2xl:py-12 xl:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)]">
         <header className="flex items-center justify-between gap-6">
           <button
             type="button"
@@ -109,11 +108,11 @@ function HomeTab() {
     <>
       <div className="pt-14 sm:pt-20 xl:my-auto xl:py-8">
         <h1 className="font-display text-[2.75rem] leading-[0.98] font-semibold tracking-[-0.035em] text-balance text-ink-100 sm:text-6xl xl:text-[4rem] 2xl:text-[5.25rem]">
-          Live AI captions for any video.
+          Live transcription for any stream.
         </h1>
         <p className="mt-6 max-w-[29rem] text-[1.0625rem] leading-relaxed text-ink-400 2xl:max-w-[36rem] 2xl:text-xl">
-          Paste a YouTube video or livestream. Heard captions it as people speak, with a transcript you can
-          search and download.
+          Paste a YouTube livestream. Heard transcribes it as people speak, with a transcript you can search and
+          download.
         </p>
         <div className="mt-9 max-w-[32rem] 2xl:max-w-[36rem]">
           <UrlForm autoFocus />
@@ -227,28 +226,75 @@ function HowTab({ onTry }: { onTry: () => void }) {
   );
 }
 
-const PRIVACY = [
-  { title: "Only the tab you pick.", body: "Nothing is heard until you choose a tab and press Share." },
-  { title: "Only to Deepgram, only while on.", body: "Audio goes to Deepgram for captions and stops when you stop." },
-  { title: "Nothing is saved.", body: "Transcripts stay in your tab and vanish when you close it." },
-];
+const frame = "relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-ink-900 ring-1 ring-ink-700";
+
+/** Audio leaves the tab for Deepgram only while captions are on. */
+function SendArt() {
+  return (
+    <div className={frame} aria-hidden="true">
+      <div className="absolute inset-0 flex items-center justify-center gap-2 px-3 pt-4">
+        <span className="rounded-md bg-ink-800 px-2 py-1 text-[10px] font-medium text-ink-200 ring-1 ring-ink-600">Tab</span>
+        <span className="h-0.5 w-8 rounded-full bg-accent" />
+        <span className="rounded-md bg-accent px-2 py-1 text-[10px] font-semibold text-accent-ink">Deepgram</span>
+      </div>
+      <span className="absolute top-2.5 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-live/15 px-2 py-0.5 text-[9px] font-semibold text-live">
+        <span className="h-1 w-1 rounded-full bg-live" />
+        Captions on
+      </span>
+    </div>
+  );
+}
+
+/** Close the tab and the transcript is gone. */
+function NoSaveArt() {
+  return (
+    <div className={frame} aria-hidden="true">
+      <div className="absolute inset-3 rounded-lg bg-ink-800 p-2.5 ring-1 ring-ink-600">
+        <div className="h-1.5 w-12 rounded-full bg-ink-600" />
+        <div className="mt-2 h-1.5 w-20 rounded-full bg-ink-700" />
+        <div className="mt-1.5 h-1.5 w-16 rounded-full bg-ink-700" />
+      </div>
+      <span className="absolute top-1/2 left-1/2 grid h-9 w-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-accent text-accent-ink shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-accent)_25%,transparent)]">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </span>
+    </div>
+  );
+}
 
 function PrivacyTab() {
   return (
-    <TabBody title="Privacy" intro="Heard listens only to what you choose to share, and keeps none of it." footer="Heard is open source. Captions by Deepgram Nova-3.">
-      <ul className="max-w-[30rem] divide-y divide-ink-800 2xl:max-w-[36rem]">
-        {PRIVACY.map((item) => (
-          <li key={item.title} className="py-5 first:pt-0 last:pb-0 2xl:py-6">
-            <h3 className="font-display text-[1.375rem] leading-tight font-semibold tracking-[-0.02em] text-ink-100 2xl:text-[1.75rem]">
-              {item.title}
-            </h3>
-            <p className="mt-1.5 text-base leading-snug text-pretty text-ink-400 2xl:text-lg">{item.body}</p>
-          </li>
-        ))}
-      </ul>
-      <ul className="mt-8 max-w-[30rem] text-sm leading-relaxed text-ink-500 2xl:max-w-[36rem]">
-        <ByokNote />
-      </ul>
+    <TabBody title="Privacy" intro="What Heard hears, where it goes, and what it keeps." footer={
+        <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+          <a
+            href="https://github.com/blackgirlbytes/live-captions"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-sm text-ink-300 underline-offset-4 hover:text-ink-100 hover:underline"
+          >
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+            </svg>
+            Heard is open source.
+          </a>
+          <span>
+            Captions by{" "}
+            <a href="https://deepgram.com" target="_blank" rel="noreferrer" className="rounded-sm text-ink-300 underline-offset-4 hover:text-ink-100 hover:underline">
+              Deepgram Nova-3
+            </a>
+            .
+          </span>
+        </p>
+      }
+    >
+      <Points
+        items={[
+          { title: "Only the tab you choose", body: "Nothing else is heard.", art: <StepArtPicker /> },
+          { title: "Sent to Deepgram while captioning", body: "Stop captions and it stops.", art: <SendArt /> },
+          { title: "Nothing is saved", body: "Close the tab and the transcript is gone.", art: <NoSaveArt /> },
+        ]}
+      />
     </TabBody>
   );
 }
@@ -277,7 +323,7 @@ function PasteArt() {
   return (
     <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-ink-900 ring-1 ring-ink-700" aria-hidden="true">
       <div className="absolute inset-x-3 top-1/2 flex -translate-y-1/2 items-center gap-2 rounded-lg bg-ink-800 p-1.5 ring-1 ring-accent/60">
-        <span className="ml-1 truncate text-[10px] text-ink-300">youtube.com/watch?v=iG9CE55wbtY</span>
+        <span className="ml-1 truncate text-[10px] text-ink-300">youtube.com/watch?v=53SxFKpbKDE</span>
         <span className="ml-auto rounded-md bg-accent px-2 py-1 text-[10px] font-semibold text-accent-ink">Watch</span>
       </div>
     </div>
