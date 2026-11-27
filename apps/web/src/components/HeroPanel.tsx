@@ -310,7 +310,16 @@ function ExtensionTab() {
       <Points
         numbered
         items={[
-          { title: "Build it", body: <code className={code}>npm run build -w @heard/extension</code> },
+          {
+            title: "Get the code",
+            body: (
+              <>
+                <code className={code}>git clone https://github.com/blackgirlbytes/live-captions.git</code> then{" "}
+                <code className={code}>cd live-captions</code>
+              </>
+            ),
+          },
+          { title: "Build it", body: <code className={code}>npm install && npm run build -w @heard/extension</code> },
           { title: "Turn on Developer mode", body: <>In <code className={code}>chrome://extensions</code></> },
           { title: "Load unpacked", body: <code className={code}>apps/extension/.output/chrome-mv3</code> },
         ]}
