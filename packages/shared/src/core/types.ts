@@ -1,5 +1,5 @@
 /**
- * Shared types for Earshot. Nothing in here knows about YouTube, Chrome, or React —
+ * Shared types for Heard. Nothing in here knows about YouTube, Chrome, or React —
  * it only describes transcription state so any surface (web app, extension, future
  * providers) can render it.
  */
@@ -79,8 +79,8 @@ export interface DeepgramStreamOptions {
 
 /**
  * How the browser authenticates the Deepgram WebSocket.
- * - `bearer`: short-lived JWT minted by an Earshot server (server holds the API key).
- * - `token`: the user's own Deepgram API key ("bring your own key"); never sent to Earshot.
+ * - `bearer`: short-lived JWT minted by a Heard server (server holds the API key).
+ * - `token`: the user's own Deepgram API key ("bring your own key"); never sent to Heard.
  */
 export interface DeepgramCredential {
   type: "bearer" | "token";

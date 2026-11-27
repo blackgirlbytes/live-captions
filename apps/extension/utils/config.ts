@@ -1,9 +1,9 @@
 import { browser } from "wxt/browser";
-import { normalizeCaptionSettings, type CaptionSettings } from "@earshot/shared";
+import { normalizeCaptionSettings, type CaptionSettings } from "@heard/shared";
 
-/** Build-time default (`WXT_EARSHOT_URL=https://earshot.example npx wxt build`). */
-export const DEFAULT_EARSHOT_URL: string = (
-  (import.meta.env.WXT_EARSHOT_URL as string | undefined) || "http://localhost:3100"
+/** Build-time default (`WXT_HEARD_URL=https://heard.example npx wxt build`). */
+export const DEFAULT_HEARD_URL: string = (
+  (import.meta.env.WXT_HEARD_URL as string | undefined) || "http://localhost:3100"
 ).replace(/\/+$/, "");
 
 /** chrome.storage.local keys. Transcripts are never stored. */
@@ -53,7 +53,7 @@ export function normalizeServerUrl(input: string): string | null {
 
 export async function getServerUrl(): Promise<string> {
   const stored = (await browser.storage.local.get(STORAGE_KEYS.serverUrl))[STORAGE_KEYS.serverUrl];
-  return (typeof stored === "string" && normalizeServerUrl(stored)) || DEFAULT_EARSHOT_URL;
+  return (typeof stored === "string" && normalizeServerUrl(stored)) || DEFAULT_HEARD_URL;
 }
 
 export function tokenEndpoint(serverUrl: string): string {
@@ -72,7 +72,7 @@ export function maskKey(key: string): string {
 }
 
 /**
- * What the Earshot server can do for us when the user has no key of their own.
+ * What the Heard server can do for us when the user has no key of their own.
  * - ready: reachable and has a Deepgram key.
  * - no_server_key: reachable but can't mint tokens.
  * - unknown: reachable, but it doesn't report whether it has a key (older server).

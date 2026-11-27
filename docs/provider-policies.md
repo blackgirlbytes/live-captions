@@ -1,6 +1,6 @@
 # Provider policies
 
-Earshot embeds third-party players. Each provider's terms decide where captions may be
+Heard embeds third-party players. Each provider's terms decide where captions may be
 drawn; the result is encoded in `capabilities` on the provider
 (`apps/web/src/lib/providers/*`), and the watch page follows it.
 
@@ -42,13 +42,13 @@ recommends (not requires) at least 480×270 for 16:9 players; the desktop layout
 
 We only use documented `playerVars` (`fs=0`, `playsinline=1`, `rel=0`, `start`, `enablejsapi`,
 `origin`) and documented player methods. YouTube's own fullscreen is turned off with `fs=0`;
-Earshot's fullscreen button fullscreens a container that holds the untouched player plus the
+Heard's fullscreen button fullscreens a container that holds the untouched player plus the
 caption bar underneath it, so captions stay visible.
 
 ### Open question: audio capture
 
 Developer Policies III.I.7 says you must not "separate, isolate, or modify the audio or video
-components of any YouTube audiovisual content". Earshot analyses the tab's audio output with
+components of any YouTube audiovisual content". Heard analyses the tab's audio output with
 the user's explicit permission (Chrome's tab-sharing picker) to produce captions; it doesn't
 store, replay or redistribute audio, and the video keeps playing unmodified in YouTube's
 player. Whether live transcription of tab audio counts as "isolating" audio is not addressed
@@ -60,4 +60,4 @@ player rules above.
 
 IFrame `onError` codes are mapped to friendly messages in
 `apps/web/src/lib/providers/youtube/index.ts`: 2 (invalid id), 5 (HTML5 player error),
-100 (removed/private), 101/150 (embedding disabled → "Open on YouTube" + Earshot extension).
+100 (removed/private), 101/150 (embedding disabled → "Open on YouTube" + Heard extension).

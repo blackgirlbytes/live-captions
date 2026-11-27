@@ -4,7 +4,7 @@ import { HeroPanel } from "@/components/HeroPanel";
 /**
  * The home page is one screen: a dark stage with the panel on the left (its nav
  * swaps the panel between Home, How it works, Privacy and the extension) and a
- * working demo of Earshot on the right. On narrower screens the two stack.
+ * working demo of Heard on the right. On narrower screens the two stack.
  */
 export default function Home() {
   return (

@@ -7,11 +7,11 @@ export function StepArtStart() {
     <div className={frame} aria-hidden="true">
       <div className="absolute inset-x-4 top-4 h-[46%] rounded-md bg-ink-800" />
       <div className="absolute inset-x-4 bottom-4 flex items-center gap-2">
-        <span className="inline-flex h-7 items-center gap-1.5 rounded-lg bg-accent px-2.5 text-[11px] font-semibold text-accent-ink shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-accent)_25%,transparent)]">
+        <span className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-lg bg-accent whitespace-nowrap px-2.5 text-[11px] font-semibold text-accent-ink shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-accent)_25%,transparent)]">
           <svg width="10" height="10" viewBox="0 0 24 24"><path d="M7 5v14l12-7z" fill="currentColor" /></svg>
           Start captions
         </span>
-        <span className="h-2 w-16 rounded-full bg-ink-700" />
+        <span className="h-2 w-16 min-w-0 shrink rounded-full bg-ink-700" />
       </div>
     </div>
   );
@@ -22,7 +22,7 @@ export function StepArtPicker() {
     <div className={frame} aria-hidden="true">
       <div className="absolute inset-3 rounded-lg bg-ink-800 p-3 ring-1 ring-ink-600">
         <div className="mb-2 h-2 w-24 rounded-full bg-ink-600" />
-        <div className="flex gap-1.5 text-[10px] font-medium">
+        <div className="flex gap-1 overflow-hidden text-[10px] font-medium whitespace-nowrap">
           <span className="rounded-md bg-accent/15 px-2 py-1 text-accent ring-1 ring-accent/50">This tab</span>
           <span className="rounded-md px-2 py-1 text-ink-500">Window</span>
           <span className="rounded-md px-2 py-1 text-ink-500">Screen</span>
@@ -53,7 +53,7 @@ export function StepArtAudio() {
 }
 
 export const CAPTURE_STEPS = [
-  { title: "Click Start captions", body: "Earshot asks Chrome to listen to this tab and nothing else.", Art: StepArtStart },
+  { title: "Click Start captions", body: "Heard asks Chrome to listen to this tab and nothing else.", Art: StepArtStart },
   { title: "Choose “This tab”", body: "Chrome’s sharing picker opens. Pick the tab you’re watching in.", Art: StepArtPicker },
-  { title: "Keep “Also share tab audio” on", body: "That switch sends the video’s sound to Earshot. Then press Share.", Art: StepArtAudio },
+  { title: "Keep “Also share tab audio” on", body: "That switch sends the video’s sound to Heard. Then press Share.", Art: StepArtAudio },
 ] as const;

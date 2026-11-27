@@ -6,7 +6,7 @@ import { forgetUserKey, keyMode, maskKey } from "@/lib/deepgram-key";
 
 export interface DeepgramKeySettingsProps {
   userKey: string | null;
-  /** Whether the Earshot server has its own key (null = unknown). */
+  /** Whether the Heard server has its own key (null = unknown). */
   serverKey: boolean | null;
   /** Start with the add/replace form open (e.g. after Deepgram rejected the key). */
   initiallyEditing?: boolean;
@@ -52,7 +52,7 @@ export function DeepgramKeySettings({ userKey, serverKey, initiallyEditing = fal
             type="button"
             onClick={() => {
               forgetUserKey();
-              setNote(serverKey ? "Key removed. Earshot’s server key is used again." : "Key removed from this browser.");
+              setNote(serverKey ? "Key removed. Heard’s server key is used again." : "Key removed from this browser.");
             }}
             className="-my-1 h-7 shrink-0 rounded-lg px-2 text-xs font-semibold text-ink-400 transition-colors hover:bg-live/10 hover:text-[#ff8b96]"
           >

@@ -8,7 +8,7 @@
  */
 import { browser, type Browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
-import { initialTranscriptState, type TranscriptEvent } from "@earshot/shared";
+import { initialTranscriptState, type TranscriptEvent } from "@heard/shared";
 import { getServerUrl, getUserKey, probeServer, restrictedReason, tokenEndpoint } from "@/utils/config";
 import {
   errorMessage,
@@ -84,7 +84,7 @@ export default defineBackground(() => {
       }
       await browser.action.setTitle({
         tabId,
-        title: live ? "Earshot — capturing this tab's audio (click to stop)" : "Earshot — Live AI Captions",
+        title: live ? "Heard — capturing this tab's audio (click to stop)" : "Heard — Live AI Captions",
       });
     } catch {
       /* tab is gone */
@@ -106,10 +106,10 @@ export default defineBackground(() => {
   function explainCaptureError(err: unknown): string {
     const msg = errorMessage(err);
     if (/invoked|activeTab/i.test(msg)) {
-      return "Chrome only allows capture after you use Earshot on this tab. Click the Earshot toolbar icon on this tab, then Start.";
+      return "Chrome only allows capture after you use Heard on this tab. Click the Heard toolbar icon on this tab, then Start.";
     }
     if (/active stream/i.test(msg)) {
-      return "This tab's audio is already being captured (by Earshot or another extension). Stop that capture and try again.";
+      return "This tab's audio is already being captured (by Heard or another extension). Stop that capture and try again.";
     }
     if (/chrome pages|cannot be captured/i.test(msg)) {
       return "Chrome doesn't allow capturing this page.";
@@ -118,7 +118,7 @@ export default defineBackground(() => {
   }
 
   /**
-   * The user's own key wins; otherwise the Earshot server mints tokens. Without a key we
+   * The user's own key wins; otherwise the Heard server mints tokens. Without a key we
    * check the server first so a missing/keyless server is explained up front instead of
    * surfacing later as a network error. The key itself only travels background → offscreen.
    */
@@ -131,14 +131,14 @@ export default defineBackground(() => {
       return {
         ok: false,
         code: "needs_key",
-        error: `Earshot needs a Deepgram API key. Add your own key in settings (the Earshot server at ${serverUrl} isn't reachable).`,
+        error: `Heard needs a Deepgram API key. Add your own key in settings (the Heard server at ${serverUrl} isn't reachable).`,
       };
     }
     if (status === "no_server_key") {
       return {
         ok: false,
         code: "needs_key",
-        error: `Earshot needs a Deepgram API key. Add your own key in settings (the Earshot server at ${serverUrl} has no Deepgram key).`,
+        error: `Heard needs a Deepgram API key. Add your own key in settings (the Heard server at ${serverUrl} has no Deepgram key).`,
       };
     }
     return { ok: true, credential: { kind: "server", tokenEndpoint: tokenEndpoint(serverUrl) } };

@@ -7,7 +7,7 @@ import {
   type CaptionSettings,
   type CaptionState,
   type TranscriptionStatus,
-} from "@earshot/shared";
+} from "@heard/shared";
 import {
   CaptionsIcon,
   CaptionText,
@@ -19,7 +19,7 @@ import {
   TranscriptToolbar,
   TranscriptView,
   useTranscriptionSession,
-} from "@earshot/shared/react";
+} from "@heard/shared/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DeepgramKeyDialog } from "@/components/DeepgramKeyDialog";
 import { DeepgramKeySettings } from "@/components/DeepgramKeySettings";
@@ -28,9 +28,10 @@ import { StartGuide } from "@/components/StartGuide";
 import { captureTabAudio, detectCaptureSupport } from "@/lib/capture";
 import { createGetToken, keyMode, TOKEN_ENDPOINT_PATH, useServerKeyStatus, useUserDeepgramKey } from "@/lib/deepgram-key";
 import { resolveVideo, type PlayerAdapter, type PlayerError, type PlayerState } from "@/lib/providers";
+import { migrateLegacyStorage } from "@/lib/legacy-storage";
 import { loadCaptionSettings, saveCaptionSettings } from "@/lib/settings-storage";
 
-const GUIDE_KEY = "earshot:skip-start-guide";
+const GUIDE_KEY = "heard:skip-start-guide";
 const POLL_MS = 250;
 
 let workletUrl: string | null = null;
@@ -284,7 +285,7 @@ export function WatchExperience({ url }: { url: string }) {
 
   const timeBase = preferredTimeBase(ts.lines);
   const onSeek = useCallback((s: number) => adapterRef.current?.seekTo(s), []);
-  const fileName = title ?? "earshot-transcript";
+  const fileName = title ?? "heard-transcript";
 
   const sessionError = ts.status === "error" ? ts.error : null;
   const reconnecting = ts.status === "reconnecting";
@@ -512,7 +513,7 @@ function TranscriptEmpty({ status, supported }: { status: TranscriptionStatus; s
     <span className="max-w-[16rem]">
       {supported
         ? "Press Start captions and share this tab. Every line lands here — click a timestamp to jump back."
-        : "Open Earshot in Chrome or Edge on a computer to transcribe videos."}
+        : "Open Heard in Chrome or Edge on a computer to transcribe videos."}
     </span>
   );
 }
@@ -560,7 +561,7 @@ function PlayerErrorPanel({ error, canonicalUrl, providerName }: { error: Player
         <p className="mt-2 text-sm leading-relaxed text-ink-300">{error.message}</p>
         {error.embeddingBlocked && (
           <p className="mt-2 text-sm leading-relaxed text-ink-400">
-            The Earshot Chrome extension adds the same live captions directly on youtube.com.{" "}
+            The Heard Chrome extension adds the same live captions directly on youtube.com.{" "}
             <a href="/#extension" className="text-accent underline-offset-2 hover:underline">
               Get the extension
             </a>
@@ -588,6 +589,7 @@ function FullscreenIcon({ exit }: { exit: boolean }) {
 }
 
 function readFlag(key: string): boolean {
+  migrateLegacyStorage();
   try {
     return localStorage.getItem(key) === "1";
   } catch {

@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const bricolage = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-bricolage", display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "Earshot: live AI captions for any video", template: "%s · Earshot" },
+  title: { default: "Heard: live AI captions for any video", template: "%s · Heard" },
   description:
     "Paste a YouTube video or livestream and get real-time captions and a searchable, clickable transcript, powered by Deepgram Nova-3.",
   icons: { icon: "/icon.svg" },

@@ -37,7 +37,7 @@ export function resolveVideo(input: string): ResolveResult {
   }
   return {
     ok: false,
-    message: "Earshot doesn't recognize that link yet. YouTube videos, Shorts and livestreams are supported.",
+    message: "Heard doesn't recognize that link yet. YouTube videos, Shorts and livestreams are supported.",
   };
 }
 

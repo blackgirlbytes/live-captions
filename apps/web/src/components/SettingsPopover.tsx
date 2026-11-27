@@ -1,7 +1,7 @@
 "use client";
 
-import type { CaptionSettings } from "@earshot/shared";
-import { CaptionSettingsForm, SettingsIcon } from "@earshot/shared/react";
+import type { CaptionSettings } from "@heard/shared";
+import { CaptionSettingsForm, SettingsIcon } from "@heard/shared/react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 export function SettingsPopover({

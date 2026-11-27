@@ -12,7 +12,7 @@ function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/** The player: the video with Earshot's live caption overlay. */
+/** The player: the video with Heard's live caption overlay. */
 export function VideoFrame() {
   const { time, playing, captionsOn, showCaptions, current, togglePlaying, seek } = useHeroDemo();
 

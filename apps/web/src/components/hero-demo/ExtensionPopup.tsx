@@ -10,7 +10,7 @@ export function ExtensionPopup() {
   return (
     <div className="rounded-[20px] bg-ink-900 p-3.5 shadow-[0_30px_60px_-24px_rgba(0,0,0,0.95)] ring-1 ring-white/[0.08]">
       <div className="flex items-center justify-between px-0.5">
-        <span className="font-display text-[15px] font-semibold tracking-tight text-ink-100">Earshot</span>
+        <span className="font-display text-[15px] font-semibold tracking-tight text-ink-100">Heard</span>
         <span
           role="status"
           aria-label={captionsOn ? "Transcription live" : "Transcription off"}

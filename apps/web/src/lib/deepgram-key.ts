@@ -1,17 +1,18 @@
 "use client";
 
-import { createTokenFetcher, type DeepgramCredential } from "@earshot/shared";
+import { createTokenFetcher, type DeepgramCredential } from "@heard/shared";
+import { migrateLegacyStorage } from "@/lib/legacy-storage";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 /**
  * "Bring your own Deepgram key".
  *
  * A visitor's own key lives only in this browser (localStorage, or memory when storage is
- * blocked) and is handed straight to Deepgram's WebSocket. It is never sent to the Earshot
+ * blocked) and is handed straight to Deepgram's WebSocket. It is never sent to the Heard
  * server. When a user key is saved it takes precedence over the server's token endpoint.
  */
 
-const STORAGE_KEY = "earshot:deepgram-key";
+const STORAGE_KEY = "heard:deepgram-key";
 export const TOKEN_ENDPOINT_PATH = "/api/deepgram/token";
 export const DEEPGRAM_CONSOLE_URL = "https://console.deepgram.com/";
 
@@ -21,6 +22,7 @@ const listeners = new Set<() => void>();
 
 function read(): string | null {
   if (current !== undefined) return current;
+  migrateLegacyStorage();
   try {
     current = localStorage.getItem(STORAGE_KEY)?.trim() || null;
   } catch {
@@ -90,7 +92,7 @@ export function useUserDeepgramKey(): string | null {
 let serverStatus: Promise<boolean | null> | null = null;
 
 /**
- * Whether the Earshot server has its own Deepgram key (GET /api/deepgram/token).
+ * Whether the Heard server has its own Deepgram key (GET /api/deepgram/token).
  * Cached per page load; resolves null when the check itself failed (it's retried next call).
  */
 export function fetchServerKeyStatus(): Promise<boolean | null> {
@@ -134,7 +136,7 @@ export function useServerKeyStatus(): [boolean | null, (v: boolean) => void] {
 /**
  * `getToken` for TranscriptionSession: the user's own key when one is saved (read on every
  * connect, so a newly saved key applies on the next connection), otherwise a short-lived
- * JWT from the Earshot server.
+ * JWT from the Heard server.
  */
 export function createGetToken(endpoint: string): () => Promise<string | DeepgramCredential> {
   const fetchServerToken = createTokenFetcher(endpoint);

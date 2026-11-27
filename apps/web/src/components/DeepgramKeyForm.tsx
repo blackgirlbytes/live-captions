@@ -1,6 +1,6 @@
 "use client";
 
-import { looksLikeDeepgramKey, verifyDeepgramKey } from "@earshot/shared";
+import { looksLikeDeepgramKey, verifyDeepgramKey } from "@heard/shared";
 import { useId, useState, type FormEvent } from "react";
 import { DEEPGRAM_CONSOLE_URL, saveUserKey } from "@/lib/deepgram-key";
 

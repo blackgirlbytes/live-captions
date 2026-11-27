@@ -1,4 +1,4 @@
-/** Earshot mark: amber rounded square with two caption lines. Mirrors public/icon/*.png. */
+/** Heard mark: amber rounded square with two caption lines. Mirrors public/icon/*.png. */
 export function Logo({ size = 28, className = "" }: { size?: number; className?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" className={className} aria-hidden="true">
@@ -13,7 +13,7 @@ export function Wordmark() {
   return (
     <div className="flex items-center gap-2">
       <Logo size={26} />
-      <span className="text-[15px] font-semibold tracking-tight text-ink-100">Earshot</span>
+      <span className="text-[15px] font-semibold tracking-tight text-ink-100">Heard</span>
     </div>
   );
 }

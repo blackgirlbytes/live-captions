@@ -66,7 +66,7 @@ export function TranscriptView({
     <div className={`relative min-h-0 flex-1 ${className}`}>
       <div
         ref={scroller}
-        className="earshot-scroll absolute inset-0 overflow-y-auto px-4 py-3"
+        className="heard-scroll absolute inset-0 overflow-y-auto px-4 py-3"
         aria-live="polite"
         aria-relevant="additions"
         role="log"
@@ -149,7 +149,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
     }
     if (j > i) parts.push(<Fragment key={k++}>{text.slice(i, j)}</Fragment>);
     parts.push(
-      <mark key={k++} className="earshot-hit">
+      <mark key={k++} className="heard-hit">
         {text.slice(j, j + query.length)}
       </mark>,
     );

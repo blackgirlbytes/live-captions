@@ -1,7 +1,7 @@
 /**
  * Video provider abstraction. The watch page only talks to these interfaces, so adding
  * Twitch, Vimeo or direct media URLs means adding a provider — no changes to the
- * transcription code (which lives in @earshot/shared and knows nothing about players).
+ * transcription code (which lives in @heard/shared and knows nothing about players).
  */
 
 export interface ParsedVideo {

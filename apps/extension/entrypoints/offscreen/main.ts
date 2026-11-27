@@ -2,7 +2,7 @@
  * Offscreen document: the only place audio is touched, and the source of truth for the
  * session (the MV3 service worker may be suspended at any time; this page is not).
  *
- * tab audio (tabCapture stream id) → getUserMedia → TranscriptionSession (@earshot/shared)
+ * tab audio (tabCapture stream id) → getUserMedia → TranscriptionSession (@heard/shared)
  * → TranscriptEvents broadcast to the background (relays to the overlay) and to the
  * popup / side panel. Transcripts live in memory only.
  */
@@ -13,7 +13,7 @@ import {
   reduceTranscript,
   TranscriptionSession,
   type DeepgramCredential,
-} from "@earshot/shared";
+} from "@heard/shared";
 import {
   broadcast,
   errorMessage,
@@ -58,8 +58,8 @@ async function start(msg: Extract<OffscreenRequest, { type: "start" }>): Promise
   const tabId = msg.tabId;
   setMeta({ tabId, tabTitle: msg.tabTitle, overlayHidden: false });
   const s = new TranscriptionSession({
-    // A user key is used directly (Deepgram's `token` subprotocol); no Earshot server involved.
-    // Otherwise each (re)connect fetches a short-lived JWT from the Earshot server.
+    // A user key is used directly (Deepgram's `token` subprotocol); no Heard server involved.
+    // Otherwise each (re)connect fetches a short-lived JWT from the Heard server.
     getToken:
       msg.credential.kind === "user-key"
         ? userKeyCredential(msg.credential.userKey)

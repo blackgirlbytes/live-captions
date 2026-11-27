@@ -1,5 +1,5 @@
 /*
- * Earshot visual identity — shared by the web platform and the Chrome extension.
+ * Heard visual identity — shared by the web platform and the Chrome extension.
  * Import after `@import "tailwindcss";` and add `@source` for packages/shared/src.
  */
 @theme {
@@ -31,12 +31,12 @@
   }
 }
 
-.earshot-scroll {
+.heard-scroll {
   scrollbar-width: thin;
   scrollbar-color: var(--color-ink-600) transparent;
 }
 
-mark.earshot-hit {
+mark.heard-hit {
   background: color-mix(in srgb, var(--color-accent) 35%, transparent);
   color: inherit;
   border-radius: 3px;

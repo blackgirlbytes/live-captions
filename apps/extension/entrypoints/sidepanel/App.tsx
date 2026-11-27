@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { browser } from "wxt/browser";
-import { looksLikeDeepgramKey, verifyDeepgramKey } from "@earshot/shared";
-import { CaptionSettingsForm, PlayIcon, StatusBadge, StopIcon, TranscriptToolbar, TranscriptView } from "@earshot/shared/react";
+import { looksLikeDeepgramKey, verifyDeepgramKey } from "@heard/shared";
+import { CaptionSettingsForm, PlayIcon, StatusBadge, StopIcon, TranscriptToolbar, TranscriptView } from "@heard/shared/react";
 import { Wordmark } from "@/components/Logo";
 import {
   needsKey,
@@ -14,7 +14,7 @@ import {
   useUserKey,
 } from "@/components/hooks";
 import {
-  DEFAULT_EARSHOT_URL,
+  DEFAULT_HEARD_URL,
   normalizeServerUrl,
   restrictedReason,
   SESSION_KEYS,
@@ -142,8 +142,8 @@ export default function App() {
             <p>
               <span className="font-semibold text-ink-100">Add a Deepgram API key to start.</span>{" "}
               {server.status === "no_server_key"
-                ? `The Earshot server at ${serverUrl} has no Deepgram key.`
-                : `No Earshot server is running at ${serverUrl}, so Earshot needs your own key.`}
+                ? `The Heard server at ${serverUrl} has no Deepgram key.`
+                : `No Heard server is running at ${serverUrl}, so Heard needs your own key.`}
             </p>
             <button type="button" onClick={goToKey} className="mt-1.5 font-semibold text-accent hover:underline">
               Add your key →
@@ -191,7 +191,7 @@ export default function App() {
             lines={t.lines}
             query={query}
             onQueryChange={setQuery}
-            fileName={snap.tabTitle ? `${snap.tabTitle} transcript` : "earshot-transcript"}
+            fileName={snap.tabTitle ? `${snap.tabTitle} transcript` : "heard-transcript"}
           />
           <TranscriptView
             lines={t.lines}
@@ -205,7 +205,7 @@ export default function App() {
           />
         </main>
       ) : (
-        <main className="earshot-scroll min-h-0 flex-1 space-y-6 overflow-y-auto px-4 py-4">
+        <main className="heard-scroll min-h-0 flex-1 space-y-6 overflow-y-auto px-4 py-4">
           <KeySection
             masked={userKey.masked}
             serverUrl={serverUrl}
@@ -303,11 +303,11 @@ function KeySection({
 
   const status = (() => {
     if (masked) return `Using your key (${masked})`;
-    const where = serverUrl ?? DEFAULT_EARSHOT_URL;
-    if (serverStatus === "unreachable") return `No key saved, and no Earshot server is reachable at ${where}.`;
-    if (serverStatus === "no_server_key") return `No key saved, and the Earshot server at ${where} has no Deepgram key.`;
-    if (serverStatus === "checking") return `Checking the Earshot server at ${where}…`;
-    return `Using Earshot server at ${where}`;
+    const where = serverUrl ?? DEFAULT_HEARD_URL;
+    if (serverStatus === "unreachable") return `No key saved, and no Heard server is reachable at ${where}.`;
+    if (serverStatus === "no_server_key") return `No key saved, and the Heard server at ${where} has no Deepgram key.`;
+    if (serverStatus === "checking") return `Checking the Heard server at ${where}…`;
+    return `Using Heard server at ${where}`;
   })();
   const statusOk = Boolean(masked) || serverStatus === "ready" || serverStatus === "unknown";
 
@@ -320,11 +320,11 @@ function KeySection({
         {status}
       </p>
       <p className="mb-3 text-xs leading-relaxed text-ink-400">
-        Use your own Deepgram API key and Earshot works without any server; usage is billed to your Deepgram account. Create one at{" "}
+        Use your own Deepgram API key and Heard works without any server; usage is billed to your Deepgram account. Create one at{" "}
         <a href={DEEPGRAM_CONSOLE_URL} target="_blank" rel="noreferrer" className="text-accent hover:underline">
           console.deepgram.com
         </a>
-        . Make a dedicated key for Earshot with the fewest permissions (Member or lower) and an expiry date.
+        . Make a dedicated key for Heard with the fewest permissions (Member or lower) and an expiry date.
       </p>
       <form onSubmit={save} className="space-y-2">
         <label className="sr-only" htmlFor="deepgram-key">
@@ -376,7 +376,7 @@ function KeySection({
         </p>
       )}
       <p className="mt-2 text-[11px] leading-relaxed text-ink-500">
-        Your key stays in this browser (extension storage) and is only sent to Deepgram, never to Earshot or any other server.
+        Your key stays in this browser (extension storage) and is only sent to Deepgram, never to Heard or any other server.
       </p>
     </section>
   );
@@ -413,7 +413,7 @@ function ServerUrlSection({ usingUserKey }: { usingUserKey: boolean }) {
       <p className="mb-3 text-xs leading-relaxed text-ink-400">
         {usingUserKey
           ? "Not used while your own Deepgram key is saved."
-          : "Without a key of your own, an Earshot server issues short-lived Deepgram tokens; its API key stays on the server."}
+          : "Without a key of your own, a Heard server issues short-lived Deepgram tokens; its API key stays on the server."}
       </p>
       <form onSubmit={save} className="flex gap-2">
         <label className="sr-only" htmlFor="server-url">
@@ -427,7 +427,7 @@ function ServerUrlSection({ usingUserKey }: { usingUserKey: boolean }) {
             setValue(e.target.value);
             setMessage(null);
           }}
-          placeholder={DEFAULT_EARSHOT_URL}
+          placeholder={DEFAULT_HEARD_URL}
           spellCheck={false}
           className="h-9 min-w-0 flex-1 rounded-lg bg-ink-850 px-3 font-mono text-xs text-ink-100 ring-1 ring-ink-700 placeholder:text-ink-500 focus:ring-accent focus:outline-none"
         />
@@ -436,8 +436,8 @@ function ServerUrlSection({ usingUserKey }: { usingUserKey: boolean }) {
         </button>
       </form>
       <div className="mt-2 flex items-center justify-between gap-2 text-xs">
-        <span className={message ? (message.ok ? "text-ok" : "text-live") : "text-ink-500"}>{message?.text ?? `Default: ${DEFAULT_EARSHOT_URL}`}</span>
-        {current !== DEFAULT_EARSHOT_URL && (
+        <span className={message ? (message.ok ? "text-ok" : "text-live") : "text-ink-500"}>{message?.text ?? `Default: ${DEFAULT_HEARD_URL}`}</span>
+        {current !== DEFAULT_HEARD_URL && (
           <button type="button" onClick={() => void reset()} className="shrink-0 text-ink-400 hover:text-ink-100 hover:underline">
             Reset
           </button>

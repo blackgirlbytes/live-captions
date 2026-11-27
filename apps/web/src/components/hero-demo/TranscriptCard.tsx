@@ -42,7 +42,7 @@ export function TranscriptCard() {
     const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = "earshot-transcript.txt";
+    a.download = "heard-transcript.txt";
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -50,7 +50,7 @@ export function TranscriptCard() {
   };
 
   return (
-    <div className="rounded-[20px] bg-ink-900 p-4 shadow-[0_30px_60px_-24px_rgba(0,0,0,0.95)] ring-1 ring-white/[0.08]">
+    <div className="flex h-full flex-col rounded-[20px] bg-ink-900 p-4 shadow-[0_30px_60px_-24px_rgba(0,0,0,0.95)] ring-1 ring-white/[0.08]">
       <div className="flex items-center justify-between">
         <span className="text-[13px] font-semibold text-ink-100">Transcript</span>
         <button
@@ -65,7 +65,7 @@ export function TranscriptCard() {
 
       <div
         ref={listRef}
-        className="earshot-scroll relative mt-3 h-[6.5rem] overflow-y-auto overscroll-contain"
+        className="heard-scroll relative mt-3 h-[6.5rem] overflow-y-auto xl:h-auto xl:min-h-0 xl:flex-1 overscroll-contain"
         role="log"
         aria-label="Transcript"
         aria-live="polite"
@@ -164,7 +164,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
     }
     if (j > i) parts.push(<Fragment key={k++}>{text.slice(i, j)}</Fragment>);
     parts.push(
-      <mark key={k++} className="earshot-hit">
+      <mark key={k++} className="heard-hit">
         {text.slice(j, j + query.length)}
       </mark>,
     );

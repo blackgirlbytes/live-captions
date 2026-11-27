@@ -1,5 +1,5 @@
 {
-  "name": "earshot",
+  "name": "heard",
   "private": true,
   "description": "Open-source real-time AI captions and transcripts for online video, powered by Deepgram Nova-3.",
   "workspaces": [
@@ -7,10 +7,10 @@
     "apps/*"
   ],
   "scripts": {
-    "dev:web": "npm run dev -w @earshot/web",
-    "dev:extension": "npm run dev -w @earshot/extension",
-    "build": "npm run build -w @earshot/web && npm run build -w @earshot/extension",
-    "test": "npm test -w @earshot/shared",
+    "dev:web": "npm run dev -w @heard/web",
+    "dev:extension": "npm run dev -w @heard/extension",
+    "build": "npm run build -w @heard/web && npm run build -w @heard/extension",
+    "test": "npm test -w @heard/shared",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "engines": {

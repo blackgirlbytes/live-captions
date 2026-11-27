@@ -10,12 +10,12 @@ import { createRoot, type Root } from "react-dom/client";
 import { createShadowRootUi } from "wxt/utils/content-script-ui/shadow-root";
 import { defineContentScript } from "wxt/utils/define-content-script";
 import { browser } from "wxt/browser";
-import { EMPTY_CAPTION } from "@earshot/shared";
+import { EMPTY_CAPTION } from "@heard/shared";
 import { isOverlayMessage, sendToBackground } from "@/utils/messages";
 import { Overlay, createOverlayStore } from "./Overlay";
 import { OVERLAY_CSS } from "./style";
 
-const GUARD = "__earshotOverlayMounted";
+const GUARD = "__heardOverlayMounted";
 
 export default defineContentScript({
   registration: "runtime",
@@ -33,7 +33,7 @@ export default defineContentScript({
     const store = createOverlayStore({ status: hello.status, caption: hello.caption ?? EMPTY_CAPTION, hidden: hello.hidden });
 
     const ui = await createShadowRootUi<Root>(ctx, {
-      name: "earshot-captions",
+      name: "heard-captions",
       position: "inline",
       anchor: () => document.fullscreenElement ?? document.body,
       append: "last",

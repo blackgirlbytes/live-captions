@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { browser, type Browser } from "wxt/browser";
-import { initialTranscriptState, reduceTranscript, type CaptionSettings, type TranscriptEvent } from "@earshot/shared";
+import { initialTranscriptState, reduceTranscript, type CaptionSettings, type TranscriptEvent } from "@heard/shared";
 import {
   getCaptionSettings,
   getServerUrl,
@@ -133,7 +133,7 @@ export function useUserKey() {
   return { loaded: state.loaded, hasKey: state.masked !== null, masked: state.masked };
 }
 
-/** Probe the Earshot server (only when `enabled`, i.e. the user has no key of their own). */
+/** Probe the Heard server (only when `enabled`, i.e. the user has no key of their own). */
 export function useServerStatus(serverUrl: string | null, enabled: boolean) {
   const [status, setStatus] = useState<ServerStatus | "checking" | null>(null);
   const [nonce, setNonce] = useState(0);

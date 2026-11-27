@@ -4,9 +4,9 @@
  * watch page on a speech-heavy YouTube video, clicks "Start captions", lets Chrome auto-accept
  * the "share this tab" prompt, and waits for Deepgram transcript lines to appear.
  *
- *   EARSHOT_URL=http://localhost:3100 npm run e2e -w @earshot/web
+ *   HEARD_URL=http://localhost:3100 npm run e2e -w @heard/web
  *
- * Env: EARSHOT_URL (default http://localhost:3100), CHROME_PATH, E2E_VIDEO (YouTube URL),
+ * Env: HEARD_URL (default http://localhost:3100), CHROME_PATH, E2E_VIDEO (YouTube URL),
  *      E2E_HEADLESS=1 for headless (YouTube usually refuses to play there: player error 5),
  *      E2E_TIMEOUT_MS (default 45000).
  *
@@ -14,7 +14,7 @@
  *   E2E_USER_KEY=<key>  Enter this Deepgram key in the app before starting: through the "Add your
  *                       Deepgram key" dialog when the server has no key, otherwise through
  *                       Settings → "Use my own Deepgram key". Asserts the key never reaches the
- *                       Earshot server and no server token is requested. The key is never logged.
+ *                       Heard server and no server token is requested. The key is never logged.
  *   E2E_BAD_KEY=1       Against a server without a key: asserts the dialog rejects a malformed
  *                       key and a well-formed fake key (Deepgram's "didn't accept" message). No capture.
  *
@@ -22,7 +22,7 @@
  */
 import puppeteer from "puppeteer-core";
 
-const BASE = (process.env.EARSHOT_URL ?? "http://localhost:3100").replace(/\/$/, "");
+const BASE = (process.env.HEARD_URL ?? "http://localhost:3100").replace(/\/$/, "");
 const CHROME = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const VIDEO = process.env.E2E_VIDEO ?? "https://www.youtube.com/watch?v=iG9CE55wbtY&t=60";
 const HEADLESS = process.env.E2E_HEADLESS === "1";
@@ -93,7 +93,7 @@ try {
     await clickButton(page, "Verify & save");
     const rejected = await waitForAlert(page, /didn.t accept that key/, 15000);
     log("fake key →", JSON.stringify(rejected));
-    const saved = await page.evaluate(() => localStorage.getItem("earshot:deepgram-key"));
+    const saved = await page.evaluate(() => localStorage.getItem("heard:deepgram-key"));
     if (saved) throw new Error("A rejected key was saved");
     if (tokenPosts) throw new Error(`Unexpected server token requests: ${tokenPosts}`);
   } else {
@@ -188,10 +188,10 @@ async function captureFlow(page, serverKey, errors, leaks, tokenPosts) {
   });
   log("stopped cleanly; status:", await statusText(page));
   if (USER_KEY) {
-    if (leaks.length) throw new Error(`User key was sent to the Earshot server: ${leaks.join(", ")}`);
+    if (leaks.length) throw new Error(`User key was sent to the Heard server: ${leaks.join(", ")}`);
     if (tokenPosts()) throw new Error(`Server tokens were requested in user-key mode (${tokenPosts()})`);
-    const mode = await page.evaluate(() => (localStorage.getItem("earshot:deepgram-key") ? "saved in localStorage" : "missing"));
-    log(`user key ${mode}; never sent to Earshot; 0 server token requests`);
+    const mode = await page.evaluate(() => (localStorage.getItem("heard:deepgram-key") ? "saved in localStorage" : "missing"));
+    log(`user key ${mode}; never sent to Heard; 0 server token requests`);
   } else {
     log("server token requests:", tokenPosts());
   }

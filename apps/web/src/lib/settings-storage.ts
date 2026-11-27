@@ -1,9 +1,12 @@
-import { DEFAULT_CAPTION_SETTINGS, normalizeCaptionSettings, type CaptionSettings } from "@earshot/shared";
+import { DEFAULT_CAPTION_SETTINGS, normalizeCaptionSettings, type CaptionSettings } from "@heard/shared";
+
+import { migrateLegacyStorage } from "@/lib/legacy-storage";
 
 /** Only caption appearance is persisted — never transcripts. */
-const KEY = "earshot:caption-settings:v1";
+const KEY = "heard:caption-settings:v1";
 
 export function loadCaptionSettings(): CaptionSettings {
+  migrateLegacyStorage();
   try {
     const raw = localStorage.getItem(KEY);
     return raw ? normalizeCaptionSettings(JSON.parse(raw)) : { ...DEFAULT_CAPTION_SETTINGS };

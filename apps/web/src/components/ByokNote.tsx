@@ -12,7 +12,7 @@ export function ByokNote() {
       <a href="https://console.deepgram.com/" target="_blank" rel="noopener noreferrer" className="text-accent underline-offset-2 hover:underline">
         Deepgram API key
       </a>
-      . It stays in your browser and goes only to Deepgram, never to Earshot’s server.
+      . It stays in your browser and goes only to Deepgram, never to Heard’s server.
     </li>
   );
 }

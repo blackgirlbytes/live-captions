@@ -11,7 +11,7 @@
  * carries a `to` field and each context ignores messages that aren't addressed to it.
  */
 import { browser } from "wxt/browser";
-import type { CaptionState, TranscriptEvent, TranscriptionStatus, TranscriptState } from "@earshot/shared";
+import type { CaptionState, TranscriptEvent, TranscriptionStatus, TranscriptState } from "@heard/shared";
 
 /** Everything the UI needs to render one capture session. Lives in the offscreen document. */
 export interface SessionSnapshot {

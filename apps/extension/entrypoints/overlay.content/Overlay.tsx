@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type PointerEvent as ReactPointerEvent } from "react";
 import { browser } from "wxt/browser";
-import { CaptionText } from "@earshot/shared/react";
-import { DEFAULT_CAPTION_SETTINGS, type CaptionSettings, type CaptionState, type TranscriptionStatus } from "@earshot/shared";
+import { CaptionText } from "@heard/shared/react";
+import { DEFAULT_CAPTION_SETTINGS, type CaptionSettings, type CaptionState, type TranscriptionStatus } from "@heard/shared";
 import { getCaptionSettings, STORAGE_KEYS, type OverlayLayout } from "@/utils/config";
 
 /* ------------------------------ tiny store ------------------------------ */
@@ -172,11 +172,11 @@ export function Overlay({ store, onDismiss }: { store: OverlayStore; onDismiss: 
       className={`box ${mode !== "idle" ? "active" : ""} ${mode === "drag" ? "dragging" : ""}`}
       style={{ left: pos.left, top: pos.top, width: pos.width }}
       onPointerDown={(e) => track(e, "drag")}
-      aria-label="Earshot live captions. Drag to move."
+      aria-label="Heard live captions. Drag to move."
     >
-      <div className={`live ${status === "live" ? "on" : ""}`} title={`Earshot: ${label || status}`}>
+      <div className={`live ${status === "live" ? "on" : ""}`} title={`Heard: ${label || status}`}>
         <span className="dot" aria-hidden="true" />
-        <span className="label">Earshot · {label}</span>
+        <span className="label">Heard · {label}</span>
       </div>
 
       <div className="bar">

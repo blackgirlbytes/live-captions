@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { ByokNote } from "@/components/ByokNote";
 import { LogoMark } from "@/components/Logo";
-import { CAPTURE_STEPS } from "@/components/StepArt";
+import { StepArtPicker, StepArtStart } from "@/components/StepArt";
 import { UrlForm } from "@/components/UrlForm";
 import { watchHref } from "@/lib/providers";
 
@@ -48,18 +48,18 @@ export function HeroPanel() {
 
   return (
     <>
-      <div className="hero-panel relative z-20 flex flex-col xl:absolute xl:inset-y-4 xl:left-4 xl:w-[calc(50%-1rem)] xl:rounded-[24px] xl:bg-ink-950 xl:px-12 xl:py-10 2xl:px-16 2xl:py-12 xl:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)]">
+      <div className="hero-panel relative z-20 flex flex-col xl:absolute xl:inset-y-4 xl:left-4 xl:w-[calc(46%-1rem)] 2xl:w-[calc(41%-1rem)] xl:rounded-[24px] xl:bg-ink-950 xl:px-12 xl:py-10 2xl:px-16 2xl:py-12 xl:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)]">
         <header className="flex items-center justify-between gap-6">
           <button
             type="button"
             onClick={() => go("home")}
             className="inline-flex shrink-0 items-center gap-2.5 rounded-lg"
-            aria-label="Earshot home"
+            aria-label="Heard home"
           >
             <LogoMark />
-            <span className="font-display text-lg font-semibold tracking-tight text-ink-100">Earshot</span>
+            <span className="font-display text-lg font-semibold tracking-tight text-ink-100">Heard</span>
           </button>
-          <nav className="flex items-center gap-5 text-sm sm:gap-6 xl:mr-auto xl:ml-4" aria-label="Sections">
+          <nav className="flex items-center gap-5 text-sm sm:gap-6 xl:mr-auto xl:ml-4 2xl:ml-6 2xl:gap-8 2xl:text-base" aria-label="Sections">
             {NAV.map((item) => (
               <a
                 key={item.tab}
@@ -69,7 +69,7 @@ export function HeroPanel() {
                   go(tab === item.tab ? "home" : item.tab);
                 }}
                 aria-current={tab === item.tab ? "page" : undefined}
-                className={`relative py-1 whitespace-nowrap transition-colors ${
+                className={`relative rounded-sm py-1 whitespace-nowrap transition-colors focus-visible:outline-offset-[6px] ${
                   tab === item.tab ? "text-ink-100" : "text-ink-400 hover:text-ink-100"
                 } ${item.tab === "extension" ? "" : "hidden sm:inline"} ${item.className ?? ""}`}
               >
@@ -107,13 +107,13 @@ export function HeroPanel() {
 function HomeTab() {
   return (
     <>
-      <div className="pt-14 sm:pt-20 xl:my-auto xl:pt-0">
-        <h1 className="font-display text-[2.75rem] leading-[0.98] font-semibold tracking-[-0.035em] text-balance text-ink-100 sm:text-6xl xl:text-[4rem] 2xl:text-[4.75rem]">
+      <div className="pt-14 sm:pt-20 xl:my-auto xl:py-8">
+        <h1 className="font-display text-[2.75rem] leading-[0.98] font-semibold tracking-[-0.035em] text-balance text-ink-100 sm:text-6xl xl:text-[4rem] 2xl:text-[5.25rem]">
           Live AI captions for any video.
         </h1>
-        <p className="mt-6 max-w-[29rem] text-[1.0625rem] leading-relaxed text-ink-400 2xl:max-w-[34rem] 2xl:text-lg">
-          Paste a YouTube video or livestream. Earshot listens along and writes captions as people speak, plus a
-          transcript you can search, click to jump back, and download.
+        <p className="mt-6 max-w-[29rem] text-[1.0625rem] leading-relaxed text-ink-400 2xl:max-w-[36rem] 2xl:text-xl">
+          Paste a YouTube video or livestream. Heard captions it as people speak, with a transcript you can
+          search and download.
         </p>
         <div className="mt-9 max-w-[32rem] 2xl:max-w-[36rem]">
           <UrlForm autoFocus />
@@ -155,93 +155,120 @@ function HomeTab() {
   );
 }
 
-/** Shared frame for the non-home tabs: a title, then content that scrolls inside the panel if it must. */
-function TabBody({ title, intro, children }: { title: string; intro: ReactNode; children: ReactNode }) {
+/**
+ * Shared frame for the non-home tabs. The title sits at the same fixed spot below the nav on every
+ * tab (not centered), so switching tabs never moves the headline.
+ */
+function TabBody({ title, intro, children, footer }: { title: string; intro?: ReactNode; children: ReactNode; footer?: ReactNode }) {
   return (
-    <div className="earshot-scroll min-h-0 flex-1 pt-14 sm:pt-20 xl:-mr-4 xl:overflow-y-auto xl:pt-16 xl:pr-4">
-      <h2 className="font-display text-4xl leading-[1.02] font-semibold tracking-[-0.03em] text-ink-100 sm:text-5xl">{title}</h2>
-      <div className="mt-4 max-w-[30rem] leading-relaxed text-ink-400">{intro}</div>
-      <div className="mt-9">{children}</div>
-    </div>
+    <>
+      <div className="pt-14 sm:pt-20 xl:pt-12 2xl:pt-16">
+        <h2 className="font-display text-[2.5rem] leading-[1.02] font-semibold tracking-[-0.03em] text-balance text-ink-100 sm:text-5xl xl:text-[3rem] 2xl:text-[3.75rem]">
+          {title}
+        </h2>
+        {intro && (
+          <p className="mt-4 max-w-[28rem] text-[1.0625rem] leading-normal text-pretty text-ink-400 2xl:max-w-[34rem] 2xl:text-xl">{intro}</p>
+        )}
+        <div className="mt-9 2xl:mt-12">{children}</div>
+      </div>
+      {footer && <div className="mt-10 text-sm text-ink-500 xl:mt-auto xl:pt-8">{footer}</div>}
+    </>
+  );
+}
+
+/** A short list of points: a bold line and one plain sentence each. Numbered only when it is a sequence. */
+/** Slight, alternating tilts for the step pictures, so they read as pieces laid on the page. */
+const ART_TILT = ["-rotate-2", "rotate-[1.5deg]", "-rotate-1"];
+
+function Points({ items, numbered = false }: { items: { title: string; body: ReactNode; art?: ReactNode }[]; numbered?: boolean }) {
+  return (
+    <ol className="max-w-[32rem] space-y-5 xl:space-y-4 2xl:max-w-[38rem] 2xl:space-y-6">
+      {items.map((item, i) => (
+        <li key={item.title} className="hero-step flex items-center gap-6" style={{ animationDelay: `${120 + i * 160}ms` }}>
+          {item.art && <div className={`hidden w-36 shrink-0 sm:block 2xl:w-44 ${ART_TILT[i % ART_TILT.length]}`}>{item.art}</div>}
+          <div className="flex gap-4">
+            {numbered && (
+              <span className="font-display text-lg leading-7 font-semibold text-accent tabular-nums 2xl:text-xl 2xl:leading-8">{i + 1}</span>
+            )}
+            <div>
+              <h3 className="font-display text-lg leading-7 font-semibold tracking-tight text-ink-100 2xl:text-xl 2xl:leading-8">{item.title}</h3>
+              <p className="mt-0.5 text-[0.9375rem] leading-snug text-pretty text-ink-400 2xl:text-lg">{item.body}</p>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ol>
   );
 }
 
 function HowTab({ onTry }: { onTry: () => void }) {
-  const steps = [
-    { title: "Paste a link", body: "Any YouTube video, Short or livestream. It plays right here in Earshot’s player.", Art: PasteArt },
-    CAPTURE_STEPS[0],
-    { ...CAPTURE_STEPS[1], body: "In Chrome’s picker choose “This tab” and keep “Also share tab audio” switched on." },
-  ];
   return (
-    <TabBody
-      title="How it works"
-      intro="Earshot hears the video through Chrome’s tab sharing, so it works with any video that plays in the page. No YouTube captions required."
-    >
-      <ol className="space-y-5">
-        {steps.map((step, i) => (
-          <li key={step.title} className="flex items-center gap-5">
-            <div className="w-32 shrink-0 sm:w-48">
-              <step.Art />
-            </div>
-            <div className="flex gap-3">
-              <span className="font-display text-xl leading-6 font-semibold text-accent tabular-nums">{i + 1}</span>
-              <div>
-                <h3 className="leading-6 font-semibold text-ink-100">{step.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-ink-400">{step.body}</p>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ol>
-      <button
-        type="button"
-        onClick={onTry}
-        className="mt-9 inline-flex h-11 items-center rounded-xl bg-accent px-5 text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-strong"
-      >
-        Paste a link
-      </button>
+    <TabBody title="How it works" intro="Heard listens to the tab itself, so it works even when a video has no captions.">
+      <Points
+        numbered
+        items={[
+          {
+            title: "Paste a link",
+            body: (
+              <>
+                Any YouTube video or livestream.{" "}
+                <button type="button" onClick={onTry} className="rounded-sm font-medium text-accent underline-offset-4 hover:underline">
+                  Paste one now
+                </button>
+              </>
+            ),
+            art: <PasteArt />,
+          },
+          { title: "Click Start captions", body: "Heard asks Chrome for this tab only.", art: <StepArtStart /> },
+          { title: "Share the tab’s audio", body: "Pick “This tab” and keep audio on.", art: <StepArtPicker /> },
+        ]}
+      />
     </TabBody>
   );
 }
 
+const PRIVACY = [
+  { title: "Only the tab you pick.", body: "Nothing is heard until you choose a tab and press Share." },
+  { title: "Only to Deepgram, only while on.", body: "Audio goes to Deepgram for captions and stops when you stop." },
+  { title: "Nothing is saved.", body: "Transcripts stay in your tab and vanish when you close it." },
+];
+
 function PrivacyTab() {
   return (
-    <TabBody title="Your audio, your call" intro="Earshot only listens when you ask it to, and keeps nothing.">
-      <ul className="max-w-[32rem] space-y-4 leading-relaxed text-ink-300 marker:text-ink-600 [&>li]:pl-1">
-        <li>Earshot only hears a tab after you pick it and press Share, and it only hears that tab.</li>
-        <li>
-          Audio streams to Deepgram for transcription while captions are on. Stop captions, or Chrome’s “Stop sharing”,
-          ends it instantly.
-        </li>
-        <li>Transcripts live in your browser tab and disappear when you close it. Nothing is stored on a server.</li>
+    <TabBody title="Privacy" intro="Heard listens only to what you choose to share, and keeps none of it." footer="Heard is open source. Captions by Deepgram Nova-3.">
+      <ul className="max-w-[30rem] divide-y divide-ink-800 2xl:max-w-[36rem]">
+        {PRIVACY.map((item) => (
+          <li key={item.title} className="py-5 first:pt-0 last:pb-0 2xl:py-6">
+            <h3 className="font-display text-[1.375rem] leading-tight font-semibold tracking-[-0.02em] text-ink-100 2xl:text-[1.75rem]">
+              {item.title}
+            </h3>
+            <p className="mt-1.5 text-base leading-snug text-pretty text-ink-400 2xl:text-lg">{item.body}</p>
+          </li>
+        ))}
+      </ul>
+      <ul className="mt-8 max-w-[30rem] text-sm leading-relaxed text-ink-500 2xl:max-w-[36rem]">
         <ByokNote />
       </ul>
-      <p className="mt-9 max-w-[32rem] text-sm leading-relaxed text-ink-500">
-        Earshot is open source. Speech recognition by Deepgram Nova-3. Works in Chrome and Edge on desktop.
-      </p>
     </TabBody>
   );
 }
 
 function ExtensionTab() {
-  const code = "rounded bg-ink-800 px-1.5 py-0.5 text-[0.85em] text-ink-100";
+  const code = "rounded-md bg-ink-850 px-1.5 py-0.5 text-[0.9em] text-ink-200";
   return (
     <TabBody
-      title="Captions on youtube.com itself"
-      intro="Some videos can’t be played outside YouTube. The Earshot Chrome extension captions them right on youtube.com, with a side panel transcript."
+      title="Captions on YouTube itself"
+      intro="For videos that won’t play outside youtube.com. Captions appear on the page, with the transcript in a side panel."
+      footer="Works in Chrome and Edge on desktop. Full setup is in the README."
     >
-      <ol className="max-w-[32rem] list-decimal space-y-3 pl-5 leading-relaxed text-ink-300 marker:text-ink-500">
-        <li>
-          Build it: <code className={code}>npm run build -w @earshot/extension</code>
-        </li>
-        <li>
-          Open <code className={code}>chrome://extensions</code> and turn on Developer mode.
-        </li>
-        <li>
-          Click Load unpacked and choose <code className={code}>apps/extension/.output/chrome-mv3</code>.
-        </li>
-      </ol>
-      <p className="mt-6 text-sm text-ink-500">Full setup is in the README’s “Chrome extension” section.</p>
+      <Points
+        numbered
+        items={[
+          { title: "Build it", body: <code className={code}>npm run build -w @heard/extension</code> },
+          { title: "Turn on Developer mode", body: <>In <code className={code}>chrome://extensions</code></> },
+          { title: "Load unpacked", body: <code className={code}>apps/extension/.output/chrome-mv3</code> },
+        ]}
+      />
     </TabBody>
   );
 }

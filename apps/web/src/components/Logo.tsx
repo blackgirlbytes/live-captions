@@ -14,9 +14,9 @@ export function LogoMark({ size = 28 }: { size?: number }) {
 
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
-    <Link href="/" className="inline-flex shrink-0 items-center gap-2.5 rounded-lg" aria-label="Earshot home">
+    <Link href="/" className="inline-flex shrink-0 items-center gap-2.5 rounded-lg" aria-label="Heard home">
       <LogoMark />
-      {!compact && <span className="font-display text-lg font-semibold tracking-tight text-ink-100">Earshot</span>}
+      {!compact && <span className="font-display text-lg font-semibold tracking-tight text-ink-100">Heard</span>}
     </Link>
   );
 }

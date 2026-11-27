@@ -22,12 +22,12 @@ export const dynamic = "force-dynamic";
 
 const TOKEN_TTL_SECONDS = 60;
 const RATE_WINDOW_MS = 60_000;
-const RATE_LIMIT = Math.max(1, Number(process.env.EARSHOT_TOKEN_RATE_LIMIT) || 30);
+const RATE_LIMIT = Math.max(1, Number(process.env.HEARD_TOKEN_RATE_LIMIT) || 30);
 
 /* ------------------------------ CORS ------------------------------ */
 
 function allowedExtensionIds(): string[] | null {
-  const raw = process.env.EARSHOT_EXTENSION_IDS?.trim();
+  const raw = process.env.HEARD_EXTENSION_IDS?.trim();
   if (!raw) return null;
   return raw
     .split(",")
@@ -154,7 +154,7 @@ export async function POST(req: NextRequest) {
     // Not a server fault: this deployment expects visitors to bring their own Deepgram key.
     return json(
       {
-        error: "This Earshot server doesn't provide a Deepgram API key. Add your own Deepgram API key to start captions.",
+        error: "This Heard server doesn't provide a Deepgram API key. Add your own Deepgram API key to start captions.",
         code: "no_server_key",
       },
       503,
@@ -177,7 +177,7 @@ export async function POST(req: NextRequest) {
         origin,
       );
     }
-    console.error("[earshot] Deepgram token grant failed:", status ?? "", (err as Error).message);
+    console.error("[heard] Deepgram token grant failed:", status ?? "", (err as Error).message);
     return json({ error: "Could not get a Deepgram token right now. Retrying…" }, 502, origin);
   }
 }

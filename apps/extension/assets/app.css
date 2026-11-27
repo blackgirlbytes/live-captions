@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "@earshot/shared/theme.css";
+@import "@heard/shared/theme.css";
 /* Shared React components ship Tailwind classes; scan their sources too. */
 @source "../../../packages/shared/src";
 

@@ -1,6 +1,6 @@
 /**
  * Hand-written CSS for the shadow-root caption overlay. WXT prepends `:host{all:initial}`,
- * so nothing from the host page leaks in. Colors mirror the Earshot theme (ink + amber).
+ * so nothing from the host page leaks in. Colors mirror the Heard theme (ink + amber).
  */
 export const OVERLAY_CSS = /* css */ `
 .box {
@@ -40,7 +40,7 @@ export const OVERLAY_CSS = /* css */ `
   border-radius: 50%;
   background: #f5b83d;
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45);
-  animation: earshot-pulse 1.6s ease-in-out infinite;
+  animation: heard-pulse 1.6s ease-in-out infinite;
 }
 .live.on .dot { background: #ff4d5e; }
 .label {
@@ -97,7 +97,7 @@ export const OVERLAY_CSS = /* css */ `
 }
 .box:hover .resize, .box.active .resize { opacity: 1; }
 
-@keyframes earshot-pulse {
+@keyframes heard-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.45; transform: scale(0.8); }
 }

@@ -43,13 +43,13 @@ export interface HeroDemoState {
   /** Simulated playback position in seconds. */
   time: number;
   playing: boolean;
-  /** Earshot is listening (the popup switch and Stop/Start captions). */
+  /** Heard is listening (the popup switch and Stop/Start captions). */
   captionsOn: boolean;
   /** The caption overlay is visible on the player (the CC button). */
   showCaptions: boolean;
   /** The transcript card is visible (the transcript button). */
   showTranscript: boolean;
-  /** Indices into SCRIPT that Earshot has captured so far, in order. */
+  /** Indices into SCRIPT that Heard has captured so far, in order. */
   heard: number[];
   /** Index of the line being spoken right now, or null between lines / when not listening. */
   current: number | null;
@@ -113,7 +113,7 @@ export function HeroDemoProvider({ children }: { children: ReactNode }) {
     return () => window.clearInterval(id);
   }, [playing]);
 
-  // Capture the line being spoken while Earshot is listening.
+  // Capture the line being spoken while Heard is listening.
   const spoken = lineAt(time);
   useEffect(() => {
     if (!captionsOn || spoken === null) return;

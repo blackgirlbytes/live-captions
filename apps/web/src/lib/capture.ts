@@ -16,14 +16,14 @@ export function detectCaptureSupport(): CaptureSupport {
   const uaData = (navigator as Navigator & { userAgentData?: UAData }).userAgentData;
   const mobile = uaData?.mobile ?? /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
   if (mobile) {
-    return { ok: false, reason: "Live captions need tab-audio sharing, which phones and tablets don't support. Open Earshot in Chrome or Edge on a computer." };
+    return { ok: false, reason: "Live captions need tab-audio sharing, which phones and tablets don't support. Open Heard in Chrome or Edge on a computer." };
   }
   if (/Firefox\//.test(ua)) {
-    return { ok: false, reason: "Firefox can't share a tab's audio with websites. Open Earshot in Chrome or Edge on a computer." };
+    return { ok: false, reason: "Firefox can't share a tab's audio with websites. Open Heard in Chrome or Edge on a computer." };
   }
   const chromium = uaData?.brands?.some((b) => /Chromium|Google Chrome|Microsoft Edge/i.test(b.brand)) ?? /Chrome\/|Edg\//.test(ua);
   if (!chromium) {
-    return { ok: false, reason: "This browser can't share a tab's audio with websites. Open Earshot in Chrome or Edge on a computer." };
+    return { ok: false, reason: "This browser can't share a tab's audio with websites. Open Heard in Chrome or Edge on a computer." };
   }
   if (!navigator.mediaDevices?.getDisplayMedia) {
     return { ok: false, reason: "Tab sharing is unavailable here. Make sure the page is served over HTTPS (or localhost) in Chrome or Edge." };

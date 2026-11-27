@@ -11,7 +11,7 @@ export class FatalTranscriptionError extends Error {
 
 export interface TranscriptionSessionOptions {
   /**
-   * Returns the credential for each (re)connect: a short-lived JWT from an Earshot server
+   * Returns the credential for each (re)connect: a short-lived JWT from a Heard server
    * (a plain string is treated as a bearer JWT) or the user's own key (`{ type: "token" }`).
    */
   getToken: () => Promise<string | DeepgramCredential>;

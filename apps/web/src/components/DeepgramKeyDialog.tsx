@@ -1,6 +1,6 @@
 "use client";
 
-import { CloseIcon, ExternalIcon } from "@earshot/shared/react";
+import { CloseIcon, ExternalIcon } from "@heard/shared/react";
 import { useEffect, useId, useRef } from "react";
 import { DeepgramKeyForm } from "./DeepgramKeyForm";
 import { DEEPGRAM_CONSOLE_URL } from "@/lib/deepgram-key";
@@ -68,7 +68,7 @@ export function DeepgramKeyDialog({ onSaved, onClose }: DeepgramKeyDialogProps) 
         </div>
 
         <p id={descId} className="mt-4 text-[0.95rem] leading-relaxed text-ink-300">
-          Earshot transcribes with Deepgram, and this site runs on your own Deepgram account. Signing up is free and
+          Heard transcribes with Deepgram, and this site runs on your own Deepgram account. Signing up is free and
           new accounts come with free credit.
         </p>
 
@@ -85,7 +85,7 @@ export function DeepgramKeyDialog({ onSaved, onClose }: DeepgramKeyDialogProps) 
             </a>
           </Step>
           <Step n={2}>
-            Create an API key just for Earshot. Pick the <span className="text-ink-100">Member</span> role (the least
+            Create an API key just for Heard. Pick the <span className="text-ink-100">Member</span> role (the least
             access) and set an expiry date, so you can revoke it anytime.
           </Step>
           <Step n={3}>Paste it here. We’ll check it with Deepgram before saving.</Step>
@@ -99,7 +99,7 @@ export function DeepgramKeyDialog({ onSaved, onClose }: DeepgramKeyDialogProps) 
           <LockIcon />
           <span>
             <span className="font-medium text-ink-200">Your key stays in this browser and goes only to Deepgram.</span>{" "}
-            Earshot’s server never sees it. Remove it anytime in caption settings.
+            Heard’s server never sees it. Remove it anytime in caption settings.
           </span>
         </p>
       </div>

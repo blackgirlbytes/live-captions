@@ -1,5 +1,5 @@
 import { browser } from "wxt/browser";
-import { CaptionsIcon, ExternalIcon, PanelIcon, StatusBadge, STATUS_LABELS } from "@earshot/shared/react";
+import { CaptionsIcon, ExternalIcon, PanelIcon, StatusBadge, STATUS_LABELS } from "@heard/shared/react";
 import { Wordmark } from "@/components/Logo";
 import { needsKey, useActiveTab, useCommands, useServerStatus, useServerUrl, useSession, useUserKey } from "@/components/hooks";
 import { restrictedReason, SESSION_KEYS, type SidepanelViewRequest } from "@/utils/config";
@@ -21,7 +21,7 @@ export default function App() {
   const restricted = restrictedReason(tab?.url);
   const error = cmd.error ?? (here && status === "error" ? snap.transcript.error : null);
   const keyAction = Boolean(error) && (cmd.errorCode === "needs_key" || isKeyError(error));
-  // An Earshot web app only exists in server mode; hide the link when nothing is there.
+  // An Heard web app only exists in server mode; hide the link when nothing is there.
   const showWebLink = !userKey.hasKey && (server.status === "ready" || server.status === "no_server_key" || server.status === "unknown");
 
   const toggle = () => {
@@ -39,7 +39,7 @@ export default function App() {
     // Must run synchronously inside the click (user gesture) — no awaits before it.
     browser.sidePanel.open({ tabId: tab.id }).then(
       () => window.close(),
-      (err: unknown) => console.warn("Earshot: could not open the side panel", err),
+      (err: unknown) => console.warn("Heard: could not open the side panel", err),
     );
   };
 
@@ -108,8 +108,8 @@ export default function App() {
             <p>
               <span className="font-semibold text-ink-100">Add a Deepgram API key to start.</span>{" "}
               {server.status === "no_server_key"
-                ? "The Earshot server has no Deepgram key."
-                : "No Earshot server is running, so Earshot needs your own key. It stays in this browser."}
+                ? "The Heard server has no Deepgram key."
+                : "No Heard server is running, so Heard needs your own key. It stays in this browser."}
             </p>
             <button type="button" onClick={() => openPanel("settings")} className="mt-1.5 font-semibold text-accent hover:underline">
               Add your key →
@@ -143,7 +143,7 @@ export default function App() {
             onClick={() => serverUrl && void browser.tabs.create({ url: serverUrl })}
             className="flex h-10 items-center gap-2.5 rounded-xl px-3 text-sm text-ink-200 ring-1 ring-ink-700 hover:bg-ink-800"
           >
-            <ExternalIcon size={16} /> Open Earshot web
+            <ExternalIcon size={16} /> Open Heard web
           </button>
         )}
       </div>

@@ -7,10 +7,10 @@
  */
 
 export const PCM_TARGET_SAMPLE_RATE = 16000;
-export const PCM_WORKLET_NAME = "earshot-pcm";
+export const PCM_WORKLET_NAME = "heard-pcm";
 
 export const PCM_WORKLET_SOURCE = /* js */ `
-class EarshotPcmProcessor extends AudioWorkletProcessor {
+class HeardPcmProcessor extends AudioWorkletProcessor {
   constructor(options) {
     super();
     const o = (options && options.processorOptions) || {};
@@ -52,7 +52,7 @@ class EarshotPcmProcessor extends AudioWorkletProcessor {
     return true;
   }
 }
-registerProcessor("${PCM_WORKLET_NAME}", EarshotPcmProcessor);
+registerProcessor("${PCM_WORKLET_NAME}", HeardPcmProcessor);
 `;
 
 /** Blob URL for the worklet (works where CSP allows blob: scripts, e.g. the web app). */

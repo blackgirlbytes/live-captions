@@ -1,7 +1,7 @@
 /**
  * Live end-to-end test against the real Deepgram API (skipped without a key).
  *
- *   DEEPGRAM_API_KEY=... EARSHOT_TEST_AUDIO=/path/to/speech.wav npx vitest run test/live.deepgram.test.ts
+ *   DEEPGRAM_API_KEY=... HEARD_TEST_AUDIO=/path/to/speech.wav npx vitest run test/live.deepgram.test.ts
  *
  * Exercises the production path minus the browser audio graph: real 16-bit WAV →
  * the real PCM worklet resampler → TranscriptionSession → JWT from /v1/auth/grant →
@@ -26,7 +26,7 @@ import { PCM_WORKLET_SOURCE } from "../src/core/audio";
 import { TranscriptionSession } from "../src/core/session";
 
 const KEY = process.env.DEEPGRAM_API_KEY;
-const AUDIO = process.env.EARSHOT_TEST_AUDIO;
+const AUDIO = process.env.HEARD_TEST_AUDIO;
 
 /** Decode a PCM16 WAV into mono Float32 + sample rate. */
 function readWav(path: string) {

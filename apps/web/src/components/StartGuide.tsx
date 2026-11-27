@@ -1,6 +1,6 @@
 "use client";
 
-import { CloseIcon } from "@earshot/shared/react";
+import { CloseIcon } from "@heard/shared/react";
 import { useEffect, useId, useRef } from "react";
 import { CAPTURE_STEPS } from "./StepArt";
 
@@ -57,7 +57,7 @@ export function StartGuide({ onShare, onClose, busy, error, skipNextTime, onSkip
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 id={titleId} className="font-display text-2xl font-semibold tracking-tight text-ink-100">
-              Let Earshot hear this tab
+              Let Heard hear this tab
             </h2>
             <p className="mt-1.5 text-sm text-ink-400">Chrome will ask what to share. Here’s what to pick.</p>
           </div>
