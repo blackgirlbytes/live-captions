@@ -1,0 +1,59 @@
+lets make a plan for customizable captions..subagents can work together
+
+1. support for various languages
+2. font color
+3. font size
+4. font boldness
+
+what are things im leaving out
+
+---
+
+everythinh except this Line spacing and all-caps or sentence case.
+
+---
+
+no way..there's a ton of deepgram skills installed that have to have some kind of support for translation
+
+---
+
+https://deepgram.com/blog/translation-itranslate
+
+---
+
+you dont have to use this approach..but it's proof u didnt search hard enough..search for the best option
+
+---
+
+i dont understand..so deepgram can write in different languages but not translate??
+
+---
+
+is it already doing language=multi
+
+---
+
+ok lets implement deepgram for any language for example someone is speaking spanish and wants spanish captions and use chrome Chrome's built-in Translator API for when someoen is speaking spanish but wants english captions
+
+---
+
+Commit it
+
+---
+
+For videos that won’t play outside youtube.com. Captions appear on the page, with the transcript in a side panel. this gets hidden
+
+i also dont want it to say full set up in readme. 
+
+I think we can remove some words to give some space..and maybe make those words be smaller idkk..the ones that are kinda hidden at the bottom 
+
+Like this could be less words
+
+Captions on YouTube itself
+For videos that won’t play outside youtube.com. Captions appear on the page, with the transcript in a side panel.
+
+more straight to the point of the chrome extension..maybe what is it that we're doing..native captions..no someting..thats like two words..and doesnt necessarily need a subtitle/description
+
+---
+
+Commit all together
