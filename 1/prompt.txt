@@ -1,0 +1,15 @@
+why is start captions not on by default
+
+---
+
+but even on just the platform and not chrome extension
+
+---
+
+no.
+
+chrome extension instructions are missing clone and cd steps
+
+---
+
+commit

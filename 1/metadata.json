@@ -1,0 +1,90 @@
+{
+  "cli_version": "0.13.4",
+  "checkpoint_id": "01M8FDFQ7R7KNTQNF8Z21EE112",
+  "session_id": "43ae5f42-445e-439e-a1a2-03636d17dca8",
+  "strategy": "manual-commit",
+  "created_at": "2026-11-27T21:09:54.951419Z",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "save_step_count": 1,
+  "files_touched": [
+    "apps/web/src/components/HeroPanel.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "6be7ab56d77e",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 24,
+    "cache_creation_tokens": 5422,
+    "cache_read_tokens": 3167604,
+    "output_tokens": 3037,
+    "api_call_count": 9
+  },
+  "session_token_usage": {
+    "input_tokens": 670,
+    "cache_creation_tokens": 883239,
+    "cache_read_tokens": 58519373,
+    "output_tokens": 227379,
+    "api_call_count": 296,
+    "subagent_tokens": {
+      "input_tokens": 42,
+      "cache_creation_tokens": 143313,
+      "cache_read_tokens": 1234856,
+      "output_tokens": 19707,
+      "api_call_count": 21
+    },
+    "subagent_tokens_complete": true
+  },
+  "redaction": {
+    "replacements": 225,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 0,
+      "credentialed_uri": 0,
+      "entropy": 186,
+      "key_context": 39,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01QoxCeHGivEWYWWKn8s6Bmh",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "frontend-design"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "6be7ab56d77e",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 189,
+        "end": 190,
+        "entry_ids": [
+          "9a19eae7-421a-4a4f-95e0-4064756cac7f"
+        ],
+        "tool_use_id": "toolu_01QoxCeHGivEWYWWKn8s6Bmh"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01QoxCeHGivEWYWWKn8s6Bmh"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: frontend-design",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 3
+  }
+}
