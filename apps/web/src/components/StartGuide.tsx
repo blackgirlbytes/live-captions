@@ -2,6 +2,7 @@
 
 import { CloseIcon } from "@heard/shared/react";
 import { useEffect, useId, useRef } from "react";
+import { useT } from "@/i18n/I18nProvider";
 import { CAPTURE_STEPS } from "./StepArt";
 
 export interface StartGuideProps {
@@ -15,6 +16,7 @@ export interface StartGuideProps {
 
 /** Explains Chrome's tab-sharing picker before it appears, then opens it from the click. */
 export function StartGuide({ onShare, onClose, busy, error, skipNextTime, onSkipNextTimeChange }: StartGuideProps) {
+  const t = useT("watch").guide;
   const titleId = useId();
   const primary = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
@@ -57,24 +59,24 @@ export function StartGuide({ onShare, onClose, busy, error, skipNextTime, onSkip
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 id={titleId} className="font-display text-2xl font-semibold tracking-tight text-ink-100">
-              Let Heard hear this tab
+              {t.title}
             </h2>
-            <p className="mt-1.5 text-sm text-ink-400">Chrome will ask what to share. Here’s what to pick.</p>
+            <p className="mt-1.5 text-sm text-ink-400">{t.subtitle}</p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 text-ink-400 hover:bg-ink-800 hover:text-ink-100" aria-label="Close">
+          <button type="button" onClick={onClose} className="rounded-lg p-2 text-ink-400 hover:bg-ink-800 hover:text-ink-100" aria-label={t.close}>
             <CloseIcon size={18} />
           </button>
         </div>
 
         <ol className="mt-6 grid gap-5 sm:grid-cols-3">
           {CAPTURE_STEPS.map((step, i) => (
-            <li key={step.title}>
+            <li key={i}>
               <step.Art />
               <div className="mt-3 flex gap-3">
                 <span className="font-display text-lg leading-tight font-semibold text-accent tabular-nums">{i + 1}</span>
                 <div>
-                  <h3 className="text-sm font-semibold text-ink-100">{step.title}</h3>
-                  <p className="mt-1 text-xs leading-relaxed text-ink-400">{step.body}</p>
+                  <h3 className="text-sm font-semibold text-ink-100">{t.steps[i]?.title ?? step.title}</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-ink-400">{t.steps[i]?.body ?? step.body}</p>
                 </div>
               </div>
             </li>
@@ -95,7 +97,7 @@ export function StartGuide({ onShare, onClose, busy, error, skipNextTime, onSkip
               onChange={(e) => onSkipNextTimeChange(e.target.checked)}
               className="h-4 w-4 rounded accent-[var(--color-accent)]"
             />
-            Don’t show this again
+            {t.skip}
           </label>
           <button
             ref={primary}
@@ -104,11 +106,11 @@ export function StartGuide({ onShare, onClose, busy, error, skipNextTime, onSkip
             disabled={busy}
             className="inline-flex h-11 items-center justify-center rounded-xl bg-accent px-6 font-semibold text-accent-ink transition-colors hover:bg-accent-strong disabled:opacity-60"
           >
-            {busy ? "Waiting for Chrome…" : error ? "Try again" : "Choose this tab"}
+            {busy ? t.waiting : error ? t.tryAgain : t.share}
           </button>
         </div>
         <p className="mt-4 text-xs leading-relaxed text-ink-500">
-          Only this tab’s sound is used, and only while captions are on. Audio goes to Deepgram for transcription; transcripts stay in this tab.
+          {t.footnote}
         </p>
       </div>
     </div>

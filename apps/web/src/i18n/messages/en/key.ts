@@ -1,0 +1,55 @@
+/** English words for the "key" area (bring your own Deepgram key). Other languages copy this exact shape. */
+export const key = {
+  dialog: {
+    title: "Add your Deepgram key",
+    close: "Close",
+    intro:
+      "Heard transcribes with Deepgram, and this site runs on your own Deepgram account. Signing up is free and new accounts come with free credit.",
+    step1: "Sign up or log in at",
+    step2Before: "Create an API key just for Heard. Pick the ",
+    step2Role: "Member",
+    step2After: " role (the least access) and set an expiry date, so you can revoke it anytime.",
+    step3: "Paste it here. We’ll check it with Deepgram before saving.",
+    privacyStrong: "Your key stays in this browser and goes only to Deepgram.",
+    privacyRest: "Heard’s server never sees it. Remove it anytime in caption settings.",
+  },
+  form: {
+    label: "Deepgram API key",
+    placeholder: "Paste your key",
+    hide: "Hide key",
+    show: "Show key",
+    checking: "Checking with Deepgram…",
+    submit: "Verify & save",
+    cancel: "Cancel",
+    getKey: "Get a key",
+    errors: {
+      empty: "Paste your Deepgram API key first.",
+      malformed:
+        "That doesn’t look like a Deepgram API key. Copy the whole key from the Deepgram console (it’s shown only once, right after you create it).",
+      rejected: "Deepgram didn’t accept that key. Check you copied all of it, and that it hasn’t expired or been deleted.",
+      offline: "Couldn’t reach Deepgram to check the key. Check your connection and try again.",
+    },
+  },
+  settings: {
+    heading: "Deepgram key",
+    usingYours: "Using your key",
+    usingServer: "Using server key",
+    none: "No key yet. Add one to start captions.",
+    checking: "Checking…",
+    forget: "Forget key",
+    removedServer: "Key removed. Heard’s server key is used again.",
+    removed: "Key removed from this browser.",
+    tabOnly: "Your browser is blocking storage, so the key is kept for this tab only.",
+    nextConnection: "It’s used from the next connection; restart captions to switch now.",
+    replace: "Replace key",
+    useOwn: "Use my own Deepgram key",
+    add: "Add your key",
+    stays: "Your key stays in this browser and goes only to Deepgram.",
+    prefer: "Prefer your own Deepgram account? Your key stays in this browser and goes only to Deepgram.",
+  },
+  byok: {
+    before: "You’ll need a free ",
+    link: "Deepgram API key",
+    after: ". It stays in your browser and goes only to Deepgram, never to Heard’s server.",
+  },
+};

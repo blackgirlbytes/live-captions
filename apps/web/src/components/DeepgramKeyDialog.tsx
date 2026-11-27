@@ -4,6 +4,7 @@ import { CloseIcon, ExternalIcon } from "@heard/shared/react";
 import { useEffect, useId, useRef } from "react";
 import { DeepgramKeyForm } from "./DeepgramKeyForm";
 import { DEEPGRAM_CONSOLE_URL } from "@/lib/deepgram-key";
+import { useT } from "@/i18n/I18nProvider";
 
 export interface DeepgramKeyDialogProps {
   onSaved: (persisted: boolean) => void;
@@ -15,6 +16,7 @@ export function DeepgramKeyDialog({ onSaved, onClose }: DeepgramKeyDialogProps) 
   const titleId = useId();
   const descId = useId();
   const dialog = useRef<HTMLDivElement>(null);
+  const t = useT("key").dialog;
 
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -59,22 +61,21 @@ export function DeepgramKeyDialog({ onSaved, onClose }: DeepgramKeyDialogProps) 
               <KeyIcon />
             </span>
             <h2 id={titleId} className="font-display text-xl font-semibold tracking-tight text-ink-100 sm:text-2xl">
-              Add your Deepgram key
+              {t.title}
             </h2>
           </div>
-          <button type="button" onClick={onClose} className="-mt-1 -mr-2 rounded-lg p-2 text-ink-400 hover:bg-ink-800 hover:text-ink-100" aria-label="Close">
+          <button type="button" onClick={onClose} className="-mt-1 -mr-2 rounded-lg p-2 text-ink-400 hover:bg-ink-800 hover:text-ink-100" aria-label={t.close}>
             <CloseIcon size={18} />
           </button>
         </div>
 
         <p id={descId} className="mt-4 text-[0.95rem] leading-relaxed text-ink-300">
-          Heard transcribes with Deepgram, and this site runs on your own Deepgram account. Signing up is free and
-          new accounts come with free credit.
+          {t.intro}
         </p>
 
         <ol className="mt-5 space-y-3 text-sm leading-relaxed text-ink-300">
           <Step n={1}>
-            Sign up or log in at{" "}
+            {t.step1}{" "}
             <a
               href={DEEPGRAM_CONSOLE_URL}
               target="_blank"
@@ -85,10 +86,11 @@ export function DeepgramKeyDialog({ onSaved, onClose }: DeepgramKeyDialogProps) 
             </a>
           </Step>
           <Step n={2}>
-            Create an API key just for Heard. Pick the <span className="text-ink-100">Member</span> role (the least
-            access) and set an expiry date, so you can revoke it anytime.
+            {t.step2Before}
+            <span className="text-ink-100">{t.step2Role}</span>
+            {t.step2After}
           </Step>
-          <Step n={3}>Paste it here. We’ll check it with Deepgram before saving.</Step>
+          <Step n={3}>{t.step3}</Step>
         </ol>
 
         <div className="mt-6">
@@ -98,8 +100,7 @@ export function DeepgramKeyDialog({ onSaved, onClose }: DeepgramKeyDialogProps) 
         <p className="mt-6 flex gap-2.5 border-t border-ink-800 pt-4 text-xs leading-relaxed text-ink-400">
           <LockIcon />
           <span>
-            <span className="font-medium text-ink-200">Your key stays in this browser and goes only to Deepgram.</span>{" "}
-            Heard’s server never sees it. Remove it anytime in caption settings.
+            <span className="font-medium text-ink-200">{t.privacyStrong}</span> {t.privacyRest}
           </span>
         </p>
       </div>

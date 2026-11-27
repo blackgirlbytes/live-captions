@@ -1,15 +1,20 @@
+"use client";
+
+import { useT } from "@/i18n/I18nProvider";
+
 /** Small illustrations of the three capture steps, reused on the home page and in the start guide. */
 
 const frame = "relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-ink-900 ring-1 ring-ink-700";
 
 export function StepArtStart() {
+  const t = useT("home").art;
   return (
     <div className={frame} aria-hidden="true">
       <div className="absolute inset-x-4 top-4 h-[46%] rounded-md bg-ink-800" />
       <div className="absolute inset-x-4 bottom-4 flex items-center gap-2">
         <span className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-lg bg-accent whitespace-nowrap px-2.5 text-[11px] font-semibold text-accent-ink shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-accent)_25%,transparent)]">
           <svg width="10" height="10" viewBox="0 0 24 24"><path d="M7 5v14l12-7z" fill="currentColor" /></svg>
-          Start captions
+          {t.startCaptions}
         </span>
         <span className="h-2 w-16 min-w-0 shrink rounded-full bg-ink-700" />
       </div>
@@ -18,14 +23,15 @@ export function StepArtStart() {
 }
 
 export function StepArtPicker() {
+  const t = useT("home").art;
   return (
     <div className={frame} aria-hidden="true">
       <div className="absolute inset-3 rounded-lg bg-ink-800 p-3 ring-1 ring-ink-600">
         <div className="mb-2 h-2 w-24 rounded-full bg-ink-600" />
         <div className="flex gap-1 overflow-hidden text-[10px] font-medium whitespace-nowrap">
-          <span className="rounded-md bg-accent/15 px-2 py-1 text-accent ring-1 ring-accent/50">This tab</span>
-          <span className="rounded-md px-2 py-1 text-ink-500">Window</span>
-          <span className="rounded-md px-2 py-1 text-ink-500">Screen</span>
+          <span className="rounded-md bg-accent/15 px-2 py-1 text-accent ring-1 ring-accent/50">{t.thisTab}</span>
+          <span className="rounded-md px-2 py-1 text-ink-500">{t.window}</span>
+          <span className="rounded-md px-2 py-1 text-ink-500">{t.screen}</span>
         </div>
         <div className="mt-2.5 h-[42%] rounded-md bg-ink-700 ring-2 ring-accent/70" />
       </div>
@@ -34,18 +40,19 @@ export function StepArtPicker() {
 }
 
 export function StepArtAudio() {
+  const t = useT("home").art;
   return (
     <div className={frame} aria-hidden="true">
       <div className="absolute inset-3 flex flex-col justify-end rounded-lg bg-ink-800 p-3 ring-1 ring-ink-600">
         <div className="flex items-center justify-between rounded-md bg-ink-900 px-2.5 py-2">
-          <span className="text-[10px] font-medium text-ink-200">Also share tab audio</span>
+          <span className="text-[10px] font-medium text-ink-200">{t.alsoShareAudio}</span>
           <span className="relative h-4 w-7 rounded-full bg-accent">
             <span className="absolute top-0.5 right-0.5 h-3 w-3 rounded-full bg-white" />
           </span>
         </div>
         <div className="mt-2 flex justify-end gap-1.5 text-[10px] font-semibold">
-          <span className="rounded-md px-2 py-1 text-ink-400">Cancel</span>
-          <span className="rounded-md bg-ink-100 px-2 py-1 text-ink-900">Share</span>
+          <span className="rounded-md px-2 py-1 text-ink-400">{t.cancel}</span>
+          <span className="rounded-md bg-ink-100 px-2 py-1 text-ink-900">{t.share}</span>
         </div>
       </div>
     </div>

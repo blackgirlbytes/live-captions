@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/I18nProvider";
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { ExtensionPopup } from "./ExtensionPopup";
 import { PlayerControls } from "./PlayerControls";
@@ -115,6 +116,7 @@ function Piece({ spot, delay, className = "", children, hidden }: { spot: Spot; 
 function DemoLayout() {
   const { showTranscript, captionsOn, playing } = useHeroDemo();
   const listening = captionsOn && playing;
+  const t = useT("demo");
   const layout = LAYOUT;
   const boxRef = useCanvasScale(layout.w, layout.h);
 
@@ -125,7 +127,7 @@ function DemoLayout() {
         className="relative mt-14 overflow-hidden rounded-[28px] px-5 pt-9 pb-8 sm:px-10 sm:pt-12 sm:pb-12 xl:absolute xl:inset-y-0 xl:right-0 xl:left-[52%] xl:mt-0 xl:overflow-visible xl:rounded-none xl:p-0 2xl:left-[48%]"
         data-hero-demo
         role="group"
-        aria-label="Try Heard: a demo player with live captions, the Chrome extension popup and the transcript"
+        aria-label={t.group}
       >
         <Backdrop className="xl:hidden" />
 
@@ -140,7 +142,7 @@ function DemoLayout() {
                 <VideoFrame />
                 <span
                   className="absolute -top-4 -left-3 grid h-11 w-11 place-items-center rounded-full bg-ink-950 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.9)] ring-1 ring-white/10"
-                  title={listening ? "Listening" : "Not listening"}
+                  title={listening ? t.listening : t.notListening}
                 >
                   <span className="flex h-4 items-center gap-[3px]">
                     {[0, 1, 2, 3].map((i) => (

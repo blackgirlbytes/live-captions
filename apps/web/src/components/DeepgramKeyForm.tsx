@@ -3,6 +3,7 @@
 import { looksLikeDeepgramKey, verifyDeepgramKey } from "@heard/shared";
 import { useId, useState, type FormEvent } from "react";
 import { DEEPGRAM_CONSOLE_URL, saveUserKey } from "@/lib/deepgram-key";
+import { useT } from "@/i18n/I18nProvider";
 
 export interface DeepgramKeyFormProps {
   /** Called after the key was verified with Deepgram and saved. `persisted` is false when storage is blocked. */
@@ -13,17 +14,13 @@ export interface DeepgramKeyFormProps {
   compact?: boolean;
 }
 
-type Phase = { kind: "idle" } | { kind: "checking" } | { kind: "error"; message: string };
+type ErrorCode = "empty" | "malformed" | "rejected" | "offline";
 
-const MESSAGES = {
-  empty: "Paste your Deepgram API key first.",
-  malformed: "That doesn’t look like a Deepgram API key. Copy the whole key from the Deepgram console (it’s shown only once, right after you create it).",
-  rejected: "Deepgram didn’t accept that key. Check you copied all of it, and that it hasn’t expired or been deleted.",
-  offline: "Couldn’t reach Deepgram to check the key. Check your connection and try again.",
-} as const;
+type Phase = { kind: "idle" } | { kind: "checking" } | { kind: "error"; code: ErrorCode };
 
 /** Paste → verify with Deepgram (a brief socket from this browser) → save locally. */
 export function DeepgramKeyForm({ onSaved, onCancel, autoFocus = false, compact = false }: DeepgramKeyFormProps) {
+  const t = useT("key").form;
   const id = useId();
   const errorId = `${id}-error`;
   const [value, setValue] = useState("");
@@ -35,23 +32,23 @@ export function DeepgramKeyForm({ onSaved, onCancel, autoFocus = false, compact 
     e.preventDefault();
     if (checking) return;
     const key = value.trim();
-    if (!key) return setPhase({ kind: "error", message: MESSAGES.empty });
-    if (!looksLikeDeepgramKey(key)) return setPhase({ kind: "error", message: MESSAGES.malformed });
+    if (!key) return setPhase({ kind: "error", code: "empty" });
+    if (!looksLikeDeepgramKey(key)) return setPhase({ kind: "error", code: "malformed" });
     setPhase({ kind: "checking" });
     const result = await verifyDeepgramKey(key);
-    if (result !== "ok") return setPhase({ kind: "error", message: MESSAGES[result] });
+    if (result !== "ok") return setPhase({ kind: "error", code: result });
     const persisted = saveUserKey(key);
     setValue("");
     setPhase({ kind: "idle" });
     onSaved(persisted);
   };
 
-  const error = phase.kind === "error" ? phase.message : null;
+  const error = phase.kind === "error" ? t.errors[phase.code] : null;
 
   return (
     <form onSubmit={onSubmit} noValidate className={compact ? "space-y-2.5" : "space-y-3"}>
       <label htmlFor={id} className={compact ? "sr-only" : "block text-sm font-medium text-ink-100"}>
-        Deepgram API key
+        {t.label}
       </label>
       <div
         className={`flex items-center gap-1 rounded-xl bg-ink-850 p-1 ring-1 transition-shadow focus-within:ring-2 focus-within:ring-accent ${
@@ -74,7 +71,7 @@ export function DeepgramKeyForm({ onSaved, onCancel, autoFocus = false, compact 
             setValue(pasted);
             if (phase.kind === "error") setPhase({ kind: "idle" });
           }}
-          placeholder="Paste your key"
+          placeholder={t.placeholder}
           autoFocus={autoFocus}
           autoComplete="off"
           autoCapitalize="off"
@@ -95,8 +92,8 @@ export function DeepgramKeyForm({ onSaved, onCancel, autoFocus = false, compact 
           type="button"
           onClick={() => setVisible((v) => !v)}
           aria-pressed={visible}
-          aria-label={visible ? "Hide key" : "Show key"}
-          title={visible ? "Hide key" : "Show key"}
+          aria-label={visible ? t.hide : t.show}
+          title={visible ? t.hide : t.show}
           className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-400 transition-colors hover:bg-ink-800 hover:text-ink-100"
         >
           <EyeIcon off={visible} />
@@ -118,7 +115,7 @@ export function DeepgramKeyForm({ onSaved, onCancel, autoFocus = false, compact 
           }`}
         >
           {checking && <Spinner />}
-          {checking ? "Checking with Deepgram…" : "Verify & save"}
+          {checking ? t.checking : t.submit}
         </button>
         {onCancel && (
           <button
@@ -127,7 +124,7 @@ export function DeepgramKeyForm({ onSaved, onCancel, autoFocus = false, compact 
             disabled={checking}
             className={`rounded-xl px-3 text-ink-300 transition-colors hover:bg-ink-800 hover:text-ink-100 ${compact ? "h-9 text-sm" : "h-11"}`}
           >
-            Cancel
+            {t.cancel}
           </button>
         )}
         {compact && (
@@ -137,7 +134,7 @@ export function DeepgramKeyForm({ onSaved, onCancel, autoFocus = false, compact 
             rel="noopener noreferrer"
             className="ml-auto text-xs text-ink-400 underline-offset-2 hover:text-accent hover:underline"
           >
-            Get a key
+            {t.getKey}
           </a>
         )}
       </div>

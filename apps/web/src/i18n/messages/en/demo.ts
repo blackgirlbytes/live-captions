@@ -1,0 +1,43 @@
+/** English words for the "demo" area. Other languages copy this exact shape. */
+export const demo = {
+  group: "Try Heard: a demo player with live captions, the Chrome extension popup and the transcript",
+  listening: "Listening",
+  notListening: "Not listening",
+  startCaptions: "Start captions",
+  stopCaptions: "Stop captions",
+  popup: {
+    live: "Live",
+    off: "Off",
+    statusLive: "Transcription live",
+    statusOff: "Transcription off",
+    aiCaptions: "AI captions",
+    onText: "Captioning this tab on youtube.com",
+    offText: "Turn on to caption whatever is playing in this tab.",
+  },
+  controls: {
+    showCaptions: "Show captions",
+    hideCaptions: "Hide captions",
+    transcriptPanel: "Transcript panel",
+    showTranscript: "Show transcript",
+    hideTranscript: "Hide transcript",
+    fullScreen: "Full screen",
+    exitFullScreen: "Exit full screen",
+  },
+  transcript: {
+    title: "Transcript",
+    download: "Download",
+    empty: "Lines appear here as they’re spoken.",
+    noMatches: "No matches",
+    jumpTo: (time: string) => `Jump to ${time}`,
+    search: "Search the transcript",
+    clearSearch: "Clear search",
+  },
+  video: {
+    play: "Play video",
+    pause: "Pause video",
+    liveCaptions: "Live captions",
+    captionsOff: "Captions off",
+    seek: "Seek",
+    seekValue: (now: string, total: string) => `${now} of ${total}`,
+  },
+};

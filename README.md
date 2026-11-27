@@ -92,7 +92,7 @@ npm run build -w @heard/extension
 ```
 
 1. Open `chrome://extensions` and turn on **Developer mode**.
-2. Click **Load unpacked** and select `apps/extension/.output/chrome-mv3`.
+2. Click **Load unpacked** and select `apps/extension/.output/chrome-mv3`. The build prints this folder's full path (and on a Mac copies it to your clipboard). The folder starts with a dot, so the file picker hides it: on a Mac press **Cmd+Shift+G** and paste the path; on Linux press **Ctrl+L** and paste it (or **Ctrl+H** to show hidden folders); on Windows the folder is visible, or paste the path into the picker's address bar.
 3. Open the side panel's **Settings** and paste your Deepgram key. (Or skip this and keep the web app running with a server key; the extension then gets tokens from it.)
 4. Open a YouTube video, click the Heard toolbar icon, and turn **AI captions** on.
 

@@ -2,7 +2,9 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { LanguagePicker } from "@/components/LanguagePicker";
 import { Logo } from "@/components/Logo";
+import { useT } from "@/i18n/I18nProvider";
 import { UrlForm } from "@/components/UrlForm";
 import { resolveVideo } from "@/lib/providers";
 
@@ -14,6 +16,7 @@ const WatchExperience = dynamic(() => import("./WatchExperience").then((m) => m.
 
 export function WatchShell({ url }: { url: string }) {
   const resolved = url ? resolveVideo(url) : null;
+  const t = useT("watch").shell;
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -28,16 +31,21 @@ export function WatchShell({ url }: { url: string }) {
           <div className="min-w-0 flex-1 sm:max-w-xl">
             <UrlForm key={url} size="compact" initialValue={url} />
           </div>
+          <LanguagePicker className="ml-auto shrink-0" />
         </div>
       </header>
 
       <main className="flex flex-1 flex-col">
         {!resolved ? (
-          <Notice title="Paste a video link to start">
-            Use the box above, or go back to the <Link href="/" className="text-accent underline-offset-2 hover:underline">home page</Link> for examples.
+          <Notice title={t.emptyTitle}>
+            {t.emptyBefore}
+            <Link href="/" className="text-accent underline-offset-2 hover:underline">
+              {t.emptyLink}
+            </Link>
+            {t.emptyAfter}
           </Notice>
         ) : !resolved.ok ? (
-          <Notice title="That link can’t be played">{resolved.message}</Notice>
+          <Notice title={t.badLinkTitle}>{resolved.message}</Notice>
         ) : (
           <WatchExperience key={resolved.video.key} url={url} />
         )}

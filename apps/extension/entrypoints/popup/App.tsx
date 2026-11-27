@@ -26,7 +26,23 @@ export default function App() {
 
   const toggle = () => {
     if (!tab?.id) return;
-    void (onHere ? cmd.stop() : cmd.start(tab.id));
+    if (onHere) {
+      void cmd.stop();
+      return;
+    }
+    // Starting opens the transcript panel too. sidePanel.open must run synchronously inside the
+    // click (user gesture), so it goes first; the popup closes only once capture has started,
+    // so a start error stays visible here.
+    const panel = browser.sidePanel.open({ tabId: tab.id }).then(
+      () => true,
+      (err: unknown) => {
+        console.warn("Heard: could not open the side panel", err);
+        return false;
+      },
+    );
+    void cmd.start(tab.id).then(async (ok) => {
+      if (ok && (await panel)) window.close();
+    });
   };
 
   const openPanel = (view?: "settings") => {

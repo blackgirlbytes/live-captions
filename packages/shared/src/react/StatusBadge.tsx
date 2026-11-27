@@ -1,13 +1,7 @@
 import type { TranscriptionStatus } from "../core/types";
+import { DEFAULT_STATUS_BADGE_LABELS, type StatusBadgeLabels } from "./labels";
 
-const LABELS: Record<TranscriptionStatus, string> = {
-  idle: "Off",
-  connecting: "Connecting",
-  live: "Live",
-  paused: "Paused",
-  reconnecting: "Reconnecting",
-  error: "Error",
-};
+const LABELS: Record<TranscriptionStatus, string> = DEFAULT_STATUS_BADGE_LABELS.status;
 
 const DOT: Record<TranscriptionStatus, string> = {
   idle: "bg-ink-500",
@@ -19,7 +13,17 @@ const DOT: Record<TranscriptionStatus, string> = {
 };
 
 /** Compact indicator that makes it obvious when audio is being transcribed. */
-export function StatusBadge({ status, className = "" }: { status: TranscriptionStatus; className?: string }) {
+export function StatusBadge({
+  status,
+  className = "",
+  labels,
+}: {
+  status: TranscriptionStatus;
+  className?: string;
+  labels?: Partial<StatusBadgeLabels>;
+}) {
+  const names = labels?.status ?? LABELS;
+  const aria = labels?.aria ?? DEFAULT_STATUS_BADGE_LABELS.aria;
   const active = status === "live";
   return (
     <span
@@ -27,10 +31,10 @@ export function StatusBadge({ status, className = "" }: { status: TranscriptionS
         active ? "bg-live/12 text-live ring-live/30" : status === "error" ? "bg-live/10 text-live ring-live/25" : "bg-ink-800 text-ink-300 ring-ink-700"
       } ${className}`}
       role="status"
-      aria-label={`Transcription ${LABELS[status].toLowerCase()}`}
+      aria-label={aria(names[status])}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${DOT[status]}`} aria-hidden="true" />
-      {LABELS[status]}
+      {names[status]}
     </span>
   );
 }

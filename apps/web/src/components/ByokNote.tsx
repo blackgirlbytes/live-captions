@@ -1,18 +1,20 @@
 "use client";
 
 import { useServerKeyStatus } from "@/lib/deepgram-key";
+import { useT } from "@/i18n/I18nProvider";
 
 /** Home page note, shown only when this deployment has no server Deepgram key. */
 export function ByokNote() {
   const [serverKey] = useServerKeyStatus();
+  const t = useT("key").byok;
   if (serverKey !== false) return null;
   return (
     <li>
-      You’ll need a free{" "}
+      {t.before}
       <a href="https://console.deepgram.com/" target="_blank" rel="noopener noreferrer" className="text-accent underline-offset-2 hover:underline">
-        Deepgram API key
+        {t.link}
       </a>
-      . It stays in your browser and goes only to Deepgram, never to Heard’s server.
+      {t.after}
     </li>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { downloadTranscript, toPlainText, type ExportFormat } from "../core/format";
 import type { TranscriptLine } from "../core/types";
+import { DEFAULT_TRANSCRIPT_TOOLBAR_LABELS, type TranscriptToolbarLabels } from "./labels";
 import { CheckIcon, CloseIcon, CopyIcon, DownloadIcon, SearchIcon } from "./icons";
 
 export interface TranscriptToolbarProps {
@@ -10,10 +11,13 @@ export interface TranscriptToolbarProps {
   /** Base file name for downloads (e.g. the video title). */
   fileName?: string;
   className?: string;
+  /** UI words; English by default. */
+  labels?: Partial<TranscriptToolbarLabels>;
 }
 
 /** Search box + copy + download (TXT / SRT / VTT). All actions work on the in-memory transcript. */
-export function TranscriptToolbar({ lines, query, onQueryChange, fileName = "transcript", className = "" }: TranscriptToolbarProps) {
+export function TranscriptToolbar({ lines, query, onQueryChange, fileName = "transcript", className = "", labels }: TranscriptToolbarProps) {
+  const L = { ...DEFAULT_TRANSCRIPT_TOOLBAR_LABELS, ...labels };
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -55,25 +59,25 @@ export function TranscriptToolbar({ lines, query, onQueryChange, fileName = "tra
   return (
     <div className={`flex items-center gap-1.5 ${className}`}>
       <label className="relative flex min-w-0 flex-1 items-center">
-        <span className="sr-only">Search transcript</span>
+        <span className="sr-only">{L.search}</span>
         <SearchIcon size={15} className="pointer-events-none absolute left-3 text-ink-500" />
         <input
           type="search"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="Search transcript"
+          placeholder={L.search}
           className="h-9 w-full min-w-0 rounded-lg bg-ink-850 pl-9 pr-16 text-sm text-ink-100 ring-1 ring-ink-700 placeholder:text-ink-500 focus:ring-accent focus:outline-none [&::-webkit-search-cancel-button]:hidden"
         />
         {query && (
           <span className="absolute right-2 flex items-center gap-1">
             <span className="text-xs tabular-nums text-ink-500">{matches}</span>
-            <button type="button" onClick={() => onQueryChange("")} className="rounded p-1 text-ink-400 hover:text-ink-100" aria-label="Clear search">
+            <button type="button" onClick={() => onQueryChange("")} className="rounded p-1 text-ink-400 hover:text-ink-100" aria-label={L.clearSearch}>
               <CloseIcon size={13} />
             </button>
           </span>
         )}
       </label>
-      <button type="button" className={btn} onClick={copy} disabled={empty} title="Copy transcript" aria-label="Copy transcript">
+      <button type="button" className={btn} onClick={copy} disabled={empty} title={L.copy} aria-label={L.copy}>
         {copied ? <CheckIcon size={16} className="text-ok" /> : <CopyIcon size={16} />}
       </button>
       <div className="relative" ref={menuRef}>
@@ -84,20 +88,14 @@ export function TranscriptToolbar({ lines, query, onQueryChange, fileName = "tra
           disabled={empty}
           aria-haspopup="menu"
           aria-expanded={menuOpen}
-          title="Download transcript"
-          aria-label="Download transcript"
+          title={L.download}
+          aria-label={L.download}
         >
           <DownloadIcon size={16} />
         </button>
         {menuOpen && (
           <div role="menu" className="absolute right-0 top-11 z-20 w-48 overflow-hidden rounded-xl bg-ink-800 p-1 shadow-2xl ring-1 ring-ink-600">
-            {(
-              [
-                ["txt", "Text", "Timestamped .txt"],
-                ["srt", "SubRip", ".srt subtitles"],
-                ["vtt", "WebVTT", ".vtt subtitles"],
-              ] as const
-            ).map(([fmt, label, hint]) => (
+            {(["txt", "srt", "vtt"] as const).map((fmt) => [fmt, ...L.formats[fmt]] as const).map(([fmt, label, hint]) => (
               <button
                 key={fmt}
                 role="menuitem"

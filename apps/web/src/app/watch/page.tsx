@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { getMessages } from "@/i18n/server";
 import { WatchShell } from "./WatchShell";
 
-export const metadata: Metadata = { title: "Watch with live captions" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { common } = await getMessages();
+  return { title: common.meta.watchTitle };
+}
 
 export default async function WatchPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const params = await searchParams;

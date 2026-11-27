@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/I18nProvider";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ToolIcon } from "./icons";
 import { useHeroDemo } from "./state";
@@ -10,6 +11,7 @@ export function PlayerControls() {
   const { captionsOn, setCaptionsOn, showCaptions, setShowCaptions, showTranscript, setShowTranscript } = useHeroDemo();
   const fullscreenRef = useRef<HTMLButtonElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const t = useT("demo");
 
   const demoRoot = useCallback(
     () => fullscreenRef.current?.closest<HTMLElement>("[data-hero-demo]") ?? null,
@@ -38,28 +40,28 @@ export function PlayerControls() {
         <button
           type="button"
           onClick={() => setCaptionsOn(false)}
-          title="Stop captions"
-          className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-live/15 px-4 text-sm font-semibold text-live transition-colors hover:bg-live/25 ${focusRing}`}
+          title={t.stopCaptions}
+          className={`inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-live/15 px-4 text-sm font-semibold text-live transition-colors hover:bg-live/25 ${focusRing}`}
         >
           <span className="h-2 w-2 rounded-[3px] bg-live" aria-hidden="true" />
-          Stop captions
+          {t.stopCaptions}
         </button>
       ) : (
         <button
           type="button"
           onClick={() => setCaptionsOn(true)}
-          title="Start captions"
-          className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-accent px-4 text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-strong ${focusRing}`}
+          title={t.startCaptions}
+          className={`inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-accent px-4 text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-strong ${focusRing}`}
         >
           <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M6 4l15 8-15 8z" />
           </svg>
-          Start captions
+          {t.startCaptions}
         </button>
       )}
       <ToolIcon
-        label="Show captions"
-        title={showCaptions ? "Hide captions" : "Show captions"}
+        label={t.controls.showCaptions}
+        title={showCaptions ? t.controls.hideCaptions : t.controls.showCaptions}
         active={showCaptions}
         aria-pressed={showCaptions}
         onClick={() => setShowCaptions(!showCaptions)}
@@ -68,15 +70,15 @@ export function PlayerControls() {
         <path d="M10 10.5a2 2 0 1 0 0 3M16 10.5a2 2 0 1 0 0 3" />
       </ToolIcon>
       <ToolIcon
-        label="Transcript panel"
-        title={showTranscript ? "Hide transcript" : "Show transcript"}
+        label={t.controls.transcriptPanel}
+        title={showTranscript ? t.controls.hideTranscript : t.controls.showTranscript}
         active={showTranscript}
         aria-pressed={showTranscript}
         onClick={() => setShowTranscript(!showTranscript)}
       >
         <path d="M5 7h14M5 12h14M5 17h9" />
       </ToolIcon>
-      <ToolIcon ref={fullscreenRef} label={fullscreen ? "Exit full screen" : "Full screen"} onClick={toggleFullscreen}>
+      <ToolIcon ref={fullscreenRef} label={fullscreen ? t.controls.exitFullScreen : t.controls.fullScreen} onClick={toggleFullscreen}>
         {fullscreen ? <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" /> : <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />}
       </ToolIcon>
     </div>

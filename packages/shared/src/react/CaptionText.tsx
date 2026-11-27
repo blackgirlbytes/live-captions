@@ -5,6 +5,8 @@ import type { CaptionSettings, CaptionState } from "../core/types";
 export interface CaptionTextProps {
   caption: CaptionState;
   settings: CaptionSettings;
+  /** Show this instead of the caption's own text (its translation). */
+  translation?: string | null;
   /** Hide the caption after this many ms without updates. */
   fadeAfterMs?: number;
   className?: string;
@@ -15,7 +17,7 @@ export interface CaptionTextProps {
  * The caption box itself. Styled with inline styles (not Tailwind) so it renders the same
  * inside the web player and inside the extension's shadow-DOM overlay on any website.
  */
-export function CaptionText({ caption, settings, fadeAfterMs = 6000, className, style }: CaptionTextProps) {
+export function CaptionText({ caption, settings, translation, fadeAfterMs = 6000, className, style }: CaptionTextProps) {
   const [stale, setStale] = useState(false);
 
   useEffect(() => {

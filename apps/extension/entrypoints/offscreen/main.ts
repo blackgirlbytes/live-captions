@@ -72,6 +72,7 @@ async function start(msg: Extract<OffscreenRequest, { type: "start" }>): Promise
       broadcast({ to: "broadcast", type: "transcript-event", tabId, event });
     },
   });
+  s.setLanguages(msg.languages.spoken, msg.languages.caption);
   session = s;
   // start() resolves after the first connect attempt; failures surface as status events.
   void s.start(stream);
@@ -98,6 +99,9 @@ browser.runtime.onMessage.addListener((msg: unknown, _sender, sendResponse) => {
       return reply("stop", stop());
     case "get-state":
       return reply("get-state", snapshot());
+    case "set-languages":
+      session?.setLanguages(msg.languages.spoken, msg.languages.caption);
+      return reply("set-languages", { ok: true });
     case "set-overlay-hidden":
       setMeta({ overlayHidden: msg.hidden });
       return reply("set-overlay-hidden", { ok: true });

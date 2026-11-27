@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { browser } from "wxt/browser";
 import { looksLikeDeepgramKey, verifyDeepgramKey } from "@heard/shared";
-import { CaptionSettingsForm, PlayIcon, StatusBadge, StopIcon, TranscriptToolbar, TranscriptView } from "@heard/shared/react";
+import { CaptionSettingsForm, PlayIcon, StatusBadge, StopIcon, TranscriptToolbar, TranscriptView, TranslationNotice } from "@heard/shared/react";
 import { Wordmark } from "@/components/Logo";
 import {
   needsKey,
@@ -202,7 +202,10 @@ export default function App() {
             emptyState={
               capturing ? "Listening… captions appear when someone speaks." : "Press Start on a tab that's playing video or audio. The transcript will appear here."
             }
+            translations={t.translation?.target ? t.translation.lines : undefined}
+            captionTranslation={t.translation?.target ? t.translation.caption : null}
           />
+          <TranslationNotice issue={t.translation?.target ? t.translation.issue : null} className="border-t border-ink-800 px-4 py-2.5" />
         </main>
       ) : (
         <main className="heard-scroll min-h-0 flex-1 space-y-6 overflow-y-auto px-4 py-4">

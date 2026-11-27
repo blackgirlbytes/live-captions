@@ -3,6 +3,8 @@
 import type { CaptionSettings } from "@heard/shared";
 import { CaptionSettingsForm, SettingsIcon } from "@heard/shared/react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useSharedLabels } from "./useSharedLabels";
+import { useT } from "@/i18n/I18nProvider";
 
 export function SettingsPopover({
   settings,
@@ -29,6 +31,8 @@ export function SettingsPopover({
   /** Scroll the extra sections into view when opening. */
   scrollToChildren?: boolean;
 }) {
+  const t = useT("watch").settings;
+  const ui = useSharedLabels();
   const [openState, setOpenState] = useState(false);
   const open = openProp ?? openState;
   const setOpen = (next: boolean) => {
@@ -74,8 +78,8 @@ export function SettingsPopover({
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-controls={id}
-        aria-label="Settings"
-        title="Settings"
+        aria-label={t.title}
+        title={t.title}
       >
         <SettingsIcon size={18} />
       </button>
@@ -83,7 +87,7 @@ export function SettingsPopover({
         <div
           id={id}
           role="dialog"
-          aria-label="Settings"
+          aria-label={t.title}
           className={
             // Never drawn over the video: it drops below the controls, or (in fullscreen) the
             // stage makes room for it on the right.
@@ -92,10 +96,10 @@ export function SettingsPopover({
               : "sheet-in absolute top-full right-0 z-40 mt-2 max-h-[calc(100dvh-5rem)] w-[min(20rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl bg-ink-900 p-5 shadow-2xl ring-1 ring-ink-700"
           }
         >
-          <CaptionSettingsForm settings={settings} onChange={onChange} showPosition={showPosition} />
+          <CaptionSettingsForm settings={settings} onChange={onChange} showPosition={showPosition} labels={{ ...ui.settings, language: ui.language }} />
           {!showPosition && (
             <p className="mt-4 border-t border-ink-800 pt-3 text-xs leading-relaxed text-ink-500">
-              YouTube doesn’t allow anything on top of its player, so captions show just below the video.
+              {t.noOverlay}
             </p>
           )}
           {children && (

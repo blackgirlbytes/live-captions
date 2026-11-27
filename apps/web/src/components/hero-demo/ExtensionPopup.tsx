@@ -1,11 +1,13 @@
 "use client";
 
+import { useT } from "@/i18n/I18nProvider";
 import { CaptionsGlyph } from "./icons";
 import { useHeroDemo, VIDEO_TITLE } from "./state";
 
 /** Mirrors the extension's popup (apps/extension/entrypoints/popup). */
 export function ExtensionPopup() {
   const { captionsOn, setCaptionsOn } = useHeroDemo();
+  const t = useT("demo");
 
   return (
     <div className="rounded-[20px] bg-ink-900 p-3.5 shadow-[0_30px_60px_-24px_rgba(0,0,0,0.95)] ring-1 ring-white/[0.08]">
@@ -13,13 +15,13 @@ export function ExtensionPopup() {
         <span className="font-display text-[15px] font-semibold tracking-tight text-ink-100">Heard</span>
         <span
           role="status"
-          aria-label={captionsOn ? "Transcription live" : "Transcription off"}
-          className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+          aria-label={captionsOn ? t.popup.statusLive : t.popup.statusOff}
+          className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] whitespace-nowrap font-semibold ${
             captionsOn ? "bg-live/15 text-live" : "bg-ink-800 text-ink-300"
           }`}
         >
           <span className={`h-1.5 w-1.5 rounded-full ${captionsOn ? "animate-pulse-dot bg-live" : "bg-ink-500"}`} aria-hidden="true" />
-          {captionsOn ? "Live" : "Off"}
+          {captionsOn ? t.popup.live : t.popup.off}
         </span>
       </div>
       <div className="mt-3 rounded-2xl bg-ink-850 p-3">
@@ -32,15 +34,15 @@ export function ExtensionPopup() {
             <CaptionsGlyph />
           </span>
           <span className="min-w-0 flex-1 leading-tight">
-            <span className="block text-[13px] font-semibold text-ink-100">AI captions</span>
+            <span className="block text-[13px] font-semibold text-ink-100">{t.popup.aiCaptions}</span>
             <span className="block truncate text-[11px] text-ink-400">{VIDEO_TITLE}</span>
           </span>
           <button
             type="button"
             role="switch"
             aria-checked={captionsOn}
-            aria-label={captionsOn ? "Stop captions" : "Start captions"}
-            title={captionsOn ? "Stop captions" : "Start captions"}
+            aria-label={captionsOn ? t.stopCaptions : t.startCaptions}
+            title={captionsOn ? t.stopCaptions : t.startCaptions}
             onClick={() => setCaptionsOn(!captionsOn)}
             className={`relative h-6 w-10 shrink-0 cursor-pointer rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
               captionsOn ? "bg-accent hover:bg-accent-strong" : "bg-ink-600 hover:bg-ink-500"
@@ -53,7 +55,7 @@ export function ExtensionPopup() {
           </button>
         </div>
         <p className="mt-2.5 text-[11px] leading-relaxed text-ink-300" aria-live="polite">
-          {captionsOn ? "Captioning this tab on youtube.com" : "Turn on to caption whatever is playing in this tab."}
+          {captionsOn ? t.popup.onText : t.popup.offText}
         </p>
       </div>
     </div>

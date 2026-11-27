@@ -1,23 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type KeyboardEvent, type ReactNode } from "react";
+import { LanguagePicker } from "@/components/LanguagePicker";
 import { LogoMark } from "@/components/Logo";
+import { useT } from "@/i18n/I18nProvider";
 import { StepArtPicker, StepArtStart } from "@/components/StepArt";
 import { UrlForm } from "@/components/UrlForm";
 import { watchHref } from "@/lib/providers";
 
-const EXAMPLES = [
-  { label: "Ms Rachel", detail: "Live toddler learning", live: true, url: "https://www.youtube.com/watch?v=jBvzOfT8_44" },
-  { label: "Sky News", detail: "Live 24/7 news", live: true, url: "https://www.youtube.com/watch?v=53SxFKpbKDE" },
+const EXAMPLES: { label: string; detail: "msRachel" | "skyNews"; live: boolean; url: string }[] = [
+  { label: "Ms Rachel", detail: "msRachel", live: true, url: "https://www.youtube.com/watch?v=jBvzOfT8_44" },
+  { label: "Sky News", detail: "skyNews", live: true, url: "https://www.youtube.com/watch?v=53SxFKpbKDE" },
 ];
 
 export type HeroTab = "home" | "how" | "privacy" | "extension";
 const TABS: HeroTab[] = ["home", "how", "privacy", "extension"];
-const NAV: { tab: HeroTab; label: string; className?: string }[] = [
-  { tab: "how", label: "How it works" },
-  { tab: "privacy", label: "Privacy" },
-  { tab: "extension", label: "Chrome extension", className: "xl:hidden" },
+const NAV: { tab: Exclude<HeroTab, "home">; className?: string }[] = [
+  { tab: "how" },
+  { tab: "privacy" },
+  { tab: "extension", className: "xl:hidden" },
 ];
 
 function tabFromHash(): HeroTab {
@@ -31,6 +33,7 @@ function tabFromHash(): HeroTab {
  */
 export function HeroPanel() {
   const [tab, setTab] = useState<HeroTab>("home");
+  const t = useT("common");
 
   useEffect(() => {
     setTab(tabFromHash());
@@ -53,12 +56,12 @@ export function HeroPanel() {
             type="button"
             onClick={() => go("home")}
             className="inline-flex shrink-0 items-center gap-2.5 rounded-lg"
-            aria-label="Heard home"
+            aria-label={t.nav.home}
           >
             <LogoMark />
             <span className="font-display text-lg font-semibold tracking-tight text-ink-100">Heard</span>
           </button>
-          <nav className="flex items-center gap-5 text-sm sm:gap-6 xl:mr-auto xl:ml-4 2xl:ml-6 2xl:gap-8 2xl:text-base" aria-label="Sections">
+          <nav className="flex items-center gap-5 text-sm sm:gap-6 xl:mr-auto xl:ml-4 2xl:ml-6 2xl:gap-8 2xl:text-base" aria-label={t.nav.sections}>
             {NAV.map((item) => (
               <a
                 key={item.tab}
@@ -72,11 +75,12 @@ export function HeroPanel() {
                   tab === item.tab ? "text-ink-100" : "text-ink-400 hover:text-ink-100"
                 } ${item.tab === "extension" ? "" : "hidden sm:inline"} ${item.className ?? ""}`}
               >
-                {item.label}
+                {t.nav[item.tab]}
                 {tab === item.tab && <span className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-accent" />}
               </a>
             ))}
           </nav>
+          <LanguagePicker className="ml-auto xl:ml-0" />
         </header>
 
         <div key={tab} className="hero-tab flex min-h-0 flex-1 flex-col">
@@ -97,22 +101,22 @@ export function HeroPanel() {
         className="hero-pop absolute top-9 right-9 z-20 hidden h-11 items-center rounded-full bg-ink-100 px-5 text-sm font-semibold text-ink-950 transition-colors hover:bg-white xl:inline-flex"
         style={{ animationDelay: "500ms" }}
       >
-        Get the Chrome extension
+        {t.nav.getExtension}
       </a>
     </>
   );
 }
 
 function HomeTab() {
+  const t = useT("home");
   return (
     <>
       <div className="pt-14 sm:pt-20 xl:my-auto xl:py-8">
         <h1 className="font-display text-[2.75rem] leading-[0.98] font-semibold tracking-[-0.035em] text-balance text-ink-100 sm:text-6xl xl:text-[4rem] 2xl:text-[5.25rem]">
-          Live transcription for any stream.
+          {t.hero.title}
         </h1>
         <p className="mt-6 max-w-[29rem] text-[1.0625rem] leading-relaxed text-ink-400 2xl:max-w-[36rem] 2xl:text-xl">
-          Paste a YouTube livestream. Heard transcribes it as people speak, with a transcript you can search and
-          download.
+          {t.hero.body}
         </p>
         <div className="mt-9 max-w-[32rem] 2xl:max-w-[36rem]">
           <UrlForm autoFocus />
@@ -120,7 +124,7 @@ function HomeTab() {
       </div>
 
       <div className="mt-10 xl:mt-0">
-        <p className="text-sm text-ink-500">Or try one</p>
+        <p className="text-sm text-ink-500">{t.hero.orTry}</p>
         <div className="-mx-1.5 mt-3 grid max-w-[33rem] 2xl:max-w-[37rem] gap-2 sm:grid-cols-2 sm:gap-4">
           {EXAMPLES.map((ex) => (
             <Link
@@ -144,7 +148,7 @@ function HomeTab() {
               </span>
               <span className="min-w-0 leading-tight">
                 <span className="block font-medium text-ink-100">{ex.label}</span>
-                <span className="block truncate text-sm text-ink-500 group-hover:text-ink-400">{ex.detail}</span>
+                <span className="block truncate text-sm text-ink-500 group-hover:text-ink-400">{t.examples[ex.detail]}</span>
               </span>
             </Link>
           ))}
@@ -214,25 +218,26 @@ function Points({ items, numbered = false }: { items: { title: string; body: Rea
 }
 
 function HowTab({ onTry }: { onTry: () => void }) {
+  const t = useT("home").how;
   return (
-    <TabBody title="How it works" intro="Heard listens to the tab itself, so it works even when a video has no captions.">
+    <TabBody title={t.title} intro={t.intro}>
       <Points
         numbered
         items={[
           {
-            title: "Paste a link",
+            title: t.pasteTitle,
             body: (
               <>
-                Any YouTube video or livestream.{" "}
+                {t.pasteBody}{" "}
                 <button type="button" onClick={onTry} className="rounded-sm font-medium text-accent underline-offset-4 hover:underline">
-                  Paste one now
+                  {t.pasteNow}
                 </button>
               </>
             ),
             art: <PasteArt />,
           },
-          { title: "Click Start captions", body: "Heard asks Chrome for this tab only.", art: <StepArtStart /> },
-          { title: "Share the tab’s audio", body: "Pick “This tab” and keep audio on.", art: <StepArtPicker /> },
+          { title: t.startTitle, body: t.startBody, art: <StepArtStart /> },
+          { title: t.shareTitle, body: t.shareBody, art: <StepArtPicker /> },
         ]}
       />
     </TabBody>
@@ -243,16 +248,17 @@ const frame = "relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-ink-
 
 /** Audio leaves the tab for Deepgram only while captions are on. */
 function SendArt() {
+  const t = useT("home").privacy;
   return (
     <div className={frame} aria-hidden="true">
       <div className="absolute inset-0 flex items-center justify-center gap-2 px-3 pt-4">
-        <span className="rounded-md bg-ink-800 px-2 py-1 text-[10px] font-medium text-ink-200 ring-1 ring-ink-600">Tab</span>
+        <span className="rounded-md bg-ink-800 px-2 py-1 text-[10px] font-medium text-ink-200 ring-1 ring-ink-600">{t.artTab}</span>
         <span className="h-0.5 w-8 rounded-full bg-accent" />
         <span className="rounded-md bg-accent px-2 py-1 text-[10px] font-semibold text-accent-ink">Deepgram</span>
       </div>
       <span className="absolute top-2.5 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-live/15 px-2 py-0.5 text-[9px] font-semibold text-live">
         <span className="h-1 w-1 rounded-full bg-live" />
-        Captions on
+        {t.artCaptionsOn}
       </span>
     </div>
   );
@@ -277,8 +283,9 @@ function NoSaveArt() {
 }
 
 function PrivacyTab() {
+  const t = useT("home").privacy;
   return (
-    <TabBody title="Privacy" intro="What Heard hears, where it goes, and what it keeps." footer={
+    <TabBody title={t.title} intro={t.intro} footer={
         <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
           <a
             href="https://github.com/blackgirlbytes/live-captions"
@@ -289,55 +296,107 @@ function PrivacyTab() {
             <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
               <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
             </svg>
-            Heard is open source.
+            {t.openSource}
           </a>
           <span>
-            Captions by{" "}
+            {t.captionsBy}{" "}
             <a href="https://deepgram.com" target="_blank" rel="noreferrer" className="rounded-sm text-ink-300 underline-offset-4 hover:text-ink-100 hover:underline">
               Deepgram Nova-3
             </a>
-            .
+            {t.captionsAfter}
           </span>
         </p>
       }
     >
       <Points
         items={[
-          { title: "Only the tab you choose", body: "Nothing else is heard.", art: <StepArtPicker /> },
-          { title: "Sent to Deepgram while captioning", body: "Stop captions and it stops.", art: <SendArt /> },
-          { title: "Nothing is saved", body: "Close the tab and the transcript is gone.", art: <NoSaveArt /> },
+          { title: t.onlyTabTitle, body: t.onlyTabBody, art: <StepArtPicker /> },
+          { title: t.sentTitle, body: t.sentBody, art: <SendArt /> },
+          { title: t.savedTitle, body: t.savedBody, art: <NoSaveArt /> },
         ]}
       />
     </TabBody>
   );
 }
 
+type Os = "mac" | "windows" | "linux";
+const OSES: Os[] = ["mac", "windows", "linux"];
+
+/** Best guess at the visitor's system, so the right instructions open first. */
+function detectOs(): Os {
+  const p = `${(navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform ?? ""} ${navigator.platform} ${navigator.userAgent}`.toLowerCase();
+  if (p.includes("win")) return "windows";
+  if (p.includes("linux") || p.includes("x11") || p.includes("cros")) return "linux";
+  return "mac";
+}
+
 function ExtensionTab() {
+  const t = useT("home").extension;
+  const [os, setOs] = useState<Os>("mac");
+  useEffect(() => setOs(detectOs()), []);
+  const folder = os === "windows" ? "apps\\extension\\.output\\chrome-mv3" : "apps/extension/.output/chrome-mv3";
+  const find = { mac: t.findMac, windows: t.findWindows, linux: t.findLinux }[os];
+
+  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!step) return;
+    e.preventDefault();
+    const next = OSES[(OSES.indexOf(os) + step + OSES.length) % OSES.length]!;
+    setOs(next);
+    e.currentTarget.querySelector<HTMLButtonElement>(`[data-os="${next}"]`)?.focus();
+  };
+
   return (
-    <TabBody
-      title="Captions on YouTube itself"
-      hideIntroWhenShort
-      intro="For videos that won’t play outside youtube.com. Captions appear on the page, with the transcript in a side panel."
-      footer="Works in Chrome and Edge on desktop. Full setup is in the README."
-    >
-      <Points
-        numbered
-        items={[
-          {
-            title: "Get the code",
-            body: <Terminal lines={["git clone https://github.com/blackgirlbytes/live-captions.git", "cd live-captions"]} />,
-          },
-          { title: "Build it", body: <Terminal lines={["npm install", "npm run build -w @heard/extension"]} /> },
-          { title: "Turn on Developer mode in Chrome", body: <Terminal lines={["chrome://extensions"]} prompt={false} /> },
-          { title: "Load unpacked, then pick this folder", body: <Terminal lines={["apps/extension/.output/chrome-mv3"]} prompt={false} /> },
-        ]}
-      />
+    <TabBody title={t.title} footer={<span className="text-xs">{t.footer}</span>}>
+      <div role="tablist" aria-label={t.osLabel} onKeyDown={onKey} className="mb-6 inline-flex rounded-full bg-ink-900 p-1 ring-1 ring-ink-800">
+        {OSES.map((o) => (
+          <button
+            key={o}
+            type="button"
+            role="tab"
+            data-os={o}
+            id={`ext-os-${o}`}
+            aria-selected={os === o}
+            aria-controls="ext-os-panel"
+            tabIndex={os === o ? 0 : -1}
+            onClick={() => setOs(o)}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+              os === o ? "bg-ink-700 text-ink-100" : "text-ink-400 hover:text-ink-200"
+            }`}
+          >
+            {t.os[o]}
+          </button>
+        ))}
+      </div>
+      <div role="tabpanel" id="ext-os-panel" aria-labelledby={`ext-os-${os}`}>
+        <Points
+          numbered
+          items={[
+            {
+              title: t.getCode,
+              body: <Terminal lines={["git clone https://github.com/blackgirlbytes/live-captions.git", "cd live-captions"]} />,
+            },
+            { title: t.build, body: <Terminal lines={["npm install", "npm run build -w @heard/extension"]} /> },
+            { title: t.devMode, body: <Terminal lines={["chrome://extensions"]} prompt={false} /> },
+            {
+              title: t.loadUnpacked,
+              body: (
+                <>
+                  <Terminal lines={[folder]} prompt={false} />
+                  <p className="mt-2 text-[13px] leading-snug text-ink-500">{find}</p>
+                </>
+              ),
+            },
+          ]}
+        />
+      </div>
     </TabBody>
   );
 }
 
 /** A small terminal window holding commands, with a button that copies them all. */
 function Terminal({ lines, prompt = true }: { lines: string[]; prompt?: boolean }) {
+  const t = useT("home").terminal;
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
@@ -362,20 +421,21 @@ function Terminal({ lines, prompt = true }: { lines: string[]; prompt?: boolean 
         type="button"
         onClick={copy}
         className="absolute top-1.5 right-1.5 rounded-md bg-ink-900 px-2 py-1 text-xs font-medium text-ink-300 ring-1 ring-white/[0.08] transition-colors hover:bg-ink-800 hover:text-ink-100"
-        aria-label={copied ? "Copied" : `Copy ${lines.join(" and ")}`}
+        aria-label={copied ? t.copied : t.copyLabel(lines)}
       >
-        {copied ? "Copied" : "Copy"}
+        {copied ? t.copied : t.copy}
       </button>
     </div>
   );
 }
 
 function PasteArt() {
+  const t = useT("home").form;
   return (
     <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-ink-900 ring-1 ring-ink-700" aria-hidden="true">
       <div className="absolute inset-x-3 top-1/2 flex -translate-y-1/2 items-center gap-2 rounded-lg bg-ink-800 p-1.5 ring-1 ring-accent/60">
         <span className="ml-1 truncate text-[10px] text-ink-300">youtube.com/watch?v=53SxFKpbKDE</span>
-        <span className="ml-auto rounded-md bg-accent px-2 py-1 text-[10px] font-semibold text-accent-ink">Watch</span>
+        <span className="ml-auto rounded-md bg-accent px-2 py-1 text-[10px] font-semibold text-accent-ink">{t.watch}</span>
       </div>
     </div>
   );

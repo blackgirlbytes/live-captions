@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/I18nProvider";
 import { Fragment, useEffect, useRef, type ReactNode } from "react";
 import { useHeroDemo, SCRIPT, formatTime, type ScriptLine } from "./state";
 
@@ -11,6 +12,7 @@ export function TranscriptCard() {
   const { heard, current, query, setQuery, seek } = useHeroDemo();
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const t = useT("demo");
 
   const q = query.trim().toLowerCase();
   const lines: HeardLine[] = heard.flatMap((index) => {
@@ -52,14 +54,14 @@ export function TranscriptCard() {
   return (
     <div className="flex h-full flex-col rounded-[20px] bg-ink-900 p-4 shadow-[0_30px_60px_-24px_rgba(0,0,0,0.95)] ring-1 ring-white/[0.08]">
       <div className="flex items-center justify-between">
-        <span className="text-[13px] font-semibold text-ink-100">Transcript</span>
+        <span className="text-[13px] font-semibold text-ink-100">{t.transcript.title}</span>
         <button
           type="button"
           onClick={download}
           disabled={lines.length === 0}
           className="-mr-1.5 rounded-md px-1.5 py-0.5 text-[11px] text-ink-500 transition-colors hover:text-ink-100 focus-visible:outline-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
         >
-          Download
+          {t.transcript.download}
         </button>
       </div>
 
@@ -67,14 +69,14 @@ export function TranscriptCard() {
         ref={listRef}
         className="heard-scroll relative mt-3 h-[6.5rem] overflow-y-auto xl:h-auto xl:min-h-0 xl:flex-1 overscroll-contain"
         role="log"
-        aria-label="Transcript"
+        aria-label={t.transcript.title}
         aria-live="polite"
         aria-relevant="additions"
       >
         {lines.length === 0 ? (
-          <p className="px-2 py-1.5 text-[12.5px] leading-snug text-ink-500">Lines appear here as they&rsquo;re spoken.</p>
+          <p className="px-2 py-1.5 text-[12.5px] leading-snug text-ink-500">{t.transcript.empty}</p>
         ) : visible.length === 0 ? (
-          <p className="px-2 py-1.5 text-[12.5px] leading-snug text-ink-500">No matches</p>
+          <p className="px-2 py-1.5 text-[12.5px] leading-snug text-ink-500">{t.transcript.noMatches}</p>
         ) : (
           <ol className="space-y-0.5 text-[12.5px] leading-snug">
             {visible.map((line) => {
@@ -88,7 +90,7 @@ export function TranscriptCard() {
                   <button
                     type="button"
                     onClick={() => seek(line.t)}
-                    title={`Jump to ${formatTime(line.t)}`}
+                    title={t.transcript.jumpTo(formatTime(line.t))}
                     aria-current={now ? "true" : undefined}
                     className={`flex w-full gap-3 rounded-lg px-2 py-1.5 text-left transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent ${
                       now ? "bg-accent/10 text-ink-100" : "text-ink-400 hover:bg-white/[0.04] hover:text-ink-200"
@@ -118,8 +120,8 @@ export function TranscriptCard() {
               setQuery("");
             }
           }}
-          placeholder="Search the transcript"
-          aria-label="Search the transcript"
+          placeholder={t.transcript.search}
+          aria-label={t.transcript.search}
           autoComplete="off"
           spellCheck={false}
           className="min-w-0 flex-1 bg-transparent text-ink-100 outline-none placeholder:text-ink-500 [&::-webkit-search-cancel-button]:appearance-none"
@@ -130,7 +132,7 @@ export function TranscriptCard() {
             if (query) setQuery("");
             inputRef.current?.focus();
           }}
-          aria-label={query ? "Clear search" : "Search the transcript"}
+          aria-label={query ? t.transcript.clearSearch : t.transcript.search}
           className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-ink-700 text-ink-200 transition-colors hover:bg-ink-600 hover:text-ink-100 focus-visible:outline-2 focus-visible:outline-accent"
         >
           {query ? (

@@ -62,12 +62,29 @@ export interface OverlayHello {
   hidden: boolean;
   status: TranscriptionStatus;
   caption: CaptionState | null;
+  /** Translation of `caption` when captions are translated. */
+  captionTranslation: string | null;
+}
+
+/** Spoken language (Deepgram code or "multi") and caption language ("" = as spoken). */
+export interface SessionLanguages {
+  spoken: string;
+  caption: string;
 }
 
 /* ----------------------------- → offscreen ----------------------------- */
 
 export type OffscreenRequest =
-  | { to: "offscreen"; type: "start"; streamId: string; tabId: number; tabTitle: string | null; credential: CredentialSource }
+  | {
+      to: "offscreen";
+      type: "start";
+      streamId: string;
+      tabId: number;
+      tabTitle: string | null;
+      credential: CredentialSource;
+      languages: SessionLanguages;
+    }
+  | { to: "offscreen"; type: "set-languages"; languages: SessionLanguages }
   | { to: "offscreen"; type: "stop" }
   | { to: "offscreen"; type: "get-state" }
   | { to: "offscreen"; type: "set-overlay-hidden"; hidden: boolean };
@@ -77,6 +94,7 @@ export interface OffscreenResponses {
   stop: CommandResult;
   "get-state": SessionSnapshot;
   "set-overlay-hidden": CommandResult;
+  "set-languages": CommandResult;
 }
 
 /* --------------------------- offscreen → everyone --------------------------- */

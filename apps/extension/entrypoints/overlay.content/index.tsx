@@ -30,7 +30,12 @@ export default defineContentScript({
       return;
     }
 
-    const store = createOverlayStore({ status: hello.status, caption: hello.caption ?? EMPTY_CAPTION, hidden: hello.hidden });
+    const store = createOverlayStore({
+      status: hello.status,
+      caption: hello.caption ?? EMPTY_CAPTION,
+      translation: hello.captionTranslation ?? null,
+      hidden: hello.hidden,
+    });
 
     const ui = await createShadowRootUi<Root>(ctx, {
       name: "heard-captions",
@@ -72,7 +77,9 @@ export default defineContentScript({
           const e = m.event;
           if (e.type === "caption") store.set({ caption: e.caption });
           else if (e.type === "status") store.set({ status: e.status });
-          else if (e.type === "reset") store.set({ caption: EMPTY_CAPTION });
+          else if (e.type === "reset") store.set({ caption: EMPTY_CAPTION, translation: null });
+          else if (e.type === "caption-translated") store.set({ translation: e.text });
+          else if (e.type === "translation-config" && !e.target) store.set({ translation: null });
           break;
         }
         case "show":

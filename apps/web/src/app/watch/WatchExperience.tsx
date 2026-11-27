@@ -18,9 +18,12 @@ import {
   StopIcon,
   TranscriptToolbar,
   TranscriptView,
+  TranslationNotice,
   useTranscriptionSession,
 } from "@heard/shared/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSharedLabels } from "@/components/useSharedLabels";
+import { useT } from "@/i18n/I18nProvider";
 import { DeepgramKeyDialog } from "@/components/DeepgramKeyDialog";
 import { DeepgramKeySettings } from "@/components/DeepgramKeySettings";
 import { SettingsPopover } from "@/components/SettingsPopover";
@@ -42,7 +45,11 @@ function getWorkletUrl() {
 
 const RUNNING: TranscriptionStatus[] = ["connecting", "live", "paused", "reconnecting"];
 
+type WatchT = ReturnType<typeof useT<"watch">>;
+
 export function WatchExperience({ url }: { url: string }) {
+  const t = useT("watch");
+  const ui = useSharedLabels();
   const resolved = useMemo(() => resolveVideo(url), [url]);
   if (!resolved.ok) throw new Error(resolved.message); // WatchShell only renders us for valid links
   const { provider, video } = resolved;
@@ -76,6 +83,9 @@ export function WatchExperience({ url }: { url: string }) {
     setSettingsState(next);
     saveCaptionSettings(next);
   }, []);
+  // Language changes apply live: a new spoken language reconnects, a new caption language translates.
+  useEffect(() => session.setLanguages(settings.spokenLanguage, settings.captionLanguage), [session, settings.spokenLanguage, settings.captionLanguage]);
+  const captionTranslation = ts.translation.target ? ts.translation.caption : null;
   const overlayAllowed = provider.capabilities.allowsCaptionOverlay;
   const placement = overlayAllowed ? settings.position : "below";
 
@@ -302,7 +312,7 @@ export function WatchExperience({ url }: { url: string }) {
   const iconBtn =
     "inline-flex h-10 w-10 items-center justify-center rounded-xl text-ink-300 transition-colors hover:bg-ink-800 hover:text-ink-100 aria-pressed:text-accent disabled:opacity-40";
 
-  const captionHint = playerError ? null : hintFor(ts.status, support.ok);
+  const captionHint = playerError ? null : hintFor(ts.status, support.ok, t);
 
   return (
     <div
@@ -311,18 +321,18 @@ export function WatchExperience({ url }: { url: string }) {
       }`}
     >
       {/* Stage: player + caption bar + controls. This is what goes fullscreen. */}
-      <section aria-label="Video" className="min-w-0">
+      <section aria-label={t.player.region} className="min-w-0">
         <div ref={stageRef} className={`stage relative flex flex-col bg-ink-950 ${fullscreen && settingsOpen ? "pr-80" : ""}`}>
           <div className="stage-player relative aspect-video max-h-[calc(100dvh-15rem)] min-h-[200px] w-full min-w-[200px] overflow-hidden bg-black lg:rounded-t-2xl">
             <div ref={hostRef} className={`absolute inset-0 ${playerError ? "hidden" : ""}`} />
             {!playerReady && !playerError && <div className="absolute inset-0 animate-pulse bg-ink-900" aria-hidden="true" />}
-            {playerError && <PlayerErrorPanel error={playerError} canonicalUrl={video.canonicalUrl} providerName={provider.name} />}
+            {playerError && <PlayerErrorPanel error={playerError} canonicalUrl={video.canonicalUrl} providerName={provider.name} t={t} />}
             {placement === "overlay" && settings.enabled && (
-              <CaptionText caption={ts.caption} settings={settings} className="absolute inset-x-4 bottom-[8%]" />
+              <CaptionText caption={ts.caption} settings={settings} translation={captionTranslation} className="absolute inset-x-4 bottom-[8%]" />
             )}
           </div>
 
-          {placement === "below" && settings.enabled && <CaptionBar caption={ts.caption} settings={settings} hint={captionHint} />}
+          {placement === "below" && settings.enabled && <CaptionBar caption={ts.caption} settings={settings} translation={captionTranslation} hint={captionHint} />}
 
           {/* Controls */}
           <div className={`flex flex-wrap items-center gap-2 border-ink-800 bg-ink-900 px-3 py-2.5 sm:px-4 ${fullscreen ? "" : "lg:rounded-b-2xl lg:border-x lg:border-b"}`}>
@@ -332,7 +342,7 @@ export function WatchExperience({ url }: { url: string }) {
                 onClick={() => void session.stop()}
                 className="inline-flex h-10 items-center gap-2 rounded-xl bg-ink-700 px-4 text-sm font-semibold text-ink-100 transition-colors hover:bg-ink-600"
               >
-                <StopIcon size={14} /> Stop captions
+                <StopIcon size={14} /> {t.player.stop}
               </button>
             ) : (
               <button
@@ -341,13 +351,13 @@ export function WatchExperience({ url }: { url: string }) {
                 disabled={!support.ok || requesting || Boolean(playerError)}
                 className="inline-flex h-10 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <PlayIcon size={14} /> {requesting ? "Waiting for Chrome…" : "Start captions"}
+                <PlayIcon size={14} /> {requesting ? t.player.waiting : t.player.start}
               </button>
             )}
-            <StatusBadge status={ts.status} />
+            <StatusBadge status={ts.status} labels={ui.status} />
             {isLive && (
               <span className="hidden items-center rounded-full bg-ink-800 px-2.5 py-1 text-xs font-medium text-ink-300 ring-1 ring-ink-700 sm:inline-flex">
-                Livestream
+                {t.player.livestream}
               </span>
             )}
             <p className="hidden min-w-0 flex-1 truncate px-1 text-sm text-ink-400 md:block" title={title ?? undefined}>
@@ -360,8 +370,8 @@ export function WatchExperience({ url }: { url: string }) {
                 className={iconBtn}
                 onClick={() => setSettings({ ...settings, enabled: !settings.enabled })}
                 aria-pressed={settings.enabled}
-                aria-label="Show captions"
-                title="Show captions (c)"
+                aria-label={t.player.showCaptions}
+                title={t.player.showCaptionsTitle}
               >
                 <CaptionsIcon size={20} />
               </button>
@@ -383,8 +393,8 @@ export function WatchExperience({ url }: { url: string }) {
                   className={iconBtn}
                   onClick={() => setPanelOpen((o) => !o)}
                   aria-pressed={panelOpen}
-                  aria-label="Transcript panel"
-                  title={panelOpen ? "Hide transcript" : "Show transcript"}
+                  aria-label={t.player.panel}
+                  title={panelOpen ? t.player.hideTranscript : t.player.showTranscript}
                 >
                   <PanelIcon size={18} />
                 </button>
@@ -393,8 +403,8 @@ export function WatchExperience({ url }: { url: string }) {
                 type="button"
                 className={iconBtn}
                 onClick={toggleFullscreen}
-                aria-label={fullscreen ? "Exit full screen" : "Full screen"}
-                title={fullscreen ? "Exit full screen (f)" : "Full screen (f)"}
+                aria-label={fullscreen ? t.player.exitFullscreen : t.player.fullscreen}
+                title={fullscreen ? t.player.exitFullscreenTitle : t.player.fullscreenTitle}
               >
                 <FullscreenIcon exit={fullscreen} />
               </button>
@@ -418,7 +428,7 @@ export function WatchExperience({ url }: { url: string }) {
         <div className="space-y-2 px-3 pt-3 empty:hidden sm:px-4 lg:px-0" aria-live="polite">
           {!support.ok && <Banner tone="info">{support.reason}</Banner>}
           {captureError && !guideOpen && (
-            <Banner tone="error" action={{ label: "Try again", onClick: () => void startCapture() }}>
+            <Banner tone="error" action={{ label: t.banners.tryAgain, onClick: () => void startCapture() }}>
               {captureError}
             </Banner>
           )}
@@ -428,34 +438,34 @@ export function WatchExperience({ url }: { url: string }) {
               action={
                 keyError
                   ? mode === "none"
-                    ? { label: "Add your Deepgram key", onClick: () => (support.ok ? setKeyDialogOpen(true) : openKeySettings()) }
-                    : { label: "Check Deepgram key", onClick: openKeySettings }
+                    ? { label: t.banners.addKey, onClick: () => (support.ok ? setKeyDialogOpen(true) : openKeySettings()) }
+                    : { label: t.banners.checkKey, onClick: openKeySettings }
                   : support.ok
-                    ? { label: "Restart captions", onClick: () => void startCapture() }
+                    ? { label: t.banners.restart, onClick: () => void startCapture() }
                     : undefined
               }
-              secondary={keyError && support.ok && mode !== "none" ? { label: "Restart captions", onClick: onStartClick } : undefined}
+              secondary={keyError && support.ok && mode !== "none" ? { label: t.banners.restart, onClick: onStartClick } : undefined}
             >
-              Captions stopped: {sessionError}
+              {t.banners.stopped(sessionError)}
             </Banner>
           )}
-          {reconnecting && <Banner tone="info">Reconnecting to Deepgram… {ts.error ? `(${ts.error})` : ""} Audio is buffered meanwhile.</Banner>}
+          {reconnecting && <Banner tone="info">{t.banners.reconnecting(ts.error)}</Banner>}
         </div>
       </section>
 
       {/* Transcript */}
       {panelOpen && (
         <aside
-          aria-label="Transcript"
+          aria-label={t.transcript.title}
           className="mt-3 flex h-[65dvh] min-h-[320px] flex-col border-t border-ink-800 bg-ink-900 lg:sticky lg:top-[4.5rem] lg:mt-0 lg:h-[calc(100dvh-6rem)] lg:rounded-2xl lg:border lg:border-ink-800"
         >
           <div className="flex items-center justify-between gap-3 px-4 pt-4">
-            <h2 className="font-display text-lg font-semibold tracking-tight text-ink-100">Transcript</h2>
+            <h2 className="font-display text-lg font-semibold tracking-tight text-ink-100">{t.transcript.title}</h2>
             <span className="text-xs text-ink-500 tabular-nums">
-              {ts.lines.length > 0 ? `${ts.lines.length} line${ts.lines.length === 1 ? "" : "s"}` : ""}
+              {ts.lines.length > 0 ? t.transcript.lineCount(ts.lines.length) : ""}
             </span>
           </div>
-          <TranscriptToolbar lines={ts.lines} query={query} onQueryChange={setQuery} fileName={fileName} className="px-3 py-3" />
+          <TranscriptToolbar lines={ts.lines} query={query} onQueryChange={setQuery} fileName={fileName} className="px-3 py-3" labels={ui.toolbar} />
           <TranscriptView
             lines={ts.lines}
             caption={ts.caption}
@@ -464,11 +474,15 @@ export function WatchExperience({ url }: { url: string }) {
             timeBase={timeBase}
             onSeek={timeBase === "media" ? onSeek : undefined}
             activeMediaTime={timeBase === "media" ? currentTime : null}
-            emptyState={<TranscriptEmpty status={ts.status} supported={support.ok} />}
+            emptyState={<TranscriptEmpty status={ts.status} supported={support.ok} t={t} />}
+            labels={ui.transcript}
+            translations={ts.translation.target ? ts.translation.lines : undefined}
+            captionTranslation={captionTranslation}
             className="border-t border-ink-800"
           />
+          <TranslationNotice issue={ts.translation.target ? ts.translation.issue : null} className="border-t border-ink-800 px-4 py-2.5" labels={ui.language} />
           <p className="border-t border-ink-800 px-4 py-2.5 text-xs text-ink-500">
-            Transcripts stay in this tab and aren’t saved anywhere. Download to keep one.
+            {t.transcript.privacy}
           </p>
         </aside>
       )}
@@ -478,44 +492,48 @@ export function WatchExperience({ url }: { url: string }) {
 
 /* ------------------------------ pieces ------------------------------ */
 
-function CaptionBar({ caption, settings, hint }: { caption: CaptionState; settings: CaptionSettings; hint: string | null }) {
+function CaptionBar({
+  caption,
+  settings,
+  translation,
+  hint,
+}: {
+  caption: CaptionState;
+  settings: CaptionSettings;
+  translation: string | null;
+  hint: string | null;
+}) {
   // Reserve room for the configured number of lines so the layout doesn't jump.
   const minHeight = `calc(${settings.maxLines * settings.fontSize * 1.35}px + 1.25rem)`;
   return (
     <div className="relative flex items-center justify-center bg-black px-4 py-2.5" style={{ minHeight }}>
       {hint && !caption.text && <p className="pointer-events-none absolute inset-x-4 text-center text-sm text-ink-500">{hint}</p>}
-      <CaptionText caption={caption} settings={settings} className="relative w-full" />
+      <CaptionText caption={caption} settings={settings} translation={translation} className="relative w-full" />
     </div>
   );
 }
 
-function hintFor(status: TranscriptionStatus, supported: boolean): string | null {
+function hintFor(status: TranscriptionStatus, supported: boolean, t: WatchT): string | null {
   switch (status) {
     case "idle":
     case "error":
-      return supported ? "Captions appear here. Press Start captions." : "Captions need Chrome or Edge on a computer.";
+      return supported ? t.hints.idle : t.hints.unsupported;
     case "connecting":
-      return "Connecting…";
+      return t.hints.connecting;
     case "paused":
-      return "Paused. Captions continue when the video plays.";
+      return t.hints.paused;
     case "reconnecting":
-      return "Reconnecting…";
+      return t.hints.reconnecting;
     case "live":
-      return "Listening…";
+      return t.hints.live;
   }
 }
 
-function TranscriptEmpty({ status, supported }: { status: TranscriptionStatus; supported: boolean }) {
-  if (status === "live") return <span>Listening… the transcript fills in as people speak.</span>;
-  if (status === "connecting") return <span>Connecting to Deepgram…</span>;
-  if (status === "paused") return <span>Press play on the video to start the transcript.</span>;
-  return (
-    <span className="max-w-[16rem]">
-      {supported
-        ? "Press Start captions and share this tab. Every line lands here — click a timestamp to jump back."
-        : "Open Heard in Chrome or Edge on a computer to transcribe videos."}
-    </span>
-  );
+function TranscriptEmpty({ status, supported, t }: { status: TranscriptionStatus; supported: boolean; t: WatchT }) {
+  if (status === "live") return <span>{t.transcript.emptyLive}</span>;
+  if (status === "connecting") return <span>{t.transcript.emptyConnecting}</span>;
+  if (status === "paused") return <span>{t.transcript.emptyPaused}</span>;
+  return <span className="max-w-[16rem]">{supported ? t.transcript.emptyIdle : t.transcript.emptyUnsupported}</span>;
 }
 
 function Banner({
@@ -551,19 +569,19 @@ function Banner({
   );
 }
 
-function PlayerErrorPanel({ error, canonicalUrl, providerName }: { error: PlayerError; canonicalUrl: string; providerName: string }) {
+function PlayerErrorPanel({ error, canonicalUrl, providerName, t }: { error: PlayerError; canonicalUrl: string; providerName: string; t: WatchT }) {
   return (
     <div role="alert" data-error-code={error.code} className="absolute inset-0 flex items-center justify-center overflow-y-auto bg-ink-900 p-6">
       <div className="max-w-md text-center">
         <h2 className="font-display text-xl font-semibold tracking-tight text-ink-100">
-          {error.embeddingBlocked ? "Watch this one on YouTube" : "This video can’t be played here"}
+          {error.embeddingBlocked ? t.playerError.embedBlockedTitle : t.playerError.cantPlayTitle}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-ink-300">{error.message}</p>
         {error.embeddingBlocked && (
           <p className="mt-2 text-sm leading-relaxed text-ink-400">
-            The Heard Chrome extension adds the same live captions directly on youtube.com.{" "}
+            {t.playerError.extensionNote}{" "}
             <a href="/#extension" className="text-accent underline-offset-2 hover:underline">
-              Get the extension
+              {t.playerError.getExtension}
             </a>
           </p>
         )}
@@ -573,7 +591,7 @@ function PlayerErrorPanel({ error, canonicalUrl, providerName }: { error: Player
           rel="noopener noreferrer"
           className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-ink-100 px-4 text-sm font-semibold text-ink-900 hover:bg-white"
         >
-          Open on {providerName} <ExternalIcon size={15} />
+          {t.playerError.openOn(providerName)} <ExternalIcon size={15} />
         </a>
       </div>
     </div>

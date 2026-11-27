@@ -1,6 +1,8 @@
 import { startPcmCapture, stopStream, PCM_TARGET_SAMPLE_RATE, type PcmCapture } from "./audio";
 import { buildListenUrl, describeClose, DeepgramSocket, type DeepgramServerMessage } from "./deepgram";
+import { AUTO_LANGUAGE } from "./settings";
 import { StreamTimeMap } from "./time-map";
+import { TranslationEngine } from "./translate";
 import { initialTranscriptState, reduceTranscript, TranscriptAssembler, type DgResults } from "./transcript";
 import type { DeepgramCredential, DeepgramStreamOptions, TranscriptEvent, TranscriptState, TranscriptionStatus } from "./types";
 
@@ -61,6 +63,9 @@ export class TranscriptionSession {
   /** Whether any socket opened during this run (a user key that never opens is likely invalid). */
   private everOpened = false;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Deepgram language code, or "multi" to detect it. */
+  private spokenLanguage = AUTO_LANGUAGE;
+  private readonly translation = new TranslationEngine((e) => this.dispatch(e));
   private keepAliveTimer: ReturnType<typeof setInterval> | null = null;
   private lastSentAt = 0;
   private readonly onOnline = () => {
@@ -88,6 +93,19 @@ export class TranscriptionSession {
 
   get isRunning(): boolean {
     return this.running;
+  }
+
+  /**
+   * What's spoken (a Deepgram code, or "multi" to detect it) and what the captions should be
+   * in ("" for the spoken language). A new spoken language reconnects to Deepgram, buffering
+   * the audio in between; a new caption language translates from the next words on.
+   */
+  setLanguages(spoken: string, caption: string): void {
+    this.translation.configure(spoken, caption);
+    const next = spoken || AUTO_LANGUAGE;
+    if (next === this.spokenLanguage) return;
+    this.spokenLanguage = next;
+    if (this.running && this.socket) void this.reconnectNow();
   }
 
   /**
@@ -199,6 +217,18 @@ export class TranscriptionSession {
     this.state = reduceTranscript(this.state, event);
     this.opts.onEvent?.(event);
     for (const l of this.listeners) l(this.state);
+    this.translation.handle(event);
+  }
+
+  /** Close the socket (keeping its last words) and open a new one with the current options. */
+  private async reconnectNow() {
+    const old = this.socket;
+    this.socket = null; // audio buffers until the new socket opens
+    if (old) await old.closeGracefully(2000);
+    this.assembler.flush();
+    if (!this.running || this.socket) return;
+    this.attempts = 0;
+    await this.connect();
   }
 
   private setStatus(status: TranscriptionStatus, error: string | null = null) {
@@ -250,7 +280,7 @@ export class TranscriptionSession {
     if (!this.running) return;
 
     this.connOffset = null;
-    const url = buildListenUrl(this.opts.deepgram, this.opts.listenBaseUrl);
+    const url = buildListenUrl({ ...this.opts.deepgram, language: this.spokenLanguage }, this.opts.listenBaseUrl);
     const socket = new DeepgramSocket(credential, url, {
       onOpen: () => {
         if (this.socket !== socket) return;

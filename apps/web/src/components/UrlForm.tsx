@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useId, useState, type FormEvent } from "react";
+import { useT } from "@/i18n/I18nProvider";
 import { resolveVideo, watchHref } from "@/lib/providers";
 
 export interface UrlFormProps {
@@ -13,6 +14,7 @@ export interface UrlFormProps {
 /** Paste a link → /watch. Validates locally so mistakes are explained before navigating. */
 export function UrlForm({ initialValue = "", size = "hero", autoFocus = false }: UrlFormProps) {
   const router = useRouter();
+  const t = useT("home").form;
   const [value, setValue] = useState(initialValue);
   const [error, setError] = useState<string | null>(null);
   const id = useId();
@@ -21,7 +23,7 @@ export function UrlForm({ initialValue = "", size = "hero", autoFocus = false }:
   const go = (raw: string) => {
     const result = resolveVideo(raw);
     if (!result.ok) {
-      setError(result.message);
+      setError(localizeError(result.message, t.errors));
       return;
     }
     setError(null);
@@ -36,7 +38,7 @@ export function UrlForm({ initialValue = "", size = "hero", autoFocus = false }:
   return (
     <form onSubmit={onSubmit} className="w-full" noValidate>
       <label htmlFor={id} className="sr-only">
-        Video link
+        {t.label}
       </label>
       <div
         className={`flex w-full items-center gap-2 rounded-2xl bg-ink-850 ring-1 transition-shadow focus-within:ring-2 focus-within:ring-accent ${
@@ -75,7 +77,7 @@ export function UrlForm({ initialValue = "", size = "hero", autoFocus = false }:
               go(pasted);
             }
           }}
-          placeholder={hero ? "Paste a YouTube link" : "Paste another video link"}
+          placeholder={hero ? t.placeholder : t.placeholderCompact}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${id}-error` : undefined}
           className={`min-w-0 flex-1 bg-transparent text-ink-100 placeholder:text-ink-500 focus:outline-none ${
@@ -90,11 +92,11 @@ export function UrlForm({ initialValue = "", size = "hero", autoFocus = false }:
         >
           {hero ? (
             <>
-              <span className="sm:hidden">Watch</span>
-              <span className="hidden sm:inline">Watch with captions</span>
+              <span className="sm:hidden">{t.watch}</span>
+              <span className="hidden sm:inline">{t.watchWithCaptions}</span>
             </>
           ) : (
-            "Open"
+            t.open
           )}
         </button>
       </div>
@@ -105,4 +107,12 @@ export function UrlForm({ initialValue = "", size = "hero", autoFocus = false }:
       )}
     </form>
   );
+}
+
+/** resolveVideo's messages are English; swap the known ones for the current language's words. */
+function localizeError(message: string, errors: { notALink: string; unknown: string; channel: string }): string {
+  if (message.startsWith("Paste a full video link")) return errors.notALink;
+  if (message.startsWith("Heard doesn't recognize")) return errors.unknown;
+  if (message.startsWith("Channel links")) return errors.channel;
+  return message;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/I18nProvider";
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { DURATION, SCRIPT, formatTime, useHeroDemo } from "./state";
 
@@ -15,6 +16,7 @@ function prefersReducedMotion(): boolean {
 /** The player: the video with Heard's live caption overlay. */
 export function VideoFrame() {
   const { time, playing, captionsOn, showCaptions, current, togglePlaying, seek } = useHeroDemo();
+  const t = useT("demo");
 
   // Live caption: the current line, revealed a few words at a time.
   const line = current !== null && captionsOn && showCaptions ? SCRIPT[current] : undefined;
@@ -96,7 +98,7 @@ export function VideoFrame() {
       <button
         type="button"
         onClick={onToggle}
-        aria-label={playing ? "Pause video" : "Play video"}
+        aria-label={playing ? t.video.pause : t.video.play}
         className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
       >
         <span
@@ -117,13 +119,13 @@ export function VideoFrame() {
       </button>
 
       {captionsOn ? (
-        <span className="pointer-events-none absolute top-3 right-3 inline-flex xl:right-auto xl:left-12 items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-live backdrop-blur">
+        <span className="pointer-events-none absolute top-3 right-3 inline-flex xl:right-auto xl:left-12 items-center gap-1.5 whitespace-nowrap rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-live backdrop-blur">
           <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-live" />
-          Live captions
+          {t.video.liveCaptions}
         </span>
       ) : (
-        <span className="pointer-events-none absolute top-3 right-3 inline-flex xl:right-auto xl:left-12 items-center rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-ink-400 backdrop-blur">
-          Captions off
+        <span className="pointer-events-none absolute top-3 right-3 inline-flex xl:right-auto xl:left-12 items-center whitespace-nowrap rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-ink-400 backdrop-blur">
+          {t.video.captionsOff}
         </span>
       )}
 
@@ -153,11 +155,11 @@ export function VideoFrame() {
         ref={barRef}
         role="slider"
         tabIndex={0}
-        aria-label="Seek"
+        aria-label={t.video.seek}
         aria-valuemin={0}
         aria-valuemax={DURATION}
         aria-valuenow={Math.floor(time)}
-        aria-valuetext={`${formatTime(time)} of ${formatTime(DURATION)}`}
+        aria-valuetext={t.video.seekValue(formatTime(time), formatTime(DURATION))}
         onPointerDown={onBarDown}
         onPointerMove={onBarMove}
         onPointerLeave={() => setHoverX(null)}

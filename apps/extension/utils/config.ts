@@ -38,6 +38,8 @@ export interface OverlayLayout {
   y: number;
   /** Box width in CSS px. */
   width: number;
+  /** The user placed the box themselves; otherwise it sits on the page's main video. */
+  manual?: boolean;
 }
 
 /** Normalize a user-entered server URL; returns null when it's not an http(s) origin. */

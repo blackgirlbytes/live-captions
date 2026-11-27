@@ -24,6 +24,8 @@ export interface TranscriptLine {
   mediaEnd: number | null;
   /** Wall-clock ms when the line was committed. */
   createdAt: number;
+  /** Language Deepgram reported for most of the line's words (auto-detect only). */
+  language?: string;
 }
 
 /** What should be on screen as a caption right now. */
@@ -34,6 +36,28 @@ export interface CaptionState {
   hasInterim: boolean;
   /** Wall-clock ms of the last change; renderers use it to fade stale captions. */
   updatedAt: number;
+  /** Language Deepgram reported for the caption text (auto-detect only). */
+  language?: string;
+}
+
+/** Why a caption couldn't be translated right now. */
+export interface TranslationIssue {
+  /** Translator language codes. */
+  source: string;
+  target: string;
+  /** `download`: the language pair needs a one-time download, which only a click can start. */
+  kind: "download" | "unsupported" | "no-api";
+}
+
+/** Translated captions, kept beside the original transcript. */
+export interface TranslationState {
+  /** Caption language, or null when captions stay in the spoken language. */
+  target: string | null;
+  /** Translated text by transcript line id. */
+  lines: Record<string, string>;
+  /** Translation of the current caption (may lag the caption by a moment). */
+  caption: string | null;
+  issue: TranslationIssue | null;
 }
 
 export interface TranscriptState {
@@ -43,6 +67,7 @@ export interface TranscriptState {
   caption: CaptionState;
   /** Wall-clock ms when the current session started, null when never started. */
   startedAt: number | null;
+  translation: TranslationState;
 }
 
 /** Incremental events — cheap to send across process boundaries (e.g. extension messaging). */
@@ -51,7 +76,11 @@ export type TranscriptEvent =
   | { type: "line"; line: TranscriptLine }
   | { type: "caption"; caption: CaptionState }
   | { type: "reset"; startedAt: number | null }
-  | { type: "snapshot"; state: TranscriptState };
+  | { type: "snapshot"; state: TranscriptState }
+  /** Translation target changed (clears earlier translations) or a translation problem changed. */
+  | { type: "translation-config"; target: string | null; issue: TranslationIssue | null }
+  | { type: "line-translated"; target: string; id: string; text: string }
+  | { type: "caption-translated"; target: string; text: string };
 
 export type CaptionFont = "sans" | "serif" | "mono";
 export type CaptionPosition = "overlay" | "below";
@@ -69,6 +98,10 @@ export interface CaptionSettings {
   position: CaptionPosition;
   /** Max visible caption lines. */
   maxLines: number;
+  /** Deepgram language code for what's spoken, or "multi" to detect it (and follow switches). */
+  spokenLanguage: string;
+  /** Show captions in this language (Chrome's on-device translator); "" keeps the spoken language. */
+  captionLanguage: string;
 }
 
 export interface DeepgramStreamOptions {

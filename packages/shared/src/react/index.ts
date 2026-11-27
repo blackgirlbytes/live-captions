@@ -5,3 +5,5 @@ export * from "./TranscriptToolbar";
 export * from "./CaptionSettingsForm";
 export * from "./StatusBadge";
 export * from "./useTranscriptionSession";
+export * from "./LanguageSettings";
+export * from "./labels";

@@ -9,7 +9,7 @@
 import { browser, type Browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
 import { initialTranscriptState, type TranscriptEvent } from "@heard/shared";
-import { getServerUrl, getUserKey, probeServer, restrictedReason, tokenEndpoint } from "@/utils/config";
+import { getCaptionSettings, getServerUrl, getUserKey, probeServer, restrictedReason, STORAGE_KEYS, tokenEndpoint } from "@/utils/config";
 import {
   errorMessage,
   isCapturing,
@@ -21,6 +21,7 @@ import {
   type CommandResult,
   type CredentialSource,
   type OverlayHello,
+  type SessionLanguages,
   type SessionSnapshot,
 } from "@/utils/messages";
 
@@ -173,6 +174,7 @@ export default defineBackground(() => {
         tabId,
         tabTitle: tab.title ?? null,
         credential: cred.credential,
+        languages: await currentLanguages(),
       });
       if (!res?.ok) {
         await closeOffscreen();
@@ -218,6 +220,11 @@ export default defineBackground(() => {
     }
   }
 
+  async function currentLanguages(): Promise<SessionLanguages> {
+    const s = await getCaptionSettings();
+    return { spoken: s.spokenLanguage, caption: s.captionLanguage };
+  }
+
   async function overlayHello(tabId: number | undefined): Promise<OverlayHello> {
     const snap = await getSnapshot();
     const captured = tabId !== undefined && snap.tabId === tabId && isCapturing(snap.transcript.status);
@@ -226,6 +233,7 @@ export default defineBackground(() => {
       hidden: snap.overlayHidden,
       status: snap.transcript.status,
       caption: captured ? snap.transcript.caption : null,
+      captionTranslation: captured && snap.transcript.translation?.target ? snap.transcript.translation.caption : null,
     };
   }
 
@@ -239,7 +247,13 @@ export default defineBackground(() => {
       if (!live) sendToOverlay(tabId, { to: "overlay", type: "teardown" }).catch(() => undefined);
     }
     // The overlay only renders the caption + status; transcript lines stay in the panels.
-    if (event.type === "caption" || event.type === "status" || event.type === "reset") {
+    if (
+      event.type === "caption" ||
+      event.type === "status" ||
+      event.type === "reset" ||
+      event.type === "caption-translated" ||
+      event.type === "translation-config"
+    ) {
       sendToOverlay(tabId, { to: "overlay", type: "event", event }).catch(() => undefined);
     }
   }
@@ -280,6 +294,15 @@ export default defineBackground(() => {
       case "overlay-hello":
         return reply("overlay-hello", overlayHello(sender.tab?.id));
     }
+  });
+
+  // Language changes in the side panel apply to the running session.
+  browser.storage.onChanged.addListener((changes, area) => {
+    if (area !== "local" || !(STORAGE_KEYS.captionSettings in changes)) return;
+    void (async () => {
+      if (!(await hasOffscreen())) return;
+      await sendToOffscreen({ to: "offscreen", type: "set-languages", languages: await currentLanguages() }).catch(() => undefined);
+    })();
   });
 
   browser.tabs.onRemoved.addListener((tabId) => {
