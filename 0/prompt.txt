@@ -1,0 +1,17 @@
+do these changes apply to the extension too
+
+---
+
+/frontend-design the position for the caption settings is way too low..it places it at the bottom..and its like u wouldnt even notice unless u scroll. we may need it somewhere else..like overlaying the video or some kind of sidebar..something
+
+---
+
+you know what maybe the section that , make bigger, settings etc..should be above the video..what you think?? like maybe that bottom bar should be above the video while keeping the captions at the bottom
+
+---
+
+let me see what it looks like
+
+---
+
+yeah i like it commit and push everything
