@@ -2,6 +2,8 @@
 
 **Live:** https://live-captions-zeta.vercel.app (bring your own free Deepgram key)
 
+**Chrome extension:** [Heard in the Chrome Web Store](https://chromewebstore.google.com/detail/bhjajpmmbgcnjpcdffhjnaidldoideia)
+
 Heard is an open-source web video player and Chrome extension. They add real-time captions and an interactive transcript to online video using **Deepgram Nova-3** streaming speech-to-text. They don't depend on the video platform's own captions.
 
 - **Web platform** (`apps/web`, Next.js): paste a YouTube or Twitch video or livestream URL and watch it with live captions, plus a searchable transcript with timestamps you can download and click to jump in the video.
@@ -89,6 +91,8 @@ Open http://localhost:3100, paste a YouTube link, press **Start captions**. In C
 **Vercel:** create a project with **Root Directory** `apps/web` (framework Next.js, Node 22) and no environment variables, then deploy from the repo root with `vercel deploy --prod`. The repo's `.vercelignore` keeps local `.env` files from being uploaded, so a key in `apps/web/.env.local` can't leak into a deployment. Afterwards, `GET /api/deepgram/token` on the live site should return `{"serverKey":false}`.
 
 ### Build and load the Chrome extension
+
+To use the extension, install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/bhjajpmmbgcnjpcdffhjnaidldoideia). Build it yourself to work on the code or try unreleased changes.
 
 ```bash
 npm run build -w @heard/extension

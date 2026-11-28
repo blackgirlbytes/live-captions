@@ -6,6 +6,7 @@ import { LanguagePicker } from "@/components/LanguagePicker";
 import { Logo } from "@/components/Logo";
 import { useT } from "@/i18n/I18nProvider";
 import { UrlForm, localizeResolveError } from "@/components/UrlForm";
+import { EXTENSION_STORE_URL } from "@/lib/links";
 import { resolveVideo } from "@/lib/providers";
 
 // The player + transcription session are browser-only (YouTube API, AudioWorklet, getDisplayMedia).
@@ -59,7 +60,7 @@ export function WatchShell({ url }: { url: string }) {
                 >
                   {watchT.playerError.openOn(resolved.problem.platformName)}
                 </a>
-                <a href="/#extension" className="text-sm text-accent underline-offset-2 hover:underline">
+                <a href={EXTENSION_STORE_URL} target="_blank" rel="noreferrer" className="text-sm text-accent underline-offset-2 hover:underline">
                   {watchT.playerError.getExtension}
                 </a>
               </span>

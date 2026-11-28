@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { LogoMark } from "@/components/Logo";
 import { useT } from "@/i18n/I18nProvider";
 import { StepArtPicker, StepArtStart } from "@/components/StepArt";
 import { UrlForm } from "@/components/UrlForm";
+import { EXTENSION_STORE_URL } from "@/lib/links";
 import { watchHref } from "@/lib/providers";
 
 const EXAMPLES: { label: string; detail: "msRachel" | "skyNews"; live: boolean; url: string }[] = [
@@ -14,13 +15,9 @@ const EXAMPLES: { label: string; detail: "msRachel" | "skyNews"; live: boolean; 
   { label: "Sky News", detail: "skyNews", live: true, url: "https://www.youtube.com/watch?v=53SxFKpbKDE" },
 ];
 
-export type HeroTab = "home" | "how" | "privacy" | "extension";
-const TABS: HeroTab[] = ["home", "how", "privacy", "extension"];
-const NAV: { tab: Exclude<HeroTab, "home">; className?: string }[] = [
-  { tab: "how" },
-  { tab: "privacy" },
-  { tab: "extension", className: "xl:hidden" },
-];
+export type HeroTab = "home" | "how" | "privacy";
+const TABS: HeroTab[] = ["home", "how", "privacy"];
+const NAV: Exclude<HeroTab, "home">[] = ["how", "privacy"];
 
 function tabFromHash(): HeroTab {
   const h = window.location.hash.slice(1);
@@ -64,21 +61,30 @@ export function HeroPanel() {
           <nav className="flex items-center gap-5 text-sm sm:gap-6 xl:mr-auto xl:ml-4 2xl:ml-6 2xl:gap-8 2xl:text-base" aria-label={t.nav.sections}>
             {NAV.map((item) => (
               <a
-                key={item.tab}
-                href={`#${item.tab}`}
+                key={item}
+                href={`#${item}`}
                 onClick={(e) => {
                   e.preventDefault();
-                  go(tab === item.tab ? "home" : item.tab);
+                  go(tab === item ? "home" : item);
                 }}
-                aria-current={tab === item.tab ? "page" : undefined}
-                className={`relative rounded-sm py-1 whitespace-nowrap transition-colors focus-visible:outline-offset-[6px] ${
-                  tab === item.tab ? "text-ink-100" : "text-ink-400 hover:text-ink-100"
-                } ${item.tab === "extension" ? "" : "hidden sm:inline"} ${item.className ?? ""}`}
+                aria-current={tab === item ? "page" : undefined}
+                className={`relative hidden rounded-sm py-1 whitespace-nowrap transition-colors focus-visible:outline-offset-[6px] sm:inline ${
+                  tab === item ? "text-ink-100" : "text-ink-400 hover:text-ink-100"
+                }`}
               >
-                {t.nav[item.tab]}
-                {tab === item.tab && <span className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-accent" />}
+                {t.nav[item]}
+                {tab === item && <span className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-accent" />}
               </a>
             ))}
+            {/* On smaller screens the "Get the Chrome extension" pill is hidden, so the nav links to the store. */}
+            <a
+              href={EXTENSION_STORE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-sm py-1 whitespace-nowrap text-ink-400 transition-colors hover:text-ink-100 focus-visible:outline-offset-[6px] xl:hidden"
+            >
+              {t.nav.extension}
+            </a>
           </nav>
           <LanguagePicker className="ml-auto xl:ml-0" />
         </header>
@@ -87,17 +93,13 @@ export function HeroPanel() {
           {tab === "home" && <HomeTab />}
           {tab === "how" && <HowTab onTry={() => go("home")} />}
           {tab === "privacy" && <PrivacyTab />}
-          {tab === "extension" && <ExtensionTab />}
         </div>
       </div>
 
       <a
-        href="#extension"
-        onClick={(e) => {
-          e.preventDefault();
-          go(tab === "extension" ? "home" : "extension");
-        }}
-        aria-current={tab === "extension" ? "page" : undefined}
+        href={EXTENSION_STORE_URL}
+        target="_blank"
+        rel="noreferrer"
         className="hero-pop absolute top-9 right-9 z-20 hidden h-11 items-center rounded-full bg-ink-100 px-5 text-sm font-semibold text-ink-950 transition-colors hover:bg-white xl:inline-flex"
         style={{ animationDelay: "500ms" }}
       >
@@ -322,116 +324,6 @@ function PrivacyTab() {
         ]}
       />
     </TabBody>
-  );
-}
-
-type Os = "mac" | "windows" | "linux";
-const OSES: Os[] = ["mac", "windows", "linux"];
-
-/** Best guess at the visitor's system, so the right instructions open first. */
-function detectOs(): Os {
-  const p = `${(navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform ?? ""} ${navigator.platform} ${navigator.userAgent}`.toLowerCase();
-  if (p.includes("win")) return "windows";
-  if (p.includes("linux") || p.includes("x11") || p.includes("cros")) return "linux";
-  return "mac";
-}
-
-function ExtensionTab() {
-  const t = useT("home").extension;
-  const [os, setOs] = useState<Os>("mac");
-  useEffect(() => setOs(detectOs()), []);
-  const folder = os === "windows" ? "apps\\extension\\.output\\chrome-mv3" : "apps/extension/.output/chrome-mv3";
-  const find = { mac: t.findMac, windows: t.findWindows, linux: t.findLinux }[os];
-
-  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
-    if (!step) return;
-    e.preventDefault();
-    const next = OSES[(OSES.indexOf(os) + step + OSES.length) % OSES.length]!;
-    setOs(next);
-    e.currentTarget.querySelector<HTMLButtonElement>(`[data-os="${next}"]`)?.focus();
-  };
-
-  return (
-    <TabBody title={t.title} footer={<span className="text-xs">{t.footer}</span>}>
-      <div role="tablist" aria-label={t.osLabel} onKeyDown={onKey} className="mb-6 inline-flex rounded-full bg-ink-900 p-1 ring-1 ring-ink-800">
-        {OSES.map((o) => (
-          <button
-            key={o}
-            type="button"
-            role="tab"
-            data-os={o}
-            id={`ext-os-${o}`}
-            aria-selected={os === o}
-            aria-controls="ext-os-panel"
-            tabIndex={os === o ? 0 : -1}
-            onClick={() => setOs(o)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-              os === o ? "bg-ink-700 text-ink-100" : "text-ink-400 hover:text-ink-200"
-            }`}
-          >
-            {t.os[o]}
-          </button>
-        ))}
-      </div>
-      <div role="tabpanel" id="ext-os-panel" aria-labelledby={`ext-os-${os}`}>
-        <Points
-          numbered
-          items={[
-            {
-              title: t.getCode,
-              body: <Terminal lines={["git clone https://github.com/blackgirlbytes/live-captions.git", "cd live-captions"]} />,
-            },
-            { title: t.build, body: <Terminal lines={["npm install", "npm run build -w @heard/extension"]} /> },
-            { title: t.devMode, body: <Terminal lines={["chrome://extensions"]} prompt={false} /> },
-            {
-              title: t.loadUnpacked,
-              body: (
-                <>
-                  <Terminal lines={[folder]} prompt={false} />
-                  <p className="mt-2 text-[13px] leading-snug text-ink-500">{find}</p>
-                </>
-              ),
-            },
-          ]}
-        />
-      </div>
-    </TabBody>
-  );
-}
-
-/** A small terminal window holding commands, with a button that copies them all. */
-function Terminal({ lines, prompt = true }: { lines: string[]; prompt?: boolean }) {
-  const t = useT("home").terminal;
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(lines.join("\n"));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      /* clipboard blocked: the text is still selectable */
-    }
-  };
-  return (
-    <div className="relative mt-1.5 rounded-xl bg-[#050507] ring-1 ring-white/[0.08]">
-      <pre className="heard-scroll overflow-x-auto py-2 pr-16 pl-3.5 font-mono text-[12.5px] leading-relaxed text-ink-100">
-        {lines.map((l) => (
-          <div key={l}>
-            {prompt && <span className="text-accent select-none">$ </span>}
-            {l}
-          </div>
-        ))}
-      </pre>
-      <button
-        type="button"
-        onClick={copy}
-        className="absolute top-1.5 right-1.5 rounded-md bg-ink-900 px-2 py-1 text-xs font-medium text-ink-300 ring-1 ring-white/[0.08] transition-colors hover:bg-ink-800 hover:text-ink-100"
-        aria-label={copied ? t.copied : t.copyLabel(lines)}
-      >
-        {copied ? t.copied : t.copy}
-      </button>
-    </div>
   );
 }
 

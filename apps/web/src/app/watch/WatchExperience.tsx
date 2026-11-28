@@ -29,6 +29,7 @@ import { DeepgramKeyDialog } from "@/components/DeepgramKeyDialog";
 import { DeepgramKeySettings } from "@/components/DeepgramKeySettings";
 import { SETTINGS_PANEL_ID, SettingsPanel } from "@/components/SettingsPopover";
 import { StartGuide } from "@/components/StartGuide";
+import { EXTENSION_STORE_URL } from "@/lib/links";
 import { captureTabAudio, detectCaptureSupport } from "@/lib/capture";
 import { createGetToken, keyMode, TOKEN_ENDPOINT_PATH, useServerKeyStatus, useUserDeepgramKey } from "@/lib/deepgram-key";
 import { resolveVideo, type PlayerAdapter, type PlayerError, type PlayerState } from "@/lib/providers";
@@ -617,7 +618,7 @@ function PlayerErrorPanel({ error, canonicalUrl, providerName, siteHost, t }: { 
         {error.embeddingBlocked && (
           <p className="mt-2 text-sm leading-relaxed text-ink-400">
             {t.playerError.extensionNote(siteHost)}{" "}
-            <a href="/#extension" className="text-accent underline-offset-2 hover:underline">
+            <a href={EXTENSION_STORE_URL} target="_blank" rel="noreferrer" className="text-accent underline-offset-2 hover:underline">
               {t.playerError.getExtension}
             </a>
           </p>
