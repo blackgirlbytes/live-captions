@@ -1,0 +1,21 @@
+ok i want to write a guide to show people how to prompt an agent to build an app like this..like the live caption app..i built it primarily through codex and claude code..you can take a look at the entire sessions
+
+---
+
+i didnt tell u start drafting the guide. im just giving u context. ..so you can see the session history if you use entire cli first..right..and then u will see my prompts , tool calls etc..then i wanna talk after wards about what the guide will look like..its like should be tutorial like but i dont want u to work on it just yet
+
+---
+
+the kickoff spec came from chatgpt.com .. im not sure too much yet. i do know this..I want to use the /technical-writing skill to help us build this out. There's a lot of back and forth i did with the agent..i dont want people to have to do so much back and forth..but i do want them to get an accurate version of my prompts..of course..dont make it typo heavy
+
+---
+
+yeah and maybe include why we did this. also this should be subtle promo for deepgram..so we need to have explanations of what those things would do ..why we are using them type of thing
+
+---
+
+so you dont need to invoke the technical writing skill to do a good job at this
+
+---
+
+/technical-writing go for it
