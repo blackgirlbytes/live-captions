@@ -3,7 +3,7 @@
   "checkpoint_id": "01M8HK5EFMQY31YVWW9DYT2Z3B",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 46,
+  "checkpoints_count": 47,
   "files_touched": [
     "apps/extension/entrypoints/overlay.content/Overlay.tsx",
     "apps/extension/entrypoints/overlay.content/style.ts",
@@ -61,18 +61,25 @@
       "compact_transcript": "/2/transcript.jsonl",
       "content_hash": "/2/content_hash.txt",
       "prompt": "/2/prompt.txt"
+    },
+    {
+      "metadata": "/3/metadata.json",
+      "transcript": "/3/full.jsonl",
+      "compact_transcript": "/3/transcript.jsonl",
+      "content_hash": "/3/content_hash.txt",
+      "prompt": "/3/prompt.txt"
     }
   ],
   "redaction": {
-    "replacements": 61,
+    "replacements": 114,
     "layers": {
-      "betterleaks": 0,
+      "betterleaks": 4,
       "connection_string": 0,
       "credential_key": 0,
-      "credential_value": 12,
+      "credential_value": 32,
       "credentialed_uri": 0,
-      "entropy": 4,
-      "key_context": 45,
+      "entropy": 19,
+      "key_context": 61,
       "provider_token": 0,
       "shell_stdin": 0
     }
