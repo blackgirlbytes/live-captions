@@ -1,0 +1,28 @@
+need help with these assets
+please download them to me..they should be already in there just need modification
+
+---
+
+can you just edit it to show different words..something made up
+
+---
+
+which is for Localized screenshots, Global screenshots, Small promo tile, Marquee promo tile (optional)
+
+---
+
+omg lets generate a short 30 second promo video for this
+
+---
+
+<task-notification>
+<task-id>b1in2evzh</task-id>
+<tool-use-id>toolu_01GsoCGPDSYs3xvURSGaYFDj</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/ad81c77a-d3ac-4a43-8ebc-8aa81a818ff1/tasks/b1in2evzh.output</output-file>
+<status>completed</status>
+<summary>Background command "Render all 900 frames and encode the MP4" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+wait the promo video should include the link to download and use it heardlive.online

@@ -3,7 +3,7 @@
   "checkpoint_id": "01M8HK5EFMQY31YVWW9DYT2Z3B",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 47,
+  "checkpoints_count": 53,
   "files_touched": [
     "apps/extension/entrypoints/overlay.content/Overlay.tsx",
     "apps/extension/entrypoints/overlay.content/style.ts",
@@ -38,6 +38,7 @@
     "docs/prompts/kickoff-spec.md",
     "docs/provider-policies.md",
     "docs/store-assets/heard-extension-session-1280x800.png",
+    "docs/store-assets/heard-marquee-1400x560.png",
     "package-lock.json"
   ],
   "sessions": [
@@ -68,18 +69,32 @@
       "compact_transcript": "/3/transcript.jsonl",
       "content_hash": "/3/content_hash.txt",
       "prompt": "/3/prompt.txt"
+    },
+    {
+      "metadata": "/4/metadata.json",
+      "transcript": "/4/full.jsonl",
+      "compact_transcript": "/4/transcript.jsonl",
+      "content_hash": "/4/content_hash.txt",
+      "prompt": "/4/prompt.txt"
     }
   ],
+  "token_usage": {
+    "input_tokens": 106,
+    "cache_creation_tokens": 261109,
+    "cache_read_tokens": 5834521,
+    "output_tokens": 36643,
+    "api_call_count": 49
+  },
   "redaction": {
-    "replacements": 114,
+    "replacements": 377,
     "layers": {
       "betterleaks": 4,
       "connection_string": 0,
       "credential_key": 0,
       "credential_value": 32,
       "credentialed_uri": 0,
-      "entropy": 19,
-      "key_context": 61,
+      "entropy": 213,
+      "key_context": 130,
       "provider_token": 0,
       "shell_stdin": 0
     }
