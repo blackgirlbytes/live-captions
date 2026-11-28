@@ -2,8 +2,8 @@ import type { home as en } from "../en/home";
 
 export const home: typeof en = {
   hero: {
-    title: "Live-Transkription für jeden Stream.",
-    body: "Füge einen YouTube-Livestream ein. Heard transkribiert ihn, während gesprochen wird, mit einem Transkript, das du durchsuchen und herunterladen kannst.",
+    title: "Live-Untertitel und Synchronisation für jeden Stream.",
+    body: "Füge einen Stream für Live-Untertitel ein oder hör ihn mit der Erweiterung synchronisiert.",
     orTry: "Oder probier einen aus",
   },
   examples: {

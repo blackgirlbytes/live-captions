@@ -2,8 +2,8 @@ import type { home as en } from "../en/home";
 
 export const home: typeof en = {
   hero: {
-    title: "Transcrição ao vivo para qualquer transmissão.",
-    body: "Cole uma live do YouTube. O Heard transcreve enquanto as pessoas falam, com uma transcrição que você pode pesquisar e baixar.",
+    title: "Legendas e dublagem ao vivo para qualquer transmissão.",
+    body: "Cole uma transmissão para ver legendas ao vivo, ou ouça dublada com a extensão.",
     orTry: "Ou experimente uma",
   },
   examples: {

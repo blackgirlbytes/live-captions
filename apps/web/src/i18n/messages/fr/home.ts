@@ -2,8 +2,8 @@ import type { home as en } from "../en/home";
 
 export const home: typeof en = {
   hero: {
-    title: "La transcription en direct de tous vos flux.",
-    body: "Collez un direct YouTube. Heard le transcrit au fil de la parole, avec une transcription que vous pouvez rechercher et télécharger.",
+    title: "Sous-titres et doublage en direct pour tous vos flux.",
+    body: "Collez un flux pour le sous-titrer en direct, ou écoutez-le doublé avec l’extension.",
     orTry: "Ou essayez-en un",
   },
   examples: {

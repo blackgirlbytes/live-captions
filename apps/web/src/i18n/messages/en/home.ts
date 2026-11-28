@@ -1,8 +1,8 @@
 /** English words for the "home" area. Other languages copy this exact shape. */
 export const home = {
   hero: {
-    title: "Live transcription for any stream.",
-    body: "Paste a YouTube livestream. Heard transcribes it as people speak, with a transcript you can search and download.",
+    title: "Live captions and dubbing for any stream.",
+    body: "Paste a stream for live captions, or hear it dubbed with the extension.",
     orTry: "Or try one",
   },
   examples: {

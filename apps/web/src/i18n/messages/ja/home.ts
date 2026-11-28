@@ -2,8 +2,8 @@ import type { home as en } from "../en/home";
 
 export const home: typeof en = {
   hero: {
-    title: "どんな配信も、リアルタイムで文字起こし。",
-    body: "YouTube のライブ配信を貼り付けるだけ。Heard が話す声をその場で文字起こしし、検索やダウンロードができるトランスクリプトを作ります。",
+    title: "どんな配信も、リアルタイムで字幕と吹き替え。",
+    body: "配信を貼り付けるとリアルタイムで字幕が付きます。拡張機能なら吹き替えでも聞けます。",
     orTry: "試してみる",
   },
   examples: {
