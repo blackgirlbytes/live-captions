@@ -1,0 +1,15 @@
+Can we explore if we can add support for:
+
+* Twitch
+* Linkedin Live
+* X (Twitter) Live
+* Tiktok Live
+* IG live
+
+---
+
+lets make a plan for the different ways we will support different streaming platforms and put that plan in a mark down file
+
+---
+
+idk the answers to the open questions . you can start working on the plan

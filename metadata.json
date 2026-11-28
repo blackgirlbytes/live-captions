@@ -3,7 +3,7 @@
   "checkpoint_id": "01M8HK5EFMQY31YVWW9DYT2Z3B",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 55,
+  "checkpoints_count": 58,
   "files_touched": [
     "apps/extension/entrypoints/overlay.content/Overlay.tsx",
     "apps/extension/entrypoints/overlay.content/style.ts",
@@ -13,6 +13,8 @@
     "apps/extension/i18n/fr.ts",
     "apps/extension/i18n/ja.ts",
     "apps/extension/i18n/pt.ts",
+    "apps/extension/test/video-geometry.test.ts",
+    "apps/extension/utils/video-geometry.ts",
     "apps/web/package.json",
     "apps/web/src/app/watch/WatchExperience.tsx",
     "apps/web/src/app/watch/WatchShell.tsx",
@@ -30,15 +32,21 @@
     "apps/web/src/i18n/messages/ja/watch.ts",
     "apps/web/src/i18n/messages/pt/home.ts",
     "apps/web/src/i18n/messages/pt/watch.ts",
+    "apps/web/src/lib/providers/extension-only.ts",
     "apps/web/src/lib/providers/index.ts",
+    "apps/web/src/lib/providers/twitch/embed-api.ts",
+    "apps/web/src/lib/providers/twitch/index.ts",
+    "apps/web/src/lib/providers/twitch/parse.ts",
     "apps/web/src/lib/providers/types.ts",
     "apps/web/src/lib/providers/youtube/index.ts",
     "apps/web/src/lib/providers/youtube/parse.ts",
+    "apps/web/test/providers.test.ts",
     "docs/build-heard-by-prompting-an-agent.md",
     "docs/prompts/kickoff-spec.md",
     "docs/provider-policies.md",
     "docs/store-assets/heard-extension-session-1280x800.png",
     "docs/store-assets/heard-marquee-1400x560.png",
+    "docs/streaming-platforms-plan.md",
     "package-lock.json"
   ],
   "sessions": [
@@ -83,6 +91,13 @@
       "compact_transcript": "/5/transcript.jsonl",
       "content_hash": "/5/content_hash.txt",
       "prompt": "/5/prompt.txt"
+    },
+    {
+      "metadata": "/6/metadata.json",
+      "transcript": "/6/full.jsonl",
+      "compact_transcript": "/6/transcript.jsonl",
+      "content_hash": "/6/content_hash.txt",
+      "prompt": "/6/prompt.txt"
     }
   ],
   "token_usage": {
@@ -93,15 +108,15 @@
     "api_call_count": 49
   },
   "redaction": {
-    "replacements": 380,
+    "replacements": 389,
     "layers": {
       "betterleaks": 4,
       "connection_string": 0,
       "credential_key": 0,
       "credential_value": 32,
       "credentialed_uri": 0,
-      "entropy": 213,
-      "key_context": 133,
+      "entropy": 219,
+      "key_context": 136,
       "provider_token": 0,
       "shell_stdin": 0
     }
