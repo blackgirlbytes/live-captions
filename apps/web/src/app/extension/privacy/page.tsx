@@ -49,7 +49,7 @@ export default function ExtensionPrivacyPage() {
 
         <section className="space-y-3">
           <h2 className="font-display text-2xl font-semibold text-ink-100">Limited use</h2>
-          <p>Heard uses data obtained through Chrome APIs only to provide live captions, a transcript, and related controls. Heard does not sell this data, use it for advertising, or give its developer access to your audio or transcript. Heard’s use of information received from Chrome APIs adheres to the Chrome Web Store User Data Policy, including its Limited Use requirements.</p>
+          <p>Heard uses data obtained through Chrome APIs only to provide live captions, a transcript, optional translation and dubbing, and related controls. Heard does not sell this data, use it for advertising, or give its developer access to your audio or transcript. Heard’s use of information received from Chrome APIs adheres to the Chrome Web Store User Data Policy, including its Limited Use requirements.</p>
         </section>
 
         <section className="space-y-3">
