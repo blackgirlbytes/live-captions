@@ -1,0 +1,19 @@
+{
+  "tool_use_id": "toolu_01UFrbChkus5MGmFvnPQLDoS",
+  "agent_id": "a4efbfb1921ac305e",
+  "subagent_type": "web-fetch",
+  "task_description": "Check Twitch embed API",
+  "files": [
+    "README.md",
+    "docs/store-assets/heard-extension-session-1280x800.png"
+  ],
+  "token_usage": {
+    "input_tokens": 4,
+    "cache_creation_tokens": 14181,
+    "cache_read_tokens": 3925,
+    "output_tokens": 2487,
+    "api_call_count": 2
+  },
+  "started_at": "2026-11-28T05:51:45.679809-05:00",
+  "completed_at": "2026-11-28T05:51:45.680405-05:00"
+}
