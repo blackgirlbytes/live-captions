@@ -2,7 +2,7 @@ import type { common as en } from "../en/common";
 
 export const common: typeof en = {
   meta: {
-    title: "Heard: transcrição ao vivo para qualquer transmissão",
+    title: "Heard: legendas e dublagem ao vivo para qualquer transmissão",
     description:
       "Cole uma transmissão ao vivo do YouTube e receba legendas em tempo real e uma transcrição pesquisável e clicável, com Deepgram Nova-3.",
     watchTitle: "Assistir com legendas ao vivo",

@@ -2,7 +2,7 @@ import type { common as en } from "../en/common";
 
 export const common: typeof en = {
   meta: {
-    title: "Heard: Live-Transkription für jeden Stream",
+    title: "Heard: Live-Untertitel und Synchronisation für jeden Stream",
     description:
       "Füge einen YouTube-Livestream ein und erhalte Untertitel in Echtzeit und ein durchsuchbares, anklickbares Transkript, mit Deepgram Nova-3.",
     watchTitle: "Mit Live-Untertiteln ansehen",

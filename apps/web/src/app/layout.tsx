@@ -14,7 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const { common } = await getMessages();
   return {
     metadataBase: new URL(siteUrl),
-    title: { default: common.meta.title, template: "%s · Heard" },
+    // The tab just says "Heard" next to the logo; link previews get the descriptive title.
+    title: { default: "Heard", template: "%s · Heard" },
     description: common.meta.description,
     icons: { icon: "/icon.svg" },
     // The images come from opengraph-image.png and twitter-image.png in this folder.
