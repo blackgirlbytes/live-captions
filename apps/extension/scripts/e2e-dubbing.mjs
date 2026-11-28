@@ -224,7 +224,6 @@ try {
   await sleep(1000);
   check((await translatedLines()) === 0, "captions go back to the saved language (original) when dubbing is off");
 
-  // Language switch while on: queued speech is dropped (state goes through listening again).
   await panel.evaluate(() => chrome.runtime.sendMessage({ to: "background", type: "stop" }));
   await sleep(1500);
   const snap = await panel.evaluate(() => chrome.runtime.sendMessage({ to: "background", type: "get-state" }));

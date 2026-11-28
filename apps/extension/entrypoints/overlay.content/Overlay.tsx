@@ -6,7 +6,6 @@ import { useI18n } from "@/components/useI18n";
 import { getCaptionSettings, STORAGE_KEYS, type OverlayLayout } from "@/utils/config";
 import { EDGE, MIN_WIDTH, pickMainVideo, placeOnVideo, videoFontScale, type Rect } from "@/utils/video-geometry";
 
-/* ------------------------------ tiny store ------------------------------ */
 
 export interface OverlayState {
   status: TranscriptionStatus;
@@ -33,7 +32,6 @@ export function createOverlayStore(initial: OverlayState) {
 }
 export type OverlayStore = ReturnType<typeof createOverlayStore>;
 
-/* ------------------------------ geometry ------------------------------ */
 
 function viewport() {
   return { w: window.innerWidth, h: window.innerHeight };
@@ -63,7 +61,6 @@ function normalizeLayout(v: unknown): OverlayLayout | null {
   return { x: x as number, y: y as number, width: width as number, manual: true };
 }
 
-/* ------------------------------ the page's video ------------------------------ */
 
 interface MainVideo {
   rect: Rect;
@@ -135,7 +132,6 @@ function useMainVideo(): MainVideo | null {
   return video;
 }
 
-/* ------------------------------ component ------------------------------ */
 
 export function Overlay({ store, onDismiss }: { store: OverlayStore; onDismiss: () => void }) {
   const { status, caption, translation, hidden } = useSyncExternalStore(store.subscribe, store.get);

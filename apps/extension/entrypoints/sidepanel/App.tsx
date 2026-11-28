@@ -414,7 +414,6 @@ function KeySection({
     return t.key.usingServer(where);
   })();
   const statusOk = Boolean(masked) || serverStatus === "ready" || serverStatus === "unknown";
-  // The server already works: the own-key form is optional, so keep it folded away.
   const optional = !masked && statusOk;
   const showForm = !optional || expanded;
 

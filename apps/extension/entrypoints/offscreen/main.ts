@@ -45,7 +45,6 @@ let session: TranscriptionSession | null = null;
 let transcript = initialTranscriptState();
 let meta: Pick<SessionSnapshot, "tabId" | "tabTitle" | "overlayHidden"> = { tabId: null, tabTitle: null, overlayHidden: false };
 
-/* ------------------------------ live dubbing ------------------------------ */
 
 let dub: DubOutput | null = null;
 let dubState: DubState = INITIAL_DUB_STATE;

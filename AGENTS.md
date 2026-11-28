@@ -29,7 +29,7 @@ Rules:
 
 | Rule | Enforcement |
 |---|---|
-| Capture-changing commands run in order, so only the captured tab can keep a `LIVE` badge. | `createCommandQueue` in `apps/extension/entrypoints/background.ts`; `apps/extension/test/command-queue.test.ts` |
+| Capture-changing commands and badge writes run in order, so a failed or replaced capture cannot leave a stale `LIVE` badge. | Two `createCommandQueue` instances in `apps/extension/entrypoints/background.ts`; `apps/extension/test/command-queue.test.ts` |
 | A remote token server uses HTTPS. Local loopback servers may use HTTP for development. | `normalizeServerUrl` in `apps/extension/utils/server-url.ts`; `apps/extension/test/server-url.test.ts` |
 | A store package keeps the reviewed permission set and excludes the server-key variable. | `apps/extension/scripts/verify-store-package.mjs`, run by `npm run zip -w @heard/extension` and `.github/workflows/extension-release-check.yml` |
 

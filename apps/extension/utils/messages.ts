@@ -63,7 +63,6 @@ export function isNeedsKey(error: CommandError | null | undefined): boolean {
  */
 export type CredentialSource = { kind: "user-key"; userKey: string } | { kind: "server"; tokenEndpoint: string };
 
-/* ----------------------------- → background ----------------------------- */
 
 export type BackgroundRequest =
   | { to: "background"; type: "start"; tabId: number }
@@ -110,7 +109,6 @@ export interface SessionLanguages {
   caption: string;
 }
 
-/* ----------------------------- → offscreen ----------------------------- */
 
 export type OffscreenRequest =
   | {
@@ -137,14 +135,12 @@ export interface OffscreenResponses {
   "media-state": CommandResult;
 }
 
-/* --------------------------- offscreen → everyone --------------------------- */
 
 export type Broadcast =
   | { to: "broadcast"; type: "transcript-event"; tabId: number | null; event: TranscriptEvent }
   | { to: "broadcast"; type: "meta"; meta: SessionMeta }
   | { to: "broadcast"; type: "dub-state"; dub: DubState };
 
-/* ------------------------- side panel ⇄ offscreen (port) ------------------------- */
 
 export const DUB_PORT = "heard-dub";
 
@@ -162,7 +158,6 @@ export type DubPortEvent =
   /** Everything before this was cleared (seek, new video, new language): drop in-flight phrases. */
   { type: "epoch"; epoch: number };
 
-/* ----------------------- background → overlay (tabs.sendMessage) ----------------------- */
 
 export type OverlayMessage =
   | { to: "overlay"; type: "event"; event: TranscriptEvent }
@@ -172,7 +167,6 @@ export type OverlayMessage =
 
 export type RuntimeMessage = BackgroundRequest | OffscreenRequest | Broadcast;
 
-/* ----------------------------- typed helpers ----------------------------- */
 
 export function sendToBackground<T extends BackgroundRequest>(msg: T): Promise<BackgroundResponses[T["type"]]> {
   return browser.runtime.sendMessage(msg);

@@ -24,7 +24,6 @@ export default function App() {
   const sessionError = here && status === "error" ? snap.transcript.error : null;
   const error = cmd.error ? describeError(t, cmd.error) : sessionError;
   const keyAction = cmd.error ? isNeedsKey(cmd.error) : isKeyError(sessionError);
-  // An Heard web app only exists in server mode; hide the link when nothing is there.
   const showWebLink = !userKey.hasKey && (server.status === "ready" || server.status === "no_server_key" || server.status === "unknown");
 
   const toggle = () => {

@@ -35,7 +35,7 @@ const LIVE_COLOR = "#e5484d";
 
 export default defineBackground(() => {
   const enqueueCaptureCommand = createCommandQueue();
-  /* ------------------------------ offscreen ------------------------------ */
+  const enqueueBadgeUpdate = createCommandQueue();
 
   let creatingOffscreen: Promise<void> | null = null;
 
@@ -79,20 +79,21 @@ export default defineBackground(() => {
     return { tabId: null, tabTitle: null, overlayHidden: false, transcript: initialTranscriptState(), dub: INITIAL_DUB_STATE };
   }
 
-  /* ------------------------------ indicators ------------------------------ */
 
-  async function setLiveBadge(tabId: number, live: boolean) {
-    try {
-      await browser.action.setBadgeText({ tabId, text: live ? "LIVE" : "" });
-      if (live) {
-        await browser.action.setBadgeBackgroundColor({ tabId, color: LIVE_COLOR });
-        await browser.action.setBadgeTextColor?.({ tabId, color: "#ffffff" });
+  function setLiveBadge(tabId: number, live: boolean): Promise<void> {
+    return enqueueBadgeUpdate(async () => {
+      try {
+        await browser.action.setBadgeText({ tabId, text: live ? "LIVE" : "" });
+        if (live) {
+          await browser.action.setBadgeBackgroundColor({ tabId, color: LIVE_COLOR });
+          await browser.action.setBadgeTextColor?.({ tabId, color: "#ffffff" });
+        }
+        const t = await getMessages();
+        await browser.action.setTitle({ tabId, title: live ? t.action.live : t.action.idle });
+      } catch {
+        /* tab is gone */
       }
-      const t = await getMessages();
-      await browser.action.setTitle({ tabId, title: live ? t.action.live : t.action.idle });
-    } catch {
-      /* tab is gone */
-    }
+    });
   }
 
   async function injectOverlay(tabId: number): Promise<boolean> {
@@ -105,7 +106,6 @@ export default defineBackground(() => {
     }
   }
 
-  /* ------------------------------ commands ------------------------------ */
 
   function explainCaptureError(err: unknown): CommandError {
     const msg = errorMessage(err);
@@ -130,6 +130,11 @@ export default defineBackground(() => {
     return { ok: true, credential: { kind: "server", tokenEndpoint: tokenEndpoint(serverUrl) } };
   }
 
+  async function cleanupFailedStart(tabId: number): Promise<void> {
+    await closeOffscreen().catch(() => undefined);
+    await setLiveBadge(tabId, false);
+  }
+
   async function start(tabId: number): Promise<CommandResult> {
     const tab = await browser.tabs.get(tabId).catch(() => null);
     if (!tab) return { ok: false, error: { code: "tab_gone" } };
@@ -152,6 +157,7 @@ export default defineBackground(() => {
 
     try {
       await ensureOffscreen();
+      await setLiveBadge(tabId, true);
       const res = await sendToOffscreen({
         to: "offscreen",
         type: "start",
@@ -162,15 +168,14 @@ export default defineBackground(() => {
         languages: await currentLanguages(),
       });
       if (!res?.ok) {
-        await closeOffscreen();
+        await cleanupFailedStart(tabId);
         return res ?? { ok: false, error: { code: "offscreen_silent" } };
       }
     } catch (err) {
-      await closeOffscreen();
+      await cleanupFailedStart(tabId);
       return { ok: false, error: { code: "start_failed", detail: errorMessage(err) } };
     }
 
-    await setLiveBadge(tabId, true);
     void injectOverlay(tabId);
     return { ok: true };
   }
@@ -222,7 +227,6 @@ export default defineBackground(() => {
     };
   }
 
-  /* ------------------------------ relaying ------------------------------ */
 
   function relay(tabId: number | null, event: TranscriptEvent) {
     if (tabId === null) return;
@@ -243,7 +247,6 @@ export default defineBackground(() => {
     }
   }
 
-  /* ------------------------------ listeners ------------------------------ */
 
   browser.runtime.onMessage.addListener((msg: unknown, sender, sendResponse) => {
     if (!isRuntimeMessage(msg)) return;
