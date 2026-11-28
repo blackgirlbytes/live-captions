@@ -97,11 +97,13 @@ export default defineBackground(() => {
     return enqueueBadgeUpdate(() => writeLiveBadge(tabId, live));
   }
 
-  function refreshLiveBadge(tabId: number): Promise<void> {
+  function refreshLiveBadge(tabId: number): Promise<boolean> {
     return enqueueBadgeUpdate(async () => {
       const snap = await getSnapshot().catch(() => null);
-      if (!snap) return;
-      await writeLiveBadge(tabId, snap.tabId === tabId && isCapturing(snap.transcript.status));
+      if (!snap) return false;
+      const live = snap.tabId === tabId && isCapturing(snap.transcript.status);
+      await writeLiveBadge(tabId, live);
+      return live;
     });
   }
 
@@ -351,8 +353,7 @@ export default defineBackground(() => {
     if (info.status !== "complete") return;
     void getSnapshot().then(async (snap) => {
       if (snap.tabId !== tabId || !isCapturing(snap.transcript.status)) return;
-      await setLiveBadge(tabId, true);
-      if (!snap.overlayHidden) await injectOverlay(tabId);
+      if ((await refreshLiveBadge(tabId)) && !snap.overlayHidden) await injectOverlay(tabId);
     });
   });
 });
