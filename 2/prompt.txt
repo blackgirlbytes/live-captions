@@ -1,0 +1,339 @@
+<pasted_content id="aa0c">
+Heard: Real-Time AI Dubbing
+Overview
+Add real-time AI dubbing to Heard, allowing users to listen to online videos and livestreams in their preferred language using Deepgram's text-to-speech capabilities.
+The feature should work with Heard's existing transcription and translation infrastructure across both the web platform and Chrome extension.
+Prioritize low-latency, continuous translated speech over perfect lip synchronization.
+1. User Experience
+Introduce a new feature called Live Dubbing within Heard's existing interface.
+Users should be able to:
+
+* Enable or disable live dubbing during an active transcription session.
+* Select their preferred audio language.
+* Select from supported Deepgram voices for that language.
+* Adjust the original audio volume independently of dubbed audio.
+* Adjust the dubbed audio volume.
+* Continue viewing original or translated captions while listening to dubbed audio.
+* Switch back to the original audio without restarting transcription.
+
+Dubbing should be disabled by default and require explicit user interaction to activate.
+Enabling or disabling dubbing should not interrupt the video or existing transcription session.
+Reuse Heard's current design system and interface patterns.
+2. Speech-to-Speech Pipeline
+Extend the existing audio processing pipeline:
+
+1. Capture original video or browser tab audio.
+2. Transcribe the audio using Heard's existing Deepgram STT integration.
+3. Translate finalized speech segments using Heard's existing translation implementation.
+4. Send translated text to Deepgram Flux TTS.
+5. Receive synthesized audio through the streaming WebSocket API.
+6. Play synthesized audio in the correct sequence.
+
+Reuse existing transcription and translation sessions. Do not create duplicate speech recognition connections for dubbing.
+Use finalized transcript segments rather than unstable interim results to prevent repeated speech, incomplete sentences, and audible corrections.
+Group short transcript fragments into natural phrases when necessary, without introducing excessive buffering.
+3. Deepgram Integration
+Use Deepgram Flux TTS for multilingual speech synthesis.
+
+* Use the streaming `/v2/speak` WebSocket endpoint.
+* Reuse persistent connections where supported.
+* Stream synthesized audio into the playback queue as it becomes available.
+* Support language-specific voice selection.
+* Only offer languages supported by the complete transcription, translation, and synthesis pipeline.
+* Reuse Heard's existing secure authentication approach where compatible.
+
+Keep the existing speech-to-text implementation unchanged unless changes are required for dubbing.
+Do not introduce another AI provider or translation dependency unnecessarily.
+4. Chrome Extension Audio Routing
+Extend the existing Chrome tab audio capture implementation to support independent audio output channels.
+The captured audio should follow two paths:
+
+* Original audio routed through an adjustable Web Audio API gain node.
+* Original audio sent to the existing transcription pipeline at its normal capture level.
+
+Play synthesized speech through a separate audio output channel with independent volume control.
+When dubbing is enabled:
+
+* Reduce original audio volume to 10% by default.
+* Play translated speech at normal volume.
+* Continue capturing and transcribing the original audio.
+* Allow the user to completely mute the original audio without affecting transcription.
+
+Play synthesized audio from the extension's offscreen document or another isolated extension context to prevent generated speech from being captured and transcribed again.
+Do not play synthesized audio inside the captured webpage.
+When dubbing is disabled, immediately restore the original audio volume and stop synthesized audio playback.
+5. Web Platform Audio Routing
+Implement the same dubbing experience within Heard's standalone video player.
+Continue using the existing YouTube playback and permission-based audio capture implementation.
+Determine whether the original audio can be independently routed and controlled without affecting the captured audio stream.
+Ensure synthesized speech is not included in the captured audio source.
+Do not simply mute the embedded YouTube player if doing so also silences the transcription input.
+If the current browser capture mechanism cannot reliably isolate original and synthesized audio:
+
+* Keep dubbed playback unavailable for that capture configuration.
+* Explain the limitation to the user.
+* Recommend using the Heard Chrome extension.
+
+Do not bypass YouTube's playback protections or browser security restrictions.
+6. Audio Playback and Latency
+Implement a lightweight audio playback queue for synthesized speech.
+The queue should:
+
+* Preserve the original order of translated speech.
+* Prevent overlapping synthesized audio segments.
+* Begin playback as soon as sufficient audio is available.
+* Track the delay between original speech and dubbed playback.
+* Prevent unbounded audio accumulation.
+* Discard stale queued audio when appropriate to remain close to live playback.
+* Clear outdated audio when the viewer seeks or changes videos.
+* Pause synthesized playback when the source video is paused, where playback state is available.
+
+Use natural phrase boundaries to balance translation quality with latency.
+Target an initial end-to-end dubbing delay of approximately 2 to 5 seconds under favorable conditions. Measure actual performance rather than assuming this target is achievable.
+For livestreams, prioritize staying close to the live broadcast over replaying an increasingly outdated audio queue.
+Do not attempt lip synchronization, voice cloning, or background music separation in this release.
+7. Interface Controls
+Add a dubbing section to the existing player controls and Chrome extension side panel.
+Include:
+
+* Live Dubbing toggle
+* Audio language selector
+* Voice selector
+* Original audio volume slider
+* Dubbed audio volume slider
+* Dubbing connection status
+* Estimated playback delay
+
+Use clear status messages:
+
+* Connecting
+* Listening
+* Translating
+* Playing dubbed audio
+* Reconnecting
+* Dubbing unavailable
+
+Keep advanced controls collapsible so users who only want captions are not presented with unnecessary complexity.
+8. Reliability and Privacy
+
+* Never capture or transcribe Heard's synthesized audio.
+* Prevent duplicate synthesized speech.
+* Cancel pending synthesis when dubbing is disabled.
+* Clear stale audio when the target language changes.
+* Handle TTS connection failures gracefully.
+* Restore original audio if dubbing fails.
+* Preserve the existing captioning experience when dubbing is unavailable.
+* Clean up audio queues, connections, and resources when a session ends.
+* Do not store synthesized audio by default.
+* Clearly communicate that dubbing uses additional Deepgram TTS processing and may incur additional usage costs.
+
+9. Implementation Order
+
+1. Inspect Heard's existing codebase and identify reusable transcription, translation, authentication, and audio capture components.
+2. Implement the Deepgram Flux TTS streaming integration.
+3. Implement a shared synthesized audio playback queue.
+4. Add independent original and dubbed audio routing to the Chrome extension.
+5. Connect finalized translated transcript segments to speech synthesis.
+6. Add dubbing controls to the Chrome extension.
+7. Validate latency, audio isolation, playback ordering, and session cleanup.
+8. Extend dubbing to the standalone web platform where browser capture capabilities permit.
+9. Add automated tests and update project documentation.
+
+Do not rewrite existing functionality or introduce unnecessary architectural changes.
+10. Acceptance Criteria
+The feature is complete when:
+
+* A user can activate Heard while watching an English YouTube livestream and hear synthesized speech in Spanish.
+* Original audio continues to be transcribed even when its output volume is set to zero.
+* Users can independently adjust original and dubbed audio volume.
+* Dubbed speech plays in the correct order without overlapping or repeating.
+* Synthesized speech does not create a transcription feedback loop.
+* Captions and transcripts continue functioning during dubbing.
+* Disabling dubbing immediately restores normal audio playback.
+* Changing languages clears outdated synthesized audio.
+* Connection failures do not leave the user without original audio.
+* The Chrome extension supports both livestreams and prerecorded videos.
+* The web platform supports dubbing wherever audio isolation can be reliably achieved.
+
+The result should feel like having a personal live interpreter for anything the user watches.
+</pasted_content id="aa0c">
+
+---
+
+if my computer is on mute can it still dub
+
+---
+
+this overlays and makes u have to scroll within the sidebar. i dont like this black space
+
+---
+
+do u think the Live dubbing section should bbe in settings or no
+
+---
+
+its not in settings right now
+
+---
+
+its also at the top outside of settings
+
+---
+
+i dont like that. keep the live dubbing and toggle under settings only
+
+---
+
+move it to before Interface language
+
+---
+
+why do we have an option for orig audio volume
+
+---
+
+why would anyone want bith
+
+---
+
+i think default at 10% dont make it customizable..same for dub
+
+---
+
+am i making a bad choice with this
+
+---
+
+why show the live dub option at all on the web platform..
+
+---
+
+yeah just remove it from the web settings
+
+---
+
+does the dub have to be so far behind. whats the reasoning
+
+---
+
+lets do number 2. im not sure about number 1
+
+---
+
+questions i had. is it possible to make the dubbed voices sing..if the original audio is singing
+
+---
+
+what tools would do singing..i dont necessarily want to change it though
+
+---
+
+what about eleven mussic
+
+---
+
+is it possible to have it identify multiple speakers from the original audio and dub different voices per speaker
+
+---
+
+who tags the speakers..is it just automatic with deepgram..and yeah lets get the pitch from the original audio..whats the problem if it's extra work..is it something im not thinking about
+
+---
+
+If we do this, is there a point in having a choice to choose which voices you hear? You know what I mean? Like right now, we have the drop down picker to see the different voices or choose the different voices. But if we're matching pitch, do we still need that? Do we want to give people both? Like, what do we do? Oop.
+
+---
+
+ok lets do it
+
+---
+
+the captions dont match though..hmmm..im not sure whats the ux or behavior for this but basically when you use the dub..i assume u want to translation of transcript and captions or maybe im wrong
+
+---
+
+what about transcripts
+
+---
+
+ok lets do it
+
+---
+
+i feel like the promo video we made should show this new functionality too
+
+---
+
+you can always use entire to find those sessions ..but it's in the heard-store-assets directory
+
+---
+
+<task-notification>
+<task-id>b31ullnu0</task-id>
+<tool-use-id>toolu_01JmUdb95toV1F1VwtJ1BA9y</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/63909996-aa3e-4642-8b24-c20e104ad105/tasks/b31ullnu0.output</output-file>
+<status>completed</status>
+<summary>Background command "Render the 36-second promo video" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+you can add audio. you can start it off english talking and then add spanish dubbed voice with captions..copy the experience. what tagline would you add with dubbing
+
+---
+
+<task-notification>
+<task-id>bn13l4a4c</task-id>
+<tool-use-id>toolu_0158Cvc7Z1fgZg6VGj5wqaf4</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/63909996-aa3e-4642-8b24-c20e104ad105/tasks/bn13l4a4c.output</output-file>
+<status>completed</status>
+<summary>Background command "Render the 38 s video and add the audio" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+i didnt hear any audio from it
+
+---
+
+tag line: live ai captions and dubbing for any stream
+
+---
+
+<task-notification>
+<task-id>bgk9iclq1</task-id>
+<tool-use-id>toolu_014vnr3a5Zsx17iz68HXsupi</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/63909996-aa3e-4642-8b24-c20e104ad105/tasks/bgk9iclq1.output</output-file>
+<status>completed</status>
+<summary>Background command "Re-render the video and add the louder audio" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+did you do it..open it cuz i dont see the update
+
+---
+
+live ai captions and dubbing for any stream ..why do u have a different line
+
+---
+
+should we have an instrumental
+
+---
+
+<task-notification>
+<task-id>bwcx73whk</task-id>
+<tool-use-id>toolu_019tkoFMujSWM9xq3PSeEBJz</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-rizelscarlett-Documents-agent-experiments-voice-experiments-live-captions/63909996-aa3e-4642-8b24-c20e104ad105/tasks/bwcx73whk.output</output-file>
+<status>completed</status>
+<summary>Background command "Re-render with the intro tagline and reopen in QuickTime" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+Make a placeholder
+
+---
+
+commit and push all these changes we made
