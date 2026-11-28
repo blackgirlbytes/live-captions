@@ -7,12 +7,28 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const bricolage = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-bricolage", display: "swap" });
 
+// Social sites need absolute image URLs. Set NEXT_PUBLIC_SITE_URL for another domain.
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://live-captions-zeta.vercel.app";
+
 export async function generateMetadata(): Promise<Metadata> {
   const { common } = await getMessages();
   return {
+    metadataBase: new URL(siteUrl),
     title: { default: common.meta.title, template: "%s · Heard" },
     description: common.meta.description,
     icons: { icon: "/icon.svg" },
+    // The images come from opengraph-image.png and twitter-image.png in this folder.
+    openGraph: {
+      type: "website",
+      siteName: "Heard",
+      title: common.meta.title,
+      description: common.meta.description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: common.meta.title,
+      description: common.meta.description,
+    },
   };
 }
 
