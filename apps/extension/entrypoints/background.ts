@@ -79,20 +79,29 @@ export default defineBackground(() => {
     return { tabId: null, tabTitle: null, overlayHidden: false, transcript: initialTranscriptState(), dub: INITIAL_DUB_STATE };
   }
 
+  async function writeLiveBadge(tabId: number, live: boolean): Promise<void> {
+    try {
+      await browser.action.setBadgeText({ tabId, text: live ? "LIVE" : "" });
+      if (live) {
+        await browser.action.setBadgeBackgroundColor({ tabId, color: LIVE_COLOR });
+        await browser.action.setBadgeTextColor?.({ tabId, color: "#ffffff" });
+      }
+      const t = await getMessages();
+      await browser.action.setTitle({ tabId, title: live ? t.action.live : t.action.idle });
+    } catch {
+      /* tab is gone */
+    }
+  }
 
   function setLiveBadge(tabId: number, live: boolean): Promise<void> {
+    return enqueueBadgeUpdate(() => writeLiveBadge(tabId, live));
+  }
+
+  function refreshLiveBadge(tabId: number): Promise<void> {
     return enqueueBadgeUpdate(async () => {
-      try {
-        await browser.action.setBadgeText({ tabId, text: live ? "LIVE" : "" });
-        if (live) {
-          await browser.action.setBadgeBackgroundColor({ tabId, color: LIVE_COLOR });
-          await browser.action.setBadgeTextColor?.({ tabId, color: "#ffffff" });
-        }
-        const t = await getMessages();
-        await browser.action.setTitle({ tabId, title: live ? t.action.live : t.action.idle });
-      } catch {
-        /* tab is gone */
-      }
+      const snap = await getSnapshot().catch(() => null);
+      if (!snap) return;
+      await writeLiveBadge(tabId, snap.tabId === tabId && isCapturing(snap.transcript.status));
     });
   }
 
@@ -317,7 +326,7 @@ export default defineBackground(() => {
   // A new interface language retitles the toolbar icon of a running capture.
   onUiLanguageChange(() => {
     void getSnapshot().then((snap) => {
-      if (snap.tabId !== null && isCapturing(snap.transcript.status)) void setLiveBadge(snap.tabId, true);
+      if (snap.tabId !== null && isCapturing(snap.transcript.status)) void refreshLiveBadge(snap.tabId);
     });
   });
 
