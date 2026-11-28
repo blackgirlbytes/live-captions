@@ -8,6 +8,9 @@ export interface CaptionSettingsFormProps {
   onChange: (next: CaptionSettings) => void;
   /** Show the overlay/below placement option (web player only). */
   showPosition?: boolean;
+  /** Caption language in effect instead of the saved one (see LanguageSettings). */
+  captionOverride?: string | null;
+  onCaptionLanguagePick?: (language: string) => void;
   className?: string;
   /** UI words; English by default. `labels.language` goes to the language section. */
   labels?: Partial<CaptionSettingsLabels>;
@@ -21,7 +24,7 @@ const BACKGROUNDS: Array<{ key: "solid" | "translucent" | "none"; color: string;
 const TEXT_COLORS = ["#ffffff", "#ffe27a", "#9ef0c4", "#a9d4ff"];
 
 /** Caption appearance controls shared by the web player and the extension side panel. */
-export function CaptionSettingsForm({ settings, onChange, showPosition = false, className = "", labels }: CaptionSettingsFormProps) {
+export function CaptionSettingsForm({ settings, onChange, showPosition = false, captionOverride = null, onCaptionLanguagePick, className = "", labels }: CaptionSettingsFormProps) {
   const L = { ...DEFAULT_CAPTION_SETTINGS_LABELS, ...labels };
   const set = <K extends keyof CaptionSettings>(key: K, value: CaptionSettings[K]) => onChange({ ...settings, [key]: value });
   const seg = (on: boolean) =>
@@ -42,7 +45,7 @@ export function CaptionSettingsForm({ settings, onChange, showPosition = false, 
         </button>
       </label>
 
-      <LanguageSettings settings={settings} onChange={onChange} labels={L.language} />
+      <LanguageSettings settings={settings} onChange={onChange} captionOverride={captionOverride} onCaptionLanguagePick={onCaptionLanguagePick} labels={L.language} />
 
       <fieldset className="space-y-2">
         <legend className="mb-2 text-xs font-semibold tracking-wide text-ink-300 uppercase">{L.textSize}</legend>

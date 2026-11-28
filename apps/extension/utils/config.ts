@@ -14,6 +14,8 @@ export const STORAGE_KEYS = {
   overlayLayout: "overlayLayout",
   /** The user's own Deepgram API key ("bring your own key"). Only ever sent to Deepgram. */
   deepgramKey: "deepgramKey",
+  /** Live dubbing language and voice (never whether it's on: that's off by default). */
+  dubSettings: "dubSettings",
   /** Interface language ("en", "es", …); missing means "follow Chrome". */
   uiLanguage: "uiLanguage",
 } as const;

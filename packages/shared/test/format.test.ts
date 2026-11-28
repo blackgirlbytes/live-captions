@@ -41,6 +41,11 @@ describe("settings", () => {
 });
 
 describe("buildListenUrl", () => {
+  it("asks for speaker labels only when wanted", () => {
+    expect(new URL(buildListenUrl()).searchParams.get("diarize")).toBeNull();
+    expect(new URL(buildListenUrl({ diarize: true })).searchParams.get("diarize")).toBe("true");
+  });
+
   it("targets nova-3 linear16 16k with interim results", () => {
     const u = new URL(buildListenUrl({ keyterms: ["Deepgram", " "] }));
     expect(u.origin + u.pathname).toBe("wss://api.deepgram.com/v1/listen");

@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { browser, type Browser } from "wxt/browser";
 import {
+  INITIAL_DUB_STATE,
   initialTranscriptState,
   reduceTranscript,
   TranslationEngine,
@@ -26,7 +27,7 @@ import {
   type SessionSnapshot,
 } from "@/utils/messages";
 
-const EMPTY: SessionSnapshot = { tabId: null, tabTitle: null, overlayHidden: false, transcript: initialTranscriptState() };
+const EMPTY: SessionSnapshot = { tabId: null, tabTitle: null, overlayHidden: false, transcript: initialTranscriptState(), dub: INITIAL_DUB_STATE };
 
 /**
  * Session snapshot from the offscreen document (via the background), kept current by
@@ -35,10 +36,20 @@ const EMPTY: SessionSnapshot = { tabId: null, tabTitle: null, overlayHidden: fal
  * With `translate`, this page also translates the transcript into the chosen caption
  * language and sends caption translations on to the overlay. That happens here rather than
  * in the offscreen document because Chrome's built-in translator refuses to run there.
+ *
+ * `setCaptionOverride` translates into another language than the saved one until it's
+ * cleared (captions follow live dubbing's language while dubbing is on).
  */
 export function useSession({ translate = false }: { translate?: boolean } = {}) {
   const [snap, setSnap] = useState<SessionSnapshot>(EMPTY);
   const [loaded, setLoaded] = useState(false);
+  const overrideRef = useRef<string | null>(null);
+  const configureRef = useRef<() => void>(() => undefined);
+  const setCaptionOverride = useCallback((language: string | null) => {
+    if (overrideRef.current === language) return;
+    overrideRef.current = language;
+    configureRef.current();
+  }, []);
 
   useEffect(() => {
     let ready = false;
@@ -56,7 +67,8 @@ export function useSession({ translate = false }: { translate?: boolean } = {}) 
         })
       : null;
     const configure = () =>
-      void getCaptionSettings().then((s) => engine?.configure(s.spokenLanguage, s.captionLanguage));
+      void getCaptionSettings().then((s) => alive && engine?.configure(s.spokenLanguage, overrideRef.current ?? s.captionLanguage));
+    configureRef.current = configure;
     const onSettings = (changes: Record<string, unknown>, area: string) => {
       if (area === "local" && STORAGE_KEYS.captionSettings in changes) configure();
     };
@@ -73,6 +85,8 @@ export function useSession({ translate = false }: { translate?: boolean } = {}) 
         engine?.handle(event);
       } else if (msg.type === "meta") {
         apply((s) => ({ ...s, ...msg.meta }));
+      } else if (msg.type === "dub-state") {
+        apply((s) => ({ ...s, dub: msg.dub }));
       }
     };
     browser.runtime.onMessage.addListener(onMessage);
@@ -97,7 +111,7 @@ export function useSession({ translate = false }: { translate?: boolean } = {}) 
     };
   }, [translate]);
 
-  return { snap, loaded, capturing: isCapturing(snap.transcript.status) };
+  return { snap, loaded, capturing: isCapturing(snap.transcript.status), setCaptionOverride };
 }
 
 /** The active tab of this window; refreshed when the user switches or navigates tabs. */

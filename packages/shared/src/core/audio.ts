@@ -74,6 +74,11 @@ export interface PcmCaptureOptions {
 
 export interface PcmCapture {
   readonly sampleRate: number;
+  /**
+   * Level of the audio routed back to the speakers (preservePlayback), 0..1. Only the
+   * speakers change: the transcription tap always gets the full-level signal.
+   */
+  setPlaybackVolume(volume: number): void;
   stop(): Promise<void>;
 }
 
@@ -104,7 +109,13 @@ export async function startPcmCapture(opts: PcmCaptureOptions): Promise<PcmCaptu
   source.connect(node);
   node.connect(sink);
   sink.connect(ctx.destination);
-  if (opts.preservePlayback) source.connect(ctx.destination);
+  // Speakers get their own gain node so the user can turn the original down (e.g. while
+  // dubbing) without the worklet hearing any less.
+  const playback = opts.preservePlayback ? ctx.createGain() : null;
+  if (playback) {
+    source.connect(playback);
+    playback.connect(ctx.destination);
+  }
 
   const onEnded = () => opts.onEnded?.();
   track.addEventListener("ended", onEnded);
@@ -113,6 +124,12 @@ export async function startPcmCapture(opts: PcmCaptureOptions): Promise<PcmCaptu
   let stopped = false;
   return {
     sampleRate: PCM_TARGET_SAMPLE_RATE,
+    setPlaybackVolume(volume: number) {
+      if (!playback) return;
+      const v = Number.isFinite(volume) ? Math.min(1, Math.max(0, volume)) : 1;
+      // A short ramp avoids clicks when ducking.
+      playback.gain.setTargetAtTime(v, ctx.currentTime, 0.03);
+    },
     async stop() {
       if (stopped) return;
       stopped = true;
@@ -122,6 +139,7 @@ export async function startPcmCapture(opts: PcmCaptureOptions): Promise<PcmCaptu
         source.disconnect();
         node.disconnect();
         sink.disconnect();
+        playback?.disconnect();
       } catch {
         /* already disconnected */
       }

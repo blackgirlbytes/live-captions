@@ -7,5 +7,6 @@ export * from "./StatusBadge";
 export * from "./useTranscriptionSession";
 export * from "./Select";
 export * from "./LanguageSettings";
+export * from "./DubbingControls";
 export * from "./labels";
 export * from "./i18n";

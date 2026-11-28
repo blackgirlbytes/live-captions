@@ -143,3 +143,49 @@ describe("line splitting", () => {
     expect(h.state.caption.text.startsWith("And I think")).toBe(true);
   });
 });
+
+describe("TranscriptAssembler speaker labels", () => {
+  const diarized = (start: number, parts: Array<[string, number]>, speechFinal = false): DgResults => {
+    let t = start;
+    const ws = parts.flatMap(([text, speaker]) =>
+      text.split(" ").map((w) => {
+        const word = { word: w.toLowerCase(), punctuated_word: w, start: t, end: t + 0.25, speaker };
+        t += 0.3;
+        return word;
+      }),
+    );
+    return {
+      type: "Results",
+      start,
+      duration: t - start,
+      is_final: true,
+      speech_final: speechFinal,
+      channel: { alternatives: [{ transcript: ws.map((w) => w.punctuated_word).join(" "), words: ws }] },
+    };
+  };
+
+  it("starts a new line when the speaker changes, labelling each line", () => {
+    const h = harness();
+    h.a.newSpeakerSet();
+    h.a.handleResults(diarized(0, [["How are you?", 0], ["Good, thanks.", 1]], true), 0);
+    expect(h.state.lines.map((l) => [l.text, l.speaker])).toEqual([
+      ["How are you?", "1:0"],
+      ["Good, thanks.", "1:1"],
+    ]);
+  });
+
+  it("keeps labels from different connections apart", () => {
+    const h = harness();
+    h.a.newSpeakerSet();
+    h.a.handleResults(diarized(0, [["Hello.", 0]], true), 0);
+    h.a.newSpeakerSet();
+    h.a.handleResults(diarized(0, [["Again.", 0]], true), 5);
+    expect(h.state.lines.map((l) => l.speaker)).toEqual(["1:0", "2:0"]);
+  });
+
+  it("leaves lines unlabelled without speaker labels", () => {
+    const h = harness();
+    h.a.handleResults(res("Hello there.", 0, 1, { final: true, speechFinal: true }), 0);
+    expect(h.state.lines[0]!.speaker).toBeUndefined();
+  });
+});

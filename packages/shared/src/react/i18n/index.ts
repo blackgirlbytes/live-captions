@@ -20,8 +20,10 @@ export function uiLabels(locale: Locale): SharedUiLabels {
   const hit = cache.get(locale);
   if (hit) return hit;
   let names: Intl.DisplayNames | null = null;
+  let regions: Intl.DisplayNames | null = null;
   try {
     names = new Intl.DisplayNames([locale], { type: "language" });
+    regions = new Intl.DisplayNames([locale], { type: "region" });
   } catch {
     /* no Intl.DisplayNames: keep English names */
   }
@@ -32,7 +34,14 @@ export function uiLabels(locale: Locale): SharedUiLabels {
       return englishLanguageName(code);
     }
   };
-  const out = { ...labels, language: { ...labels.language, languageName } };
+  const regionName = (code: string) => {
+    try {
+      return regions?.of(code) ?? code;
+    } catch {
+      return code;
+    }
+  };
+  const out = { ...labels, language: { ...labels.language, languageName }, dubbing: { ...labels.dubbing, regionName } };
   cache.set(locale, out);
   return out;
 }

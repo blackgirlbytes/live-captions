@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { browser } from "wxt/browser";
-import { LOCALES, LOCALE_NAMES, isLocale, looksLikeDeepgramKey, verifyDeepgramKey, type Locale } from "@heard/shared";
+import { LOCALES, LOCALE_NAMES, isLocale, languageName, looksLikeDeepgramKey, verifyDeepgramKey, type Locale } from "@heard/shared";
 import {
   CaptionSettingsForm,
   ChevronDownIcon,
+  DubbingControls,
   PlayIcon,
   Select,
   StatusBadge,
@@ -16,6 +17,7 @@ import {
 import type { ExtensionMessages } from "@/i18n";
 import { useI18n } from "@/components/useI18n";
 import { Wordmark } from "@/components/Logo";
+import { useDubbing } from "@/components/useDubbing";
 import {
   needsKey,
   useActiveTab,
@@ -44,7 +46,7 @@ const DEEPGRAM_CONSOLE_URL = "https://console.deepgram.com/";
 
 export default function App() {
   const tab = useActiveTab();
-  const { snap, capturing } = useSession({ translate: true });
+  const { snap, capturing, setCaptionOverride } = useSession({ translate: true });
   const cmd = useCommands();
   const i18n = useI18n();
   const { t: m, ui } = i18n;
@@ -57,6 +59,17 @@ export default function App() {
   const serverUrl = useServerUrl();
   const server = useServerStatus(serverUrl, userKey.loaded && !userKey.hasKey);
   const missingKey = needsKey(userKey.hasKey, server.status);
+  const [captionSettings] = useCaptionSettings();
+  const dubbing = useDubbing({ snap, capturing, spokenLanguage: captionSettings?.spokenLanguage ?? "multi" });
+  // While dubbing, captions and the transcript are in the language you hear, unless you pick
+  // a caption language while it's on. Turning dubbing off goes back to the saved choice.
+  const [captionsFollowDub, setCaptionsFollowDub] = useState(true);
+  useEffect(() => {
+    if (!dubbing.enabled) setCaptionsFollowDub(true);
+  }, [dubbing.enabled]);
+  const captionOverride = dubbing.enabled && captionsFollowDub ? dubbing.settings.language : null;
+  useEffect(() => setCaptionOverride(captionOverride), [captionOverride, setCaptionOverride]);
+  const langName = ui.language.languageName ?? languageName;
 
   const t = snap.transcript;
   const here = tab?.id !== undefined && snap.tabId === tab.id;
@@ -97,7 +110,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex h-screen flex-col bg-ink-900">
+    <div className="relative flex h-screen flex-col overflow-clip bg-ink-900">
       <header className="flex items-center justify-between border-b border-ink-800 px-4 py-3">
         <Wordmark />
         <StatusBadge status={t.status} labels={ui.status} />
@@ -232,7 +245,21 @@ export default function App() {
             focusSignal={focusKey}
             t={m}
           />
-          <SettingsSection t={m} ui={ui} />
+          <SettingsSection t={m} ui={ui} captionOverride={captionOverride} onCaptionLanguagePicked={() => setCaptionsFollowDub(false)} />
+          <section>
+            <DubbingControls
+              settings={dubbing.settings}
+              onSettingsChange={dubbing.setSettings}
+              enabled={dubbing.enabled}
+              onEnabledChange={dubbing.setDubbing}
+              state={dubbing.state}
+              sessionRunning={capturing}
+              labels={ui.dubbing}
+              languageName={ui.language.languageName}
+              titleClassName="text-base font-semibold text-ink-100"
+              notice={dubbing.issue?.source ? ui.dubbing.translateIssue(ui.language.pair(langName(dubbing.issue.source), langName(dubbing.issue.target))) : null}
+            />
+          </section>
           <InterfaceLanguageSection t={m} setting={i18n.setting} auto={i18n.auto} onChange={i18n.setLanguage} />
           <ServerUrlSection usingUserKey={userKey.hasKey} t={m} />
         </main>
@@ -245,13 +272,31 @@ export default function App() {
   );
 }
 
-function SettingsSection({ t, ui }: { t: ExtensionMessages; ui: SharedUiLabels }) {
+function SettingsSection({
+  t,
+  ui,
+  captionOverride,
+  onCaptionLanguagePicked,
+}: {
+  t: ExtensionMessages;
+  ui: SharedUiLabels;
+  /** Caption language in effect while it follows live dubbing. */
+  captionOverride: string | null;
+  onCaptionLanguagePicked: () => void;
+}) {
   const [settings, setSettings] = useCaptionSettings();
   if (!settings) return null;
   return (
     <section>
       <h2 className="mb-4 text-base font-semibold text-ink-100">{t.style.title}</h2>
-      <CaptionSettingsForm settings={settings} onChange={setSettings} showPosition={false} labels={{ ...ui.settings, language: ui.language }} />
+      <CaptionSettingsForm
+        settings={settings}
+        onChange={setSettings}
+        showPosition={false}
+        captionOverride={captionOverride}
+        onCaptionLanguagePick={() => captionOverride && onCaptionLanguagePicked()}
+        labels={{ ...ui.settings, language: ui.language }}
+      />
       <p className="mt-4 text-sm leading-relaxed text-ink-300">{t.style.note}</p>
     </section>
   );

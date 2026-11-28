@@ -6,6 +6,8 @@ Instructions for AI coding agents (Claude Code, Codex, Cursor, …) working in t
 
 The web server's `DEEPGRAM_API_KEY` pays for **every** caption session that server hands a token to. Its token endpoint (`/api/deepgram/token`) has no sign-in; it is only rate-limited per IP. Visitors never see the key, but they spend its credit.
 
+Live dubbing's speech synthesis (Deepgram Flux TTS) uses that same token, so a server key also pays for every visitor's dubbing (billed per character of translated text). That's on top of their captions.
+
 Rules:
 
 1. **Never set `DEEPGRAM_API_KEY` on a public deployment** (Vercel, Netlify, Fly, a shared server, anything reachable by other people). This applies to env files, hosting dashboards, CI secrets, and deploy scripts. Without it, visitors are asked for their own Deepgram key and pay for their own usage.

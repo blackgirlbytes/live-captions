@@ -144,6 +144,28 @@ async function readyTranslator(source: string, target: string): Promise<ChromeTr
   }
 }
 
+/**
+ * Translate one piece of text with the same cached on-device translators the captions use.
+ * Never downloads a model. Codes may be Deepgram or translator codes.
+ */
+export async function translateText(
+  text: string,
+  source: string,
+  target: string,
+): Promise<{ ok: true; text: string } | { ok: false; issue: TranslationIssue }> {
+  const s = translatorCode(source);
+  const t = translatorCode(target);
+  if (s === t) return { ok: true, text };
+  const translator = await readyTranslator(s, t);
+  if ("kind" in translator) return { ok: false, issue: { source: s, target: t, ...translator } };
+  try {
+    return { ok: true, text: await withTimeout(translator.translate(text), TRANSLATE_TIMEOUT_MS, "translating") };
+  } catch (err) {
+    translators.delete(pairKey(s, t));
+    return { ok: false, issue: { source: s, target: t, kind: "failed", detail: describe(err) } };
+  }
+}
+
 /** How long to wait before asking Chrome again about a pair that wasn't ready. */
 const RECHECK_MS = 3000;
 

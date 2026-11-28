@@ -1,6 +1,6 @@
 # Heard — Chrome extension
 
-Real-time Deepgram Nova-3 captions and a searchable transcript for whatever is playing in a browser tab: YouTube, livestreams, podcasts, lectures, video calls in a tab. Nothing in capture or transcription is site-specific.
+Real-time Deepgram Nova-3 captions and a searchable transcript for whatever is playing in a browser tab: YouTube, Twitch, LinkedIn Live, X Live, TikTok Live, Instagram Live, podcasts, lectures, video calls in a tab. Nothing in capture or transcription is site-specific.
 
 It works **standalone with your own Deepgram API key** (no server at all), or with a Heard server that hands out short-lived tokens.
 
@@ -34,6 +34,10 @@ popup / side panel ──start(tabId)──► background (service worker)
 - **messages** (`utils/messages.ts`): the typed message protocol between all of the above.
 
 The AudioWorklet file `pcm-worklet.js` is generated at build time from `PCM_WORKLET_SOURCE` in `@heard/shared` (a `build:publicAssets` hook in `wxt.config.ts`), so there's a single source.
+
+### Live dubbing
+
+The **Live dubbing** switch in the side panel's Settings tab speaks the transcript in another language. The panel turns final lines into phrases and translates them with Chrome's translator, then sends them over a port (`heard-dub`) to the offscreen document. The offscreen document synthesizes them with Deepgram Flux TTS (`wss://api.deepgram.com/v2/speak`, same credential as the captions) and plays them. Because playback happens there, `tabCapture` never records the dub. The captured audio's playback path has its own gain node, so the original drops to a fixed 10% while dubbing and Deepgram still hears full-level audio. The overlay content script reports the page video's play, pause and seek. Closing the panel turns dubbing off and restores the original. Design, measurements and limits: [docs/live-dubbing.md](../../docs/live-dubbing.md).
 
 ## Build & develop
 
@@ -122,10 +126,35 @@ Run it once in each mode: with your own key and no server, and with no key and t
 - [ ] Turn Wi-Fi off for ~5 s, then back on: the status goes to "Reconnecting" and then returns to "Live", and no audio from the gap is duplicated.
 - [ ] Leave it running for 10+ minutes, including with the side panel and popup closed (the service worker gets suspended). Captions keep coming, and reopening the popup or panel shows the correct state.
 
+**Other streaming platforms**
+
+Nothing in the extension is site-specific, so each of these should work like YouTube. Run the core checks on each: captions start, `LIVE` badge, the box sits on the right video and follows it, the site's own fullscreen keeps the box visible, clicks outside the box still work, in-page navigation to another stream, and Stop clears everything.
+
+- [ ] **Twitch:** a live channel (`twitch.tv/<channel>`) and a past broadcast (`twitch.tv/videos/<id>`). Also theater mode and the pre-roll ad.
+- [ ] **LinkedIn Live:** an event page and a live post in the feed. With several videos in the feed, the box picks the one you're listening to.
+- [ ] **X Live:** `x.com/i/broadcasts/<id>` and a live post in the timeline.
+- [ ] **TikTok Live:** `tiktok.com/@<user>/live`. The 9:16 video gets a box centered on it, raised above the comments, with normal-size text.
+- [ ] **Instagram Live:** `instagram.com/<user>/live` (signed in). Same portrait checks as TikTok.
+- [ ] **Muted autoplay** (X, LinkedIn, Instagram): start captions on a muted video. The box says to unmute; unmuting removes the hint and captions start.
+
 **Edge cases**
 - [ ] On `chrome://extensions` or the Chrome Web Store, the toggle is disabled with an explanation.
 - [ ] Start on tab A, then start on tab B: A stops (badge cleared) and B starts.
 - [ ] With no key and the server URL pointing at a dead server, Start says a Deepgram key is needed and offers **Add your Deepgram key**.
+
+### Live dubbing
+
+- [ ] **Live dubbing** is off and disabled until captions start, and says so.
+- [ ] Turning it on: the original drops to about 10%, the status goes Connecting → Listening → Translating → Playing dubbed audio, and the delay shows.
+- [ ] In a two-person interview, the speakers get different voices, a lower one for the lower-sounding speaker. A voice may be a placeholder for the first phrase, then stays put.
+- [ ] With **Show captions in** set to the spoken language, turning dubbing on switches the captions and transcript to the dub language (originals under each transcript line), and the picker says it follows dubbing. Picking a caption language while dubbing keeps that choice; turning dubbing off restores the saved one.
+- [ ] **Accent** appears only for English, Portuguese, German and Dutch. Changing it switches at the next phrase. The original stays at about 10% and captions keep coming.
+- [ ] Seeking or pausing the video stops the dub straight away and drops queued phrases; playing resumes it.
+- [ ] Changing **Hear it in** drops what was queued and continues in the new language.
+- [ ] Turning it off stops speech immediately and restores the original volume.
+- [ ] Closing the side panel while dubbing restores the original volume.
+- [ ] With a revoked key, dubbing shows "Dubbing unavailable", the original comes back, and captions continue.
+- [ ] Automated: `npm run e2e:dubbing -w @heard/extension` with `E2E_USER_KEY` after a build.
 
 ## Permissions
 

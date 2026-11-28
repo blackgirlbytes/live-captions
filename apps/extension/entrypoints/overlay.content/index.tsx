@@ -14,6 +14,7 @@ import { EMPTY_CAPTION } from "@heard/shared";
 import { isOverlayMessage, sendToBackground } from "@/utils/messages";
 import { Overlay, createOverlayStore } from "./Overlay";
 import { OVERLAY_CSS } from "./style";
+import { watchMainVideo } from "./media";
 
 const GUARD = "__heardOverlayMounted";
 
@@ -69,6 +70,11 @@ export default defineContentScript({
     };
     document.addEventListener("fullscreenchange", onFullscreen);
 
+    // Live dubbing follows the page's video: pause with it, drop old speech after a seek.
+    const stopWatching = watchMainVideo((change) => {
+      void sendToBackground({ to: "background", type: "media-state", ...change }).catch(() => undefined);
+    });
+
     const onMessage = (msg: unknown) => {
       if (!isOverlayMessage(msg)) return;
       const m = msg;
@@ -94,6 +100,7 @@ export default defineContentScript({
 
     function teardown() {
       browser.runtime.onMessage.removeListener(onMessage);
+      stopWatching();
       document.removeEventListener("fullscreenchange", onFullscreen);
       ui.remove();
       w[GUARD] = false;

@@ -18,6 +18,8 @@ export function buildListenUrl(opts: DeepgramStreamOptions = {}, base = DEEPGRAM
     utterance_end_ms: "1000",
     vad_events: "true",
   });
+  // Label each word with a speaker number (live dubbing gives each speaker their own voice).
+  if (opts.diarize) p.set("diarize", "true");
   for (const term of opts.keyterms ?? []) if (term.trim()) p.append("keyterm", term.trim());
   return `${base}?${p.toString()}`;
 }

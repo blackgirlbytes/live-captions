@@ -28,7 +28,8 @@ export default function ExtensionPrivacyPage() {
             <li><strong className="text-ink-100">Tab audio and transcript:</strong> Heard captures audio from the selected tab and shows Deepgram’s text response as captions and transcript lines. Heard does not capture tabs in the background before you start it.</li>
             <li><strong className="text-ink-100">Current tab details:</strong> Heard checks the active tab’s URL to avoid pages Chrome blocks. It shows the tab title in the popup and transcript panel. It does not collect browsing history.</li>
             <li><strong className="text-ink-100">Deepgram API key:</strong> If you add your own key, Heard keeps it in <code>chrome.storage.local</code> in your browser profile. Heard sends it only to Deepgram to verify it and to open the transcription connection. The extension does not send your key to a Heard server or a web page.</li>
-            <li><strong className="text-ink-100">Preferences:</strong> Heard saves caption style, overlay position, interface language, and an optional server URL in <code>chrome.storage.local</code>. Chrome does not sync that storage across your devices.</li>
+            <li><strong className="text-ink-100">Live dubbing (optional, off by default):</strong> When you turn it on, Heard sends translated transcript phrases to Deepgram for speech synthesis and plays the returned audio. It also asks Deepgram to label which speaker said each phrase, and measures how low or high each speaker’s voice is on your device, from the last few seconds of audio, to pick matching voices. Heard does not store that text, audio, or pitch.</li>
+            <li><strong className="text-ink-100">Preferences:</strong> Heard saves caption style, overlay position, interface language, live dubbing language and accent, and an optional server URL in <code>chrome.storage.local</code>. Chrome does not sync that storage across your devices.</li>
           </ul>
         </section>
 
@@ -37,6 +38,7 @@ export default function ExtensionPrivacyPage() {
           <p>Audio goes to <a href="https://deepgram.com/privacy" className="text-accent hover:underline">Deepgram</a> over an encrypted WebSocket. Deepgram processes the audio and returns transcript text. Deepgram’s retention and use of that data depend on its terms and your Deepgram account settings.</p>
           <p>If you have no saved key, Heard checks the configured Heard server for token access. The default server URL is <code>http://localhost:3100</code>. A server that has a Deepgram key can issue a short-lived token, which the extension uses with Deepgram. These requests do not contain tab audio, transcript text, or your personal Deepgram key. The server can see the request’s network address. Public Heard deployments do not have a server key by default.</p>
           <p>If you turn on caption translation, Chrome’s built-in Translator processes transcript text on your device. Chrome may download a language model for the selected language pair. Heard does not send transcript text to a translation server.</p>
+          <p>If you turn on live dubbing, Heard translates finished phrases on your device the same way and sends the translated text to Deepgram’s text-to-speech service over an encrypted WebSocket, using the same key or short-lived token as the captions. Deepgram returns audio, which Heard plays once and does not keep. Deepgram bills text-to-speech separately from transcription.</p>
         </section>
 
         <section className="space-y-3">

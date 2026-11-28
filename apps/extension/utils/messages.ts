@@ -7,11 +7,15 @@
  * - popup / side panel: UI; read state with `get-state`, then follow broadcasts.
  * - overlay content script: caption box inside the captured tab.
  *
+ * Live dubbing also uses a long-lived port (DUB_PORT) from the side panel to the offscreen
+ * document: the panel translates finished phrases, the offscreen document speaks and plays
+ * them. The port closing (panel closed) turns dubbing off and restores the original audio.
+ *
  * `runtime.sendMessage` reaches every extension page at once, so every runtime message
  * carries a `to` field and each context ignores messages that aren't addressed to it.
  */
 import { browser } from "wxt/browser";
-import type { CaptionState, TranscriptEvent, TranscriptionStatus, TranscriptState } from "@heard/shared";
+import type { CaptionState, DubSegment, DubState, TranscriptEvent, TranscriptionStatus, TranscriptState } from "@heard/shared";
 import type { ExtensionMessages } from "@/i18n/en";
 
 /** Everything the UI needs to render one capture session. Lives in the offscreen document. */
@@ -22,6 +26,8 @@ export interface SessionSnapshot {
   /** The user dismissed the in-page caption box for this capture. */
   overlayHidden: boolean;
   transcript: TranscriptState;
+  /** Live dubbing for this capture ("off" unless the user turned it on). */
+  dub: DubState;
 }
 
 export type SessionMeta = Pick<SessionSnapshot, "tabId" | "tabTitle" | "overlayHidden">;
@@ -70,7 +76,9 @@ export type BackgroundRequest =
   /** From a freshly injected overlay: "what should I show?" (tab comes from sender). */
   | { to: "background"; type: "overlay-hello" }
   /** From the side panel, which translates: a caption translation for the captured tab's overlay. */
-  | { to: "background"; type: "overlay-translation"; event: TranslationEvent };
+  | { to: "background"; type: "overlay-translation"; event: TranslationEvent }
+  /** From the overlay: the captured page's main video paused/played, or jumped (seek). */
+  | { to: "background"; type: "media-state"; paused?: boolean; discontinuity?: boolean };
 
 /** Translation events the side panel produces and the overlay shows. */
 export type TranslationEvent = Extract<TranscriptEvent, { type: "caption-translated" | "translation-config" }>;
@@ -83,6 +91,7 @@ export interface BackgroundResponses {
   "overlay-dismissed": CommandResult;
   "overlay-hello": OverlayHello;
   "overlay-translation": CommandResult;
+  "media-state": CommandResult;
 }
 
 export interface OverlayHello {
@@ -116,7 +125,8 @@ export type OffscreenRequest =
   | { to: "offscreen"; type: "set-languages"; languages: SessionLanguages }
   | { to: "offscreen"; type: "stop" }
   | { to: "offscreen"; type: "get-state" }
-  | { to: "offscreen"; type: "set-overlay-hidden"; hidden: boolean };
+  | { to: "offscreen"; type: "set-overlay-hidden"; hidden: boolean }
+  | { to: "offscreen"; type: "media-state"; paused?: boolean; discontinuity?: boolean };
 
 export interface OffscreenResponses {
   start: CommandResult;
@@ -124,13 +134,33 @@ export interface OffscreenResponses {
   "get-state": SessionSnapshot;
   "set-overlay-hidden": CommandResult;
   "set-languages": CommandResult;
+  "media-state": CommandResult;
 }
 
 /* --------------------------- offscreen → everyone --------------------------- */
 
 export type Broadcast =
   | { to: "broadcast"; type: "transcript-event"; tabId: number | null; event: TranscriptEvent }
-  | { to: "broadcast"; type: "meta"; meta: SessionMeta };
+  | { to: "broadcast"; type: "meta"; meta: SessionMeta }
+  | { to: "broadcast"; type: "dub-state"; dub: DubState };
+
+/* ------------------------- side panel ⇄ offscreen (port) ------------------------- */
+
+export const DUB_PORT = "heard-dub";
+
+export type DubPortRequest =
+  /** Turn dubbing on, or switch language or accent while on (voices are picked per speaker). */
+  | { type: "enable"; language: string; accent: string }
+  | { type: "disable" }
+  | { type: "translating"; busy: boolean }
+  /** A translated phrase. `epoch` must match the offscreen's latest, else it's outdated. */
+  | { type: "segment"; epoch: number; segment: DubSegment }
+  /** Drop everything queued (e.g. the dubbing language changed). */
+  | { type: "clear" };
+
+export type DubPortEvent =
+  /** Everything before this was cleared (seek, new video, new language): drop in-flight phrases. */
+  { type: "epoch"; epoch: number };
 
 /* ----------------------- background → overlay (tabs.sendMessage) ----------------------- */
 

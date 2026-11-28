@@ -26,6 +26,11 @@ export interface TranscriptionSessionOptions {
   deepgram?: DeepgramStreamOptions;
   /** Override for tests / regional endpoints. */
   listenBaseUrl?: string;
+  /**
+   * Every chunk of 16 kHz mono PCM sent for transcription, with its start in stream seconds
+   * (the clock transcript lines use). Live dubbing reads speakers' pitch from it.
+   */
+  onAudio?: (pcm: Int16Array, start: number) => void;
   /** Called with every transcript event (for forwarding across processes). */
   onEvent?: (event: TranscriptEvent) => void;
   maxReconnectAttempts?: number;
@@ -67,6 +72,8 @@ export class TranscriptionSession {
   private spokenLanguage = AUTO_LANGUAGE;
   private readonly translation = new TranslationEngine((e) => this.dispatch(e));
   private keepAliveTimer: ReturnType<typeof setInterval> | null = null;
+  private playbackVolume = 1;
+  private diarize = false;
   private lastSentAt = 0;
   private readonly onOnline = () => {
     if (this.running && !this.socket && this.reconnectTimer) {
@@ -109,6 +116,16 @@ export class TranscriptionSession {
   }
 
   /**
+   * Speaker labels on transcript lines (live dubbing turns them on). A change reconnects to
+   * Deepgram, buffering the audio in between, like a new spoken language.
+   */
+  setDiarize(on: boolean): void {
+    if (on === this.diarize) return;
+    this.diarize = on;
+    if (this.running && this.socket) void this.reconnectNow();
+  }
+
+  /**
    * Start transcribing `stream`. If `ownsStream` (default) the stream's tracks are stopped
    * when the session stops.
    */
@@ -139,6 +156,7 @@ export class TranscriptionSession {
         onChunk: (pcm) => this.onChunk(pcm),
         onEnded: () => void this.stop("Audio capture ended."),
       });
+      this.capture.setPlaybackVolume?.(this.playbackVolume);
     } catch (err) {
       await this.fail((err as Error).message);
       return;
@@ -165,6 +183,15 @@ export class TranscriptionSession {
     } else if (this.socket?.isOpen) {
       this.setStatus("live");
     }
+  }
+
+  /**
+   * Speaker level of the original audio when `preservePlayback` is on (0..1). Transcription
+   * is unaffected: it reads the captured stream before this gain.
+   */
+  setPlaybackVolume(volume: number): void {
+    this.playbackVolume = volume;
+    this.capture?.setPlaybackVolume?.(volume);
   }
 
   /** The media jumped (seek). Flush pending text and clear the on-screen caption. */
@@ -247,6 +274,7 @@ export class TranscriptionSession {
       media = null;
     }
     this.timeMap.record(this.streamSeconds, media);
+    this.opts.onAudio?.(new Int16Array(pcm), start);
 
     if (this.socket?.isOpen) {
       this.send({ pcm, start });
@@ -280,7 +308,11 @@ export class TranscriptionSession {
     if (!this.running) return;
 
     this.connOffset = null;
-    const url = buildListenUrl({ ...this.opts.deepgram, language: this.spokenLanguage }, this.opts.listenBaseUrl);
+    this.assembler.newSpeakerSet();
+    const url = buildListenUrl(
+      { ...this.opts.deepgram, language: this.spokenLanguage, diarize: this.diarize || this.opts.deepgram?.diarize },
+      this.opts.listenBaseUrl,
+    );
     const socket = new DeepgramSocket(credential, url, {
       onOpen: () => {
         if (this.socket !== socket) return;

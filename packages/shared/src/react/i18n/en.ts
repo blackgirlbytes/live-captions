@@ -1,4 +1,4 @@
-import type { SharedUiLabels } from "../labels";
+import { DEFAULT_DUBBING_LABELS, type SharedUiLabels } from "../labels";
 
 export const en: SharedUiLabels = {
   status: {
@@ -42,6 +42,7 @@ export const en: SharedUiLabels = {
     detect: "Detect automatically",
     showIn: "Show captions in",
     sameAsSpoken: "The spoken language",
+    followsDubbing: (l) => `Captions and transcript follow live dubbing (${l}) while it's on. Pick another language here to change that.`,
     pair: (from: string, to: string) => `${from} to ${to}`,
     ready: (pair: string) => `Translating ${pair} on this device. Text never leaves your browser.`,
     needsDownload: (pair: string) => `Translating ${pair} needs a one-time download in Chrome.`,
@@ -58,4 +59,5 @@ export const en: SharedUiLabels = {
     noticeDownload: "Download",
     noticeFailed: (pair, detail) => `Translating ${pair} stopped working, so captions stay as spoken. Chrome said: ${detail}`,
   },
+  dubbing: DEFAULT_DUBBING_LABELS,
 };

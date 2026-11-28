@@ -25,15 +25,24 @@ type PairStatus =
 export function LanguageSettings({
   settings,
   onChange,
+  captionOverride = null,
+  onCaptionLanguagePick,
   labels,
 }: {
   settings: CaptionSettings;
   onChange: (next: CaptionSettings) => void;
+  /**
+   * Caption language in effect instead of the saved one (live dubbing's language while it's
+   * on). Shown in the picker with a note; picking a language still saves it as usual.
+   */
+  captionOverride?: string | null;
+  /** The caption language was picked by hand (even if it's the saved one). */
+  onCaptionLanguagePick?: (language: string) => void;
   labels?: Partial<LanguageSettingsLabels>;
 }) {
   const { L, name } = resolve(labels);
   const spoken = settings.spokenLanguage;
-  const target = settings.captionLanguage;
+  const target = captionOverride ?? settings.captionLanguage;
   const [status, setStatus] = useState<PairStatus>({ kind: "none" });
   const id = useId();
   const label = (code: string, english: string) => (L.languageName ? name(code) : english);
@@ -99,10 +108,12 @@ export function LanguageSettings({
           options={captionOptions}
           onChange={(next) => {
             onChange({ ...settings, captionLanguage: next });
+            onCaptionLanguagePick?.(next);
             download(spoken, next);
           }}
         />
       </div>
+      {captionOverride && <p className="text-xs leading-relaxed text-ink-400">{L.followsDubbing(name(captionOverride))}</p>}
       <PairStatusNote status={status} spoken={spoken} target={target} onDownload={() => download(spoken, target)} labels={labels} />
     </fieldset>
   );

@@ -8,7 +8,7 @@
  */
 import { browser, type Browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
-import { initialTranscriptState, type TranscriptEvent } from "@heard/shared";
+import { INITIAL_DUB_STATE, initialTranscriptState, type TranscriptEvent } from "@heard/shared";
 import { getCaptionSettings, getServerUrl, getUserKey, probeServer, restrictedReason, STORAGE_KEYS, tokenEndpoint } from "@/utils/config";
 import { createCommandQueue } from "@/utils/command-queue";
 import { getMessages, onUiLanguageChange } from "@/utils/i18n";
@@ -76,7 +76,7 @@ export default defineBackground(() => {
         /* document is closing */
       }
     }
-    return { tabId: null, tabTitle: null, overlayHidden: false, transcript: initialTranscriptState() };
+    return { tabId: null, tabTitle: null, overlayHidden: false, transcript: initialTranscriptState(), dub: INITIAL_DUB_STATE };
   }
 
   /* ------------------------------ indicators ------------------------------ */
@@ -278,6 +278,17 @@ export default defineBackground(() => {
         );
       case "overlay-hello":
         return reply("overlay-hello", overlayHello(sender.tab?.id));
+      case "media-state":
+        // Only the captured tab's video steers the dub.
+        return reply(
+          "media-state",
+          getSnapshot().then(async (snap) => {
+            if (snap.tabId === sender.tab?.id && isCapturing(snap.transcript.status) && (await hasOffscreen())) {
+              await sendToOffscreen({ to: "offscreen", type: "media-state", paused: msg.paused, discontinuity: msg.discontinuity }).catch(() => undefined);
+            }
+            return { ok: true } as const;
+          }),
+        );
       case "overlay-translation":
         return reply(
           "overlay-translation",
@@ -317,6 +328,14 @@ export default defineBackground(() => {
   // After a full navigation the overlay is gone (and Chrome resets per-tab badges).
   // tabCapture keeps streaming across navigations, so restore both when allowed.
   browser.tabs.onUpdated.addListener((tabId, info) => {
+    // A new page or video in the captured tab: dubbed speech for the old one is outdated.
+    if (info.url) {
+      void getSnapshot().then(async (snap) => {
+        if (snap.tabId === tabId && snap.dub.status !== "off" && (await hasOffscreen())) {
+          await sendToOffscreen({ to: "offscreen", type: "media-state", discontinuity: true }).catch(() => undefined);
+        }
+      });
+    }
     if (info.status !== "complete") return;
     void getSnapshot().then(async (snap) => {
       if (snap.tabId !== tabId || !isCapturing(snap.transcript.status)) return;

@@ -4,10 +4,12 @@
 
 Heard is an open-source web video player and Chrome extension. They add real-time captions and an interactive transcript to online video using **Deepgram Nova-3** streaming speech-to-text. They don't depend on the video platform's own captions.
 
-- **Web platform** (`apps/web`, Next.js): paste a YouTube video or livestream URL and watch it with live captions, plus a searchable transcript with timestamps you can download and click to jump in the video.
-- **Chrome extension** (`apps/extension`, WXT, Manifest V3): caption whatever is playing in the current tab. It adds a caption box you can drag and resize, and a transcript side panel.
+- **Web platform** (`apps/web`, Next.js): paste a YouTube or Twitch video or livestream URL and watch it with live captions, plus a searchable transcript with timestamps you can download and click to jump in the video.
+- **Chrome extension** (`apps/extension`, WXT, Manifest V3): caption whatever is playing in the current tab, including Twitch, LinkedIn Live, X Live, TikTok Live and Instagram Live. It adds a caption box you can drag and resize, and a transcript side panel.
 
-Both share one transcription core and one set of UI components (`packages/shared`). YouTube is the first provider, but capture and transcription have no YouTube-specific code.
+Both share one transcription core and one set of UI components (`packages/shared`). YouTube and Twitch are the web providers, but capture and transcription have no platform-specific code. See [docs/streaming-platforms-plan.md](docs/streaming-platforms-plan.md) for how each streaming platform is supported.
+
+To build a similar app step by step, follow [Build live video captions with Deepgram](docs/build-live-captions-with-deepgram.md).
 
 ```
 live-captions/
@@ -23,7 +25,7 @@ live-captions/
 │   ├── src/react/          # CaptionText, TranscriptView, TranscriptToolbar, settings…
 │   └── src/theme.css       # shared visual identity (Tailwind v4 tokens)
 ├── apps/web/               # Next.js platform + token API (holds the Deepgram key)
-│   └── src/lib/providers/  # VideoProvider registry; youtube/ is the only provider so far
+│   └── src/lib/providers/  # VideoProvider registry: youtube/, twitch/, and extension-only links
 ├── apps/extension/         # WXT Chrome extension (background, offscreen, overlay, panel, popup)
 └── docs/provider-policies.md
 ```
@@ -48,6 +50,7 @@ live-captions/
 - **Interim vs. final results:** interim results update the caption as people speak. Final results are added to a line, and a line is committed when Deepgram detects end of speech (`speech_final` / `UtteranceEnd`). Long continuous speech is split at sentence boundaries so lines stay readable.
 - **No duplicate segments:** word timestamps are tracked on one timeline across reconnects. Words that were already finalized are dropped when audio is replayed or re-finalized.
 - **Reliability:** if the connection drops, audio is buffered (last 15 s). The app reconnects with exponential backoff and a fresh token, and reconnects right away when the browser comes back online. KeepAlive messages are sent during silence. Stopping sends `CloseStream` and waits for the final words before closing everything.
+- **Live dubbing (extension):** turn on **Live dubbing** in the side panel's Settings tab to hear the video in another language. Final transcript lines are grouped into phrases, translated on the device, spoken by Deepgram Flux TTS voices (`/v2/speak`), a different voice per speaker matched to how low or high they sound (speaker labels from Deepgram, pitch measured on the device), and played from the offscreen document, which isn't captured. While dubbing, the original plays at a fixed 10%, and captions and the transcript switch to the dub language (the original stays under each transcript line). Off by default, billed as extra Deepgram TTS usage. See [docs/live-dubbing.md](docs/live-dubbing.md).
 - **Sync (web):** each audio chunk records the player's `currentTime`. So every line knows its position in the video, and clicking a timestamp seeks there. Pausing the video stops streaming, so silence isn't billed. Seeks are detected and flush the caption.
 
 ## Setup
@@ -107,6 +110,8 @@ For a Chrome Web Store release, follow [the publishing guide](docs/publish-chrom
 | `npm test` | Shared core unit tests: transcript assembly/dedupe/line splitting, session reconnect + buffering + pause, time mapping, the real worklet resampler, exporters. |
 | `npm run test:live -w @heard/shared` (with `DEEPGRAM_API_KEY` and `HEARD_TEST_AUDIO=/path/to/speech.wav`) | **Real Deepgram end-to-end test:** a WAV file → real resampler → `TranscriptionSession` → JWT → Nova-3 → transcript lines. |
 | `npm run e2e -w @heard/web` (web server running) | **Real browser end-to-end test:** headful Chrome with `--auto-accept-this-tab-capture` opens a YouTube talk, starts captions and checks for seekable transcript lines, a caption and a clean stop. Add `E2E_USER_KEY=<key>` to go through the bring-your-own-key flow, or `E2E_BAD_KEY=1` (against a server without a key) to check that bad keys are rejected. |
+| `npm run test:live:tts -w @heard/shared` (with `DEEPGRAM_API_KEY`) | **Real Flux TTS test:** live dubbing's `/v2/speak` client with a key and with a granted JWT; prints time to first audio. |
+| `npm run e2e:dubbing -w @heard/extension` (with `E2E_USER_KEY`, after building the extension) | **Live dubbing end-to-end:** installed Chrome, the built extension, an English YouTube video dubbed into Spanish. Checks that captions keep coming while the original is ducked, no feedback loop, turning off, and cleanup; prints delay stats. |
 | `npm run typecheck` / `npm run build` | Type-checks all workspaces and builds both apps. |
 
 ## Privacy
@@ -114,18 +119,21 @@ For a Chrome Web Store release, follow [the publishing guide](docs/publish-chrom
 - Audio is captured only after you click Start and pick the tab in the browser's own prompt (web), or click the extension. While captions are on, the web app shows a status badge and the extension shows a `LIVE` toolbar badge.
 - Audio goes straight from your browser to Deepgram. The Heard server only issues tokens and never sees audio, text, or a user's own key.
 - A user's own key is stored in their browser. Anything that can read that browser storage (a malicious extension, or a script injected into the page) could read it too, so the key forms suggest a dedicated key with minimal permissions and an expiry, and offer **Forget key**.
+- Live dubbing (off unless you turn it on) sends translated phrases to Deepgram for speech synthesis, using the same key or token as the captions. Dubbed audio is played and discarded, never stored.
 - Transcripts stay in memory and are never stored. Only caption appearance settings are saved (localStorage / `chrome.storage.local`). Copy or download a transcript if you want to keep it.
 - The extension asks only for `tabCapture`, `offscreen`, `sidePanel`, `storage`, `activeTab`, `scripting`. It has no host permissions and no content scripts that run on every page.
 
 ## Provider policies
 
-See [docs/provider-policies.md](docs/provider-policies.md). YouTube's Required Minimum Functionality forbids overlays in front of an embedded player. So on the web platform, YouTube captions appear in a caption bar **directly below** the player, and Heard's own fullscreen keeps that bar visible. The doc also flags an **open question** to review before a public deployment: whether transcribing YouTube audio fits Developer Policy III.I.7 ("separate, isolate, or modify the audio or video components").
+See [docs/provider-policies.md](docs/provider-policies.md). YouTube's Required Minimum Functionality forbids overlays in front of an embedded player. So on the web platform, YouTube captions appear in a caption bar **directly below** the player, and Heard's own fullscreen keeps that bar visible. The doc also flags an **open question** to review before a public deployment: whether transcribing YouTube audio fits Developer Policy III.I.7 ("separate, isolate, or modify the audio or video components"). Twitch's embed rules also forbid obscuring the player, so Twitch captions use the same caption bar.
 
 ## Known limitations
 
 - **Browsers:** desktop Chrome/Edge only. Firefox and Safari don't support tab-audio capture through `getDisplayMedia`, and mobile browsers have no tab capture.
 - **Caption delay:** captions lag speech by roughly 0.3–1 s (network plus recognition). The video isn't delayed to compensate.
 - **Embedding:** videos whose owners disable embedding (YouTube errors 101/150) can't play on the web platform; use the extension on youtube.com instead. `youtube.com/@handle/live` links can't be resolved without the YouTube Data API, so paste the video link.
+- **Twitch:** live channels have no playhead in Twitch's embed API, so their transcript uses capture time and lines aren't clickable; past broadcasts (VODs) are. Clips have no JS API and aren't supported on the web platform. Twitch requires a player of at least 400×300, so on phones narrower than that the page scrolls sideways.
+- **LinkedIn Live, X Live, TikTok Live, Instagram Live:** no official embed, so the web platform explains this and links to the stream and the extension instead.
 - **Extension:**
   - Chrome only allows capture after you click the extension on that tab, so starting from the side panel may need one toolbar click first.
   - One tab at a time.
@@ -135,10 +143,14 @@ See [docs/provider-policies.md](docs/provider-policies.md). YouTube's Required M
 - **Not run automatically:**
   - The extension's caption box in fullscreen video and recovery after the service worker is suspended. Both are in the extension's manual checklist.
   - Real-audio tests need a visible (headful) Chrome, because headless Chrome captures silent tab audio.
+- **Live dubbing:**
+  - Extension only. The web player captures its own tab, so it can't keep the dub out of the captions or lower YouTube's volume without silencing them. See [docs/live-dubbing.md](docs/live-dubbing.md#web-platform).
+  - The side panel must stay open (it translates); closing it turns dubbing off and restores the original audio.
+  - The dub trails the original by a few seconds and skips phrases that would start more than 8 s late.
 - **Token rate limiting** is in memory, per server process. Use a shared store if you run several instances.
 - **Checking a pasted key:** Deepgram's REST API doesn't accept browser requests, so "Verify & save" checks a key by briefly opening a streaming connection. If a firewall or outage blocks Deepgram, that looks the same as a rejected key.
 
 ## Extending
 
-- **New video provider (Twitch, Vimeo, direct URLs):** add a `VideoProvider` in `apps/web/src/lib/providers/` (parse the URL, mount a player, report `currentTime`/state, declare `allowsCaptionOverlay`) and register it. Transcription doesn't change.
+- **New video provider (Vimeo, direct URLs):** add a `VideoProvider` in `apps/web/src/lib/providers/` (parse the URL, mount a player, report `currentTime`/state, declare `allowsCaptionOverlay`, `minPlayerSize` and `siteHost`) and register it. `apps/web/src/lib/providers/twitch/` is a small example. Transcription doesn't change.
 - **Translation, summaries, Flux voice assistants, TTS dubbing:** `TranscriptionSession` emits small typed `TranscriptEvent`s, so new features can subscribe to lines/captions without touching capture. Deepgram options (`model`, `language`, `keyterms`) are already parameters of the session.

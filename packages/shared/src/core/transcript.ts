@@ -58,6 +58,8 @@ export interface DgWord {
   end: number;
   /** Detected language of the word (`language=multi` only). */
   language?: string;
+  /** Speaker number (`diarize=true` only), counted per connection. */
+  speaker?: number;
 }
 
 /** Subset of Deepgram's `Results` message we rely on. */
@@ -75,6 +77,7 @@ interface Span {
   start: number;
   end: number;
   language?: string;
+  speaker?: string;
 }
 
 export interface AssemblerOptions {
@@ -104,6 +107,8 @@ export class TranscriptAssembler {
   /** Absolute stream time up to which final words have been accepted. */
   private finalizedUntil = 0;
   private counter = 0;
+  /** Speaker numbers restart on every connection; this keeps labels apart. */
+  private speakerSet = 0;
   private readonly opts: Required<Omit<AssemblerOptions, "mediaTimeAt">> & Pick<AssemblerOptions, "mediaTimeAt">;
 
   constructor(
@@ -139,7 +144,10 @@ export class TranscriptAssembler {
       for (const w of alt.words) {
         const start = offset + w.start;
         if (start < this.finalizedUntil - 0.02) continue; // already have it (replay / duplicate)
-        this.pending.push({ text: w.punctuated_word ?? w.word, start, end: offset + w.end, language: w.language });
+        const speaker = w.speaker === undefined ? undefined : `${this.speakerSet}:${w.speaker}`;
+        // A new speaker starts a new line, so each line has one voice.
+        if (speaker !== undefined && this.pending.length > 0 && this.pending.at(-1)!.speaker !== speaker) this.commit();
+        this.pending.push({ text: w.punctuated_word ?? w.word, start, end: offset + w.end, language: w.language, speaker });
       }
     } else if (alt.transcript.trim() && segEnd > this.finalizedUntil + 0.01) {
       this.pending.push({ text: alt.transcript.trim(), start: segStart, end: segEnd, language: alt.languages?.[0] });
@@ -149,6 +157,12 @@ export class TranscriptAssembler {
     if (msg.speech_final) this.commit();
     else this.splitLongLine();
     this.emitCaption();
+  }
+
+  /** A new Deepgram connection: its speaker numbers mean different people. */
+  newSpeakerSet(): void {
+    this.commit();
+    this.speakerSet += 1;
   }
 
   /** Deepgram `UtteranceEnd`: the speaker paused, close the current line. */
@@ -197,6 +211,7 @@ export class TranscriptAssembler {
     const mediaStart = media ? media(start) : null;
     const mediaEnd = media ? media(end) : null;
     const language = mainLanguage(words);
+    const speaker = words.find((w) => w.speaker !== undefined)?.speaker;
     this.lastCommitted = text;
     this.lastCommittedLanguage = language;
     this.emit({
@@ -210,6 +225,7 @@ export class TranscriptAssembler {
         mediaEnd: mediaEnd === null ? null : round(mediaEnd),
         createdAt: this.opts.now(),
         ...(language ? { language } : {}),
+        ...(speaker ? { speaker } : {}),
       },
     });
   }

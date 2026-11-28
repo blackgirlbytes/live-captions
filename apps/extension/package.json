@@ -12,7 +12,8 @@
     "verify:store": "node scripts/verify-store-package.mjs",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "postinstall": "wxt prepare || true"
+    "postinstall": "wxt prepare || true",
+    "e2e:dubbing": "node scripts/e2e-dubbing.mjs"
   },
   "dependencies": {
     "@heard/shared": "*",

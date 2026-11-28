@@ -12,7 +12,9 @@
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json",
-    "test:live": "vitest run test/live.deepgram.test.ts --silent=false"
+    "test:live": "vitest run test/live.deepgram.test.ts --silent=false",
+    "test:live:tts": "vitest run test/live.flux-tts.test.ts --silent=false",
+    "test:live:speakers": "vitest run test/live.speakers.test.ts --silent=false"
   },
   "peerDependencies": {
     "react": ">=19"

@@ -9,3 +9,4 @@ export * from "./session";
 export * from "./token";
 export * from "./translate";
 export * from "./locales";
+export * from "./dubbing";

@@ -26,6 +26,12 @@ export interface TranscriptLine {
   createdAt: number;
   /** Language Deepgram reported for most of the line's words (auto-detect only). */
   language?: string;
+  /**
+   * Who said it, when speaker labels are on (`diarize`): `"<connection>:<speaker>"`.
+   * Deepgram numbers speakers per connection, so the same person can get a new label after
+   * a reconnect. A line never mixes speakers.
+   */
+  speaker?: string;
 }
 
 /** What should be on screen as a caption right now. */
@@ -112,6 +118,8 @@ export interface DeepgramStreamOptions {
   model?: string;
   language?: string;
   keyterms?: string[];
+  /** Ask Deepgram for speaker labels on each word. */
+  diarize?: boolean;
 }
 
 /**
