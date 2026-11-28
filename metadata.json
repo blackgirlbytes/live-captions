@@ -1,0 +1,46 @@
+{
+  "cli_version": "0.13.4",
+  "checkpoint_id": "01M8HTNYSC1Y6KMA4YX8NN3J27",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "apps/web/src/app/layout.tsx",
+    "apps/web/src/i18n/messages/de/common.ts",
+    "apps/web/src/i18n/messages/en/common.ts",
+    "apps/web/src/i18n/messages/es/common.ts",
+    "apps/web/src/i18n/messages/fr/common.ts",
+    "apps/web/src/i18n/messages/ja/common.ts",
+    "apps/web/src/i18n/messages/pt/common.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 70,
+    "cache_creation_tokens": 96973,
+    "cache_read_tokens": 6139804,
+    "output_tokens": 20090,
+    "api_call_count": 33
+  },
+  "redaction": {
+    "replacements": 62,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 12,
+      "credentialed_uri": 0,
+      "entropy": 8,
+      "key_context": 42,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  }
+}

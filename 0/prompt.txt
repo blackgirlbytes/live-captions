@@ -1,0 +1,9 @@
+the tab could just say heard..right? with the logo
+
+---
+
+when u open the extension..the home page looks like this. the bar doesnt seem responsive cuz the placeholder gets covered
+
+---
+
+Yes, push both
