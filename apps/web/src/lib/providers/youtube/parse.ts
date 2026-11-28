@@ -71,6 +71,7 @@ export function parseYouTubeUrl(url: URL): ParsedVideo | ParseProblem | null {
   if (first.startsWith("@") || first === "c" || first === "user") {
     return {
       providerId: "youtube",
+      kind: "channel",
       message:
         "Channel links like @handle/live can't be opened directly. Open the stream on YouTube, copy the video link (youtube.com/watch?v=… or youtube.com/live/…) and paste it here.",
     };

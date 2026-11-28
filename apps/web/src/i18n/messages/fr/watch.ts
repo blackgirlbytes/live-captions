@@ -51,15 +51,15 @@ export const watch: typeof en = {
     emptyUnsupported: "Ouvrez Heard dans Chrome ou Edge sur ordinateur pour transcrire des vidéos.",
   },
   playerError: {
-    embedBlockedTitle: "Regardez celle-ci sur YouTube",
+    embedBlockedTitle: (provider) => `Regardez celle-ci sur ${provider}`,
     cantPlayTitle: "Cette vidéo ne peut pas être lue ici",
-    extensionNote: "L’extension Chrome de Heard ajoute les mêmes sous-titres en direct sur youtube.com.",
+    extensionNote: (site) => `L’extension Chrome de Heard ajoute les mêmes sous-titres en direct sur ${site}.`,
     getExtension: "Obtenir l’extension",
     openOn: (provider) => `Ouvrir sur ${provider}`,
   },
   settings: {
     title: "Réglages",
-    noOverlay: "YouTube n’autorise rien par-dessus son lecteur : les sous-titres s’affichent donc juste sous la vidéo.",
+    noOverlay: (provider) => `${provider} n’autorise rien par-dessus son lecteur : les sous-titres s’affichent donc juste sous la vidéo.`,
     close: "Fermer les réglages",
   },
   guide: {

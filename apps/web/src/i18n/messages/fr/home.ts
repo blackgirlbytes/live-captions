@@ -12,14 +12,17 @@ export const home: typeof en = {
   },
   form: {
     label: "Lien de la vidéo",
-    placeholder: "Collez un lien YouTube",
+    placeholder: "Collez un lien YouTube ou Twitch",
     placeholderCompact: "Collez un autre lien vidéo",
     watch: "Regarder",
     watchWithCaptions: "Regarder avec sous-titres",
     open: "Ouvrir",
     errors: {
       notALink: "Collez le lien complet de la vidéo, par exemple https://www.youtube.com/watch?v=…",
-      unknown: "Heard ne reconnaît pas encore ce lien. Les vidéos, Shorts et directs YouTube sont pris en charge.",
+      unknown: "Heard ne reconnaît pas encore ce lien. Les vidéos et directs YouTube et Twitch sont pris en charge.",
+      extensionOnly: (platform) =>
+        `${platform} n’autorise pas l’intégration de ses directs : Heard ne peut donc pas lire ce lien ici. Ouvrez-le sur ${platform} et activez les sous-titres avec l’extension Chrome de Heard.`,
+      clip: "Les clips Twitch ne peuvent pas encore être sous-titrés ici. Collez plutôt le lien de la chaîne ou de la vidéo, ou ouvrez le clip sur Twitch avec l’extension Chrome de Heard.",
       channel:
         "Les liens de chaîne comme @handle/live ne peuvent pas être ouverts directement. Ouvrez le direct sur YouTube, copiez le lien de la vidéo (youtube.com/watch?v=… ou youtube.com/live/…) et collez-le ici.",
     },

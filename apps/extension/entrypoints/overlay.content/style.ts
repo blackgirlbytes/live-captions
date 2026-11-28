@@ -64,6 +64,17 @@ export const OVERLAY_CSS = /* css */ `
   transition: opacity 140ms ease;
 }
 .box:hover .bar, .box.active .bar, .box:focus-within .bar { opacity: 1; }
+.hint {
+  margin: 0 0 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(19, 19, 26, 0.88);
+  color: #ffcd62;
+  font: 600 13px/1.35 Inter, "Segoe UI", system-ui, sans-serif;
+  text-align: center;
+  text-shadow: none;
+}
+
 .btn {
   all: unset;
   box-sizing: border-box;

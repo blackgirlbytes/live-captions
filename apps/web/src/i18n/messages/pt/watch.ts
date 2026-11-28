@@ -51,15 +51,15 @@ export const watch: typeof en = {
     emptyUnsupported: "Abra o Heard no Chrome ou Edge em um computador para transcrever vídeos.",
   },
   playerError: {
-    embedBlockedTitle: "Assista a este no YouTube",
+    embedBlockedTitle: (provider) => `Assista a este no ${provider}`,
     cantPlayTitle: "Este vídeo não pode ser reproduzido aqui",
-    extensionNote: "A extensão do Heard para Chrome mostra as mesmas legendas ao vivo direto no youtube.com.",
+    extensionNote: (site) => `A extensão do Heard para Chrome mostra as mesmas legendas ao vivo direto no ${site}.`,
     getExtension: "Obter a extensão",
     openOn: (provider) => `Abrir no ${provider}`,
   },
   settings: {
     title: "Configurações",
-    noOverlay: "O YouTube não permite nada sobre o player, então as legendas aparecem logo abaixo do vídeo.",
+    noOverlay: (provider) => `O ${provider} não permite nada sobre o player, então as legendas aparecem logo abaixo do vídeo.`,
     close: "Fechar configurações",
   },
   guide: {

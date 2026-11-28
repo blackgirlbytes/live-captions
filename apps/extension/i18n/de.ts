@@ -105,6 +105,7 @@ export const de: ExtensionMessages = {
     backOnVideo: "Untertitel zurück aufs Video setzen",
     hideTitle: "Untertitel in diesem Tab ausblenden (das Transkript läuft im Seitenbereich weiter)",
     hide: "Ausblenden",
+    unmute: "Schalte den Ton des Videos ein, um Untertitel zu bekommen. Heard kann nur untertiteln, was der Tab hörbar abspielt.",
   },
   errors: {
     restricted_chrome: "Chrome erlaubt Erweiterungen nicht, eigene Seiten zu erfassen. Öffne eine Seite mit Video oder Audio.",

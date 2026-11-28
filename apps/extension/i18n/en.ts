@@ -110,6 +110,7 @@ export const en = {
     backOnVideo: "Put captions back on the video",
     hideTitle: "Hide captions on this tab (the transcript keeps going in the side panel)",
     hide: "Hide captions",
+    unmute: "Unmute the video to get captions. Heard can only caption what the tab plays out loud.",
   },
   /** Messages for failed commands; each matches an `ErrorCode` in utils/messages.ts. */
   errors: {

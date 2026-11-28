@@ -12,14 +12,17 @@ export const home: typeof en = {
   },
   form: {
     label: "Enlace del video",
-    placeholder: "Pega un enlace de YouTube",
+    placeholder: "Pega un enlace de YouTube o Twitch",
     placeholderCompact: "Pega otro enlace de video",
     watch: "Ver",
     watchWithCaptions: "Ver con subtítulos",
     open: "Abrir",
     errors: {
       notALink: "Pega el enlace completo del video, como https://www.youtube.com/watch?v=…",
-      unknown: "Heard aún no reconoce ese enlace. Funciona con videos, Shorts y transmisiones en vivo de YouTube.",
+      unknown: "Heard aún no reconoce ese enlace. Funciona con videos y transmisiones en vivo de YouTube y Twitch.",
+      extensionOnly: (platform) =>
+        `${platform} no permite insertar sus transmisiones, así que Heard no puede reproducir este enlace aquí. Ábrelo en ${platform} y activa los subtítulos con la extensión de Chrome de Heard.`,
+      clip: "Aún no se pueden subtitular clips de Twitch aquí. Pega el enlace del canal o del video, o abre el clip en Twitch y usa la extensión de Chrome de Heard.",
       channel:
         "Los enlaces de canal como @handle/live no se pueden abrir directamente. Abre la transmisión en YouTube, copia el enlace del video (youtube.com/watch?v=… o youtube.com/live/…) y pégalo aquí.",
     },

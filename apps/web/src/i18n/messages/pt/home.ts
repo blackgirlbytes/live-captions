@@ -12,14 +12,17 @@ export const home: typeof en = {
   },
   form: {
     label: "Link do vídeo",
-    placeholder: "Cole um link do YouTube",
+    placeholder: "Cole um link do YouTube ou da Twitch",
     placeholderCompact: "Cole outro link de vídeo",
     watch: "Assistir",
     watchWithCaptions: "Assistir com legendas",
     open: "Abrir",
     errors: {
       notALink: "Cole o link completo do vídeo, como https://www.youtube.com/watch?v=…",
-      unknown: "O Heard ainda não reconhece esse link. Vídeos, Shorts e lives do YouTube são compatíveis.",
+      unknown: "O Heard ainda não reconhece esse link. Vídeos e lives do YouTube e da Twitch são compatíveis.",
+      extensionOnly: (platform) =>
+        `O ${platform} não permite incorporar as transmissões, então o Heard não consegue reproduzir este link aqui. Abra no ${platform} e ative as legendas com a extensão do Heard para Chrome.`,
+      clip: "Ainda não dá para legendar clipes da Twitch aqui. Cole o link do canal ou do vídeo, ou abra o clipe na Twitch e use a extensão do Heard para Chrome.",
       channel:
         "Links de canal como @handle/live não podem ser abertos diretamente. Abra a live no YouTube, copie o link do vídeo (youtube.com/watch?v=… ou youtube.com/live/…) e cole aqui.",
     },

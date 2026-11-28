@@ -61,3 +61,67 @@ player rules above.
 IFrame `onError` codes are mapped to friendly messages in
 `apps/web/src/lib/providers/youtube/index.ts`: 2 (invalid id), 5 (HTML5 player error),
 100 (removed/private), 101/150 (embedding disabled → "Open on YouTube" + Heard extension).
+
+## Twitch
+
+Checked 2026-11-28 against:
+
+- Embedding Twitch — https://dev.twitch.tv/docs/embed/
+- Embedding Video and Clips — https://dev.twitch.tv/docs/embed/video-and-clips/
+
+Not yet read: the Twitch Developer Services Agreement, which the embed docs point to. Read it
+before a public deployment.
+
+### Captions over the player: not allowed
+
+Embed rule 1.3 says embeds "should not be obscured in any way by other page elements" and
+must use only Twitch-approved player elements. So
+`twitchProvider.capabilities.allowsCaptionOverlay = false`, and Twitch gets the same
+treatment as YouTube: caption bar below the player, no "Over video" option, Heard's own
+fullscreen wraps the untouched player plus the caption bar.
+
+### Player size
+
+Embedded players "must be at least 400x300 pixels"; `minPlayerSize` is 400×300 and the watch
+page applies it as `min-width`/`min-height`. On screens narrower than 400px the page scrolls
+sideways rather than shrinking the player below the minimum.
+
+### `parent` and HTTPS
+
+The player only plays on domains listed in `parent`; Heard passes `window.location.hostname`.
+Twitch says embedding domains must use SSL. Tested 2026-11-28: the local dev server on
+`http://127.0.0.1:3100` loads and plays a live channel, so local development needs no
+certificate. Public deployments are HTTPS anyway.
+
+### What the API supports
+
+- Live channels (`channel`) and past broadcasts (`video`) through `Twitch.Player`.
+- `getCurrentTime()` and `seek()` work only for past broadcasts. For live channels the adapter
+  reports `hasTimeline() === false`, so transcript lines use capture time and aren't
+  clickable.
+- Clips only have a plain iframe with no JS API, so the web app turns clip links away and
+  points to the extension.
+
+### Open question: audio capture
+
+Same as YouTube: Heard transcribes the tab's audio in the viewer's own browser, after Chrome's
+tab-sharing prompt, and doesn't store or redistribute it. Whether Twitch's terms address this
+hasn't been checked.
+
+## LinkedIn Live, X Live, TikTok Live, Instagram Live
+
+Checked 2026-11-28: none of these offers an official embed for live streams (LinkedIn and X
+embed posts; TikTok's oEmbed covers videos and profiles, not LIVE; Instagram has no live
+embed). The web app therefore doesn't play them. Pasted links get a message that links to the
+stream on the platform's own site and to the extension
+(`apps/web/src/lib/providers/extension-only.ts`). Never scrape, proxy or re-host these streams
+to get around the missing embed.
+
+The Chrome extension captions them on the platforms' own sites, the same way it does on
+youtube.com: the viewer starts capture on their own tab, audio goes only to Deepgram, nothing
+is stored or redistributed, and the caption box is drawn by the extension in the viewer's
+browser (no embedded-player rules apply).
+
+Open question: none of these platforms' terms have been reviewed for automated access or
+transcription of stream audio. Review them, as for YouTube III.I.7, before naming the
+platforms in the Chrome Web Store listing or a public announcement.

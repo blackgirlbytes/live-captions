@@ -5,7 +5,7 @@ import Link from "next/link";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { Logo } from "@/components/Logo";
 import { useT } from "@/i18n/I18nProvider";
-import { UrlForm } from "@/components/UrlForm";
+import { UrlForm, localizeResolveError } from "@/components/UrlForm";
 import { resolveVideo } from "@/lib/providers";
 
 // The player + transcription session are browser-only (YouTube API, AudioWorklet, getDisplayMedia).
@@ -16,7 +16,9 @@ const WatchExperience = dynamic(() => import("./WatchExperience").then((m) => m.
 
 export function WatchShell({ url }: { url: string }) {
   const resolved = url ? resolveVideo(url) : null;
-  const t = useT("watch").shell;
+  const watchT = useT("watch");
+  const t = watchT.shell;
+  const linkErrors = useT("home").form.errors;
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -45,7 +47,24 @@ export function WatchShell({ url }: { url: string }) {
             {t.emptyAfter}
           </Notice>
         ) : !resolved.ok ? (
-          <Notice title={t.badLinkTitle}>{resolved.message}</Notice>
+          <Notice title={t.badLinkTitle}>
+            {localizeResolveError(resolved, linkErrors)}
+            {resolved.problem?.openUrl && resolved.problem.platformName && (
+              <span className="mt-5 flex flex-wrap items-center justify-center gap-3">
+                <a
+                  href={resolved.problem.openUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-10 items-center rounded-xl bg-ink-100 px-4 text-sm font-semibold text-ink-900 hover:bg-white"
+                >
+                  {watchT.playerError.openOn(resolved.problem.platformName)}
+                </a>
+                <a href="/#extension" className="text-sm text-accent underline-offset-2 hover:underline">
+                  {watchT.playerError.getExtension}
+                </a>
+              </span>
+            )}
+          </Notice>
         ) : (
           <WatchExperience key={resolved.video.key} url={url} />
         )}

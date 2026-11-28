@@ -106,6 +106,7 @@ export const fr: ExtensionMessages = {
     backOnVideo: "Remettre les sous-titres sur la vidéo",
     hideTitle: "Masquer les sous-titres dans cet onglet (la transcription continue dans le panneau latéral)",
     hide: "Masquer les sous-titres",
+    unmute: "Réactivez le son de la vidéo pour avoir des sous-titres. Heard ne sous-titre que ce que l’onglet joue à voix haute.",
   },
   /** Messages for failed commands; each matches an `ErrorCode` in utils/messages.ts. */
   errors: {

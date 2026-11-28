@@ -21,10 +21,22 @@ export interface ParsedVideo {
 /** A link we recognized but can't play (e.g. a @handle live URL without a video id). */
 export interface ParseProblem {
   providerId: string;
+  /** English fallback; the UI swaps in the current language's words using `kind`. */
   message: string;
+  /**
+   * "extensionOnly": the platform has no official embed, so the web app can't play it; the
+   * Chrome extension can caption it on the platform's own site.
+   */
+  kind?: "extensionOnly" | "clip" | "channel";
+  /** Display name of the platform the link belongs to ("LinkedIn"). */
+  platformName?: string;
+  /** The link to open on the platform's own site, when it's safe to offer one. */
+  openUrl?: string;
 }
 
 export interface ProviderCapabilities {
+  /** Host shown in "the extension adds captions directly on …" ("youtube.com"). */
+  siteHost: string;
   /** Whether the provider's terms let us draw captions on top of its embedded player. */
   allowsCaptionOverlay: boolean;
   /** Smallest player viewport the provider allows, in CSS px. */
@@ -49,6 +61,11 @@ export interface PlayerEvents {
 /** What the watch page needs from a player, whatever the provider. */
 export interface PlayerAdapter {
   getCurrentTime(): number;
+  /**
+   * False when the player can't report a playhead (a Twitch live channel). Transcript lines
+   * then use stream time and aren't seekable. Omitted means true.
+   */
+  hasTimeline?(): boolean;
   seekTo(seconds: number): void;
   play(): void;
   getState(): PlayerState;

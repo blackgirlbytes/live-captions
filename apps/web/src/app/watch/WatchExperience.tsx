@@ -66,7 +66,11 @@ export function WatchExperience({ url }: { url: string }) {
         // Absolute URL: the shared fetcher builds error messages with `new URL(endpoint)`.
         getToken: createGetToken(`${window.location.origin}${TOKEN_ENDPOINT_PATH}`),
         workletUrl: getWorkletUrl(),
-        getMediaTime: () => adapterRef.current?.getCurrentTime() ?? null,
+        getMediaTime: () => {
+          const a = adapterRef.current;
+          // No playhead (e.g. a Twitch live channel): lines use stream time and aren't seekable.
+          return a && a.hasTimeline?.() !== false ? a.getCurrentTime() : null;
+        },
         preservePlayback: false,
       }),
   );
@@ -319,7 +323,7 @@ export function WatchExperience({ url }: { url: string }) {
   const sidebarOpen = panelOpen || sidebarSettings;
   const closeSettings = () => onSettingsOpenChange(false);
   const settingsPanel = (
-    <SettingsPanel settings={settings} onChange={setSettings} showPosition={overlayAllowed} onClose={closeSettings} scrollToChildren={keyFocus}>
+    <SettingsPanel settings={settings} onChange={setSettings} showPosition={overlayAllowed} providerName={provider.name} onClose={closeSettings} scrollToChildren={keyFocus}>
       <DeepgramKeySettings userKey={userKey} serverKey={serverKey} initiallyEditing={keyFocus} running={running} />
     </SettingsPanel>
   );
@@ -419,13 +423,15 @@ export function WatchExperience({ url }: { url: string }) {
           </div>
 
           <div
-            className={`stage-player relative aspect-video max-h-[calc(100dvh-15rem)] min-h-[200px] w-full min-w-[200px] overflow-hidden bg-black ${
+            className={`stage-player relative aspect-video max-h-[calc(100dvh-15rem)] w-full overflow-hidden bg-black ${
               placement === "below" && settings.enabled ? "" : "lg:rounded-b-2xl"
             }`}
+            // Each provider's terms set the smallest player it allows (YouTube 200×200, Twitch 400×300).
+            style={{ minWidth: provider.capabilities.minPlayerSize.width, minHeight: provider.capabilities.minPlayerSize.height }}
           >
             <div ref={hostRef} className={`absolute inset-0 ${playerError ? "hidden" : ""}`} />
             {!playerReady && !playerError && <div className="absolute inset-0 animate-pulse bg-ink-900" aria-hidden="true" />}
-            {playerError && <PlayerErrorPanel error={playerError} canonicalUrl={video.canonicalUrl} providerName={provider.name} t={t} />}
+            {playerError && <PlayerErrorPanel error={playerError} canonicalUrl={video.canonicalUrl} providerName={provider.name} siteHost={provider.capabilities.siteHost} t={t} />}
             {placement === "overlay" && settings.enabled && (
               <CaptionText caption={ts.caption} settings={settings} translation={captionTranslation} className="absolute inset-x-4 bottom-[8%]" />
             )}
@@ -522,6 +528,7 @@ export function WatchExperience({ url }: { url: string }) {
 
 /* ------------------------------ pieces ------------------------------ */
 
+
 function CaptionBar({
   caption,
   settings,
@@ -599,17 +606,17 @@ function Banner({
   );
 }
 
-function PlayerErrorPanel({ error, canonicalUrl, providerName, t }: { error: PlayerError; canonicalUrl: string; providerName: string; t: WatchT }) {
+function PlayerErrorPanel({ error, canonicalUrl, providerName, siteHost, t }: { error: PlayerError; canonicalUrl: string; providerName: string; siteHost: string; t: WatchT }) {
   return (
     <div role="alert" data-error-code={error.code} className="absolute inset-0 flex items-center justify-center overflow-y-auto bg-ink-900 p-6">
       <div className="max-w-md text-center">
         <h2 className="font-display text-xl font-semibold tracking-tight text-ink-100">
-          {error.embeddingBlocked ? t.playerError.embedBlockedTitle : t.playerError.cantPlayTitle}
+          {error.embeddingBlocked ? t.playerError.embedBlockedTitle(providerName) : t.playerError.cantPlayTitle}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-ink-300">{error.message}</p>
         {error.embeddingBlocked && (
           <p className="mt-2 text-sm leading-relaxed text-ink-400">
-            {t.playerError.extensionNote}{" "}
+            {t.playerError.extensionNote(siteHost)}{" "}
             <a href="/#extension" className="text-accent underline-offset-2 hover:underline">
               {t.playerError.getExtension}
             </a>

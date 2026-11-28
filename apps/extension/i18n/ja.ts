@@ -105,6 +105,7 @@ export const ja: ExtensionMessages = {
     backOnVideo: "字幕を動画の上に戻す",
     hideTitle: "このタブの字幕を隠す（文字起こしはサイドパネルで続きます）",
     hide: "字幕を隠す",
+    unmute: "字幕を表示するには動画のミュートを解除してください。Heard はタブで再生されている音声にだけ字幕を付けられます。",
   },
   errors: {
     restricted_chrome: "Chrome では拡張機能が Chrome 自体のページを取り込めません。動画や音声のあるサイトを開いてください。",

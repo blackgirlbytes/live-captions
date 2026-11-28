@@ -51,15 +51,15 @@ export const watch: typeof en = {
     emptyUnsupported: "動画を文字起こしするには、パソコンの Chrome か Edge で Heard を開いてください。",
   },
   playerError: {
-    embedBlockedTitle: "この動画は YouTube で見てください",
+    embedBlockedTitle: (provider) => `この動画は ${provider} で見てください`,
     cantPlayTitle: "この動画はここでは再生できません",
-    extensionNote: "Heard の Chrome 拡張機能なら、youtube.com 上に同じライブ字幕を表示できます。",
+    extensionNote: (site) => `Heard の Chrome 拡張機能なら、${site} 上に同じライブ字幕を表示できます。`,
     getExtension: "拡張機能を入手",
     openOn: (provider) => `${provider} で開く`,
   },
   settings: {
     title: "設定",
-    noOverlay: "YouTube はプレーヤーの上に何も重ねられないため、字幕は動画のすぐ下に表示されます。",
+    noOverlay: (provider) => `${provider} はプレーヤーの上に何も重ねられないため、字幕は動画のすぐ下に表示されます。`,
     close: "設定を閉じる",
   },
   guide: {

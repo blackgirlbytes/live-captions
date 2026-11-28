@@ -4,6 +4,7 @@ import { CaptionText } from "@heard/shared/react";
 import { DEFAULT_CAPTION_SETTINGS, type CaptionSettings, type CaptionState, type TranscriptionStatus } from "@heard/shared";
 import { useI18n } from "@/components/useI18n";
 import { getCaptionSettings, STORAGE_KEYS, type OverlayLayout } from "@/utils/config";
+import { EDGE, MIN_WIDTH, pickMainVideo, placeOnVideo, videoFontScale, type Rect } from "@/utils/video-geometry";
 
 /* ------------------------------ tiny store ------------------------------ */
 
@@ -33,9 +34,6 @@ export function createOverlayStore(initial: OverlayState) {
 export type OverlayStore = ReturnType<typeof createOverlayStore>;
 
 /* ------------------------------ geometry ------------------------------ */
-
-const MIN_WIDTH = 220;
-const EDGE = 8;
 
 function viewport() {
   return { w: window.innerWidth, h: window.innerHeight };
@@ -67,43 +65,47 @@ function normalizeLayout(v: unknown): OverlayLayout | null {
 
 /* ------------------------------ the page's video ------------------------------ */
 
-interface Rect {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
+interface MainVideo {
+  rect: Rect;
+  /** Playing but muted (or at zero volume): the tab is silent, so there's nothing to caption. */
+  silent: boolean;
 }
 
-/** The video people are most likely watching: the largest visible one, playing ones first. */
-function mainVideoRect(): Rect | null {
-  let best: { rect: Rect; score: number } | null = null;
-  for (const v of Array.from(document.querySelectorAll("video"))) {
+/** The video people are most likely watching (see pickMainVideo). */
+function findMainVideo(): MainVideo | null {
+  const videos = Array.from(document.querySelectorAll("video"));
+  const candidates = videos.map((v) => {
     const r = v.getBoundingClientRect();
-    if (r.width < 200 || r.height < 112) continue;
-    const visW = Math.min(r.right, window.innerWidth) - Math.max(r.left, 0);
-    const visH = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
-    if (visW <= 0 || visH <= 0) continue;
-    const score = visW * visH * (v.paused ? 1 : 4);
-    if (!best || score > best.score) best = { rect: { left: r.left, top: r.top, width: r.width, height: r.height }, score };
-  }
-  return best?.rect ?? null;
+    return {
+      rect: { left: r.left, top: r.top, width: r.width, height: r.height },
+      paused: v.paused,
+      audible: !v.muted && v.volume > 0,
+    };
+  });
+  const i = pickMainVideo(candidates, viewport());
+  if (i < 0) return null;
+  const c = candidates[i]!;
+  return { rect: c.rect, silent: !c.paused && !c.audible };
 }
 
 /** Tracks the main video's on-screen box (it moves with scrolling, theater mode, fullscreen). */
-function useMainVideoRect(): Rect | null {
-  const [rect, setRect] = useState<Rect | null>(null);
+function useMainVideo(): MainVideo | null {
+  const [video, setVideo] = useState<MainVideo | null>(null);
   useEffect(() => {
     let raf = 0;
     const measure = () => {
       raf = 0;
-      const next = mainVideoRect();
-      setRect((prev) => {
+      const next = findMainVideo();
+      setVideo((prev) => {
         if (!prev || !next) return next === prev ? prev : next;
+        const a = prev.rect;
+        const b = next.rect;
         const same =
-          Math.abs(prev.left - next.left) < 1 &&
-          Math.abs(prev.top - next.top) < 1 &&
-          Math.abs(prev.width - next.width) < 1 &&
-          Math.abs(prev.height - next.height) < 1;
+          prev.silent === next.silent &&
+          Math.abs(a.left - b.left) < 1 &&
+          Math.abs(a.top - b.top) < 1 &&
+          Math.abs(a.width - b.width) < 1 &&
+          Math.abs(a.height - b.height) < 1;
         return same ? prev : next;
       });
     };
@@ -115,30 +117,22 @@ function useMainVideoRect(): Rect | null {
     window.addEventListener("scroll", schedule, { capture: true, passive: true });
     window.addEventListener("resize", schedule);
     document.addEventListener("fullscreenchange", schedule);
+    // Mute / unmute and play / pause don't bubble, but they're visible in the capture phase.
+    document.addEventListener("volumechange", schedule, true);
+    document.addEventListener("play", schedule, true);
+    document.addEventListener("pause", schedule, true);
     return () => {
       if (raf) cancelAnimationFrame(raf);
       window.clearInterval(timer);
       window.removeEventListener("scroll", schedule, { capture: true });
       window.removeEventListener("resize", schedule);
       document.removeEventListener("fullscreenchange", schedule);
+      document.removeEventListener("volumechange", schedule, true);
+      document.removeEventListener("play", schedule, true);
+      document.removeEventListener("pause", schedule, true);
     };
   }, []);
-  return rect;
-}
-
-/** Captions grow with the video, like a TV's: the settings size is the size on a ~480px-tall player. */
-function videoFontScale(video: Rect | null): number {
-  return video ? Math.min(2.2, Math.max(1, video.height / 480)) : 1;
-}
-
-/** Centered near the bottom of the video, about where broadcast captions sit. */
-function onVideo(video: Rect, boxHeight: number) {
-  const { w, h } = viewport();
-  const width = Math.min(Math.max(MIN_WIDTH, video.width * 0.82), w - 2 * EDGE);
-  const left = Math.min(Math.max(EDGE, video.left + (video.width - width) / 2), Math.max(EDGE, w - width - EDGE));
-  const bottomGap = Math.max(12, video.height * 0.07);
-  const top = Math.min(Math.max(EDGE, video.top + video.height - bottomGap - boxHeight), Math.max(EDGE, h - boxHeight - EDGE));
-  return { left, top, width };
+  return video;
 }
 
 /* ------------------------------ component ------------------------------ */
@@ -148,7 +142,8 @@ export function Overlay({ store, onDismiss }: { store: OverlayStore; onDismiss: 
   const { t } = useI18n();
   const [settings, setSettings] = useState<CaptionSettings>({ ...DEFAULT_CAPTION_SETTINGS, position: "overlay" });
   const [layout, setLayout] = useState<OverlayLayout>(defaultLayout);
-  const video = useMainVideoRect();
+  const main = useMainVideo();
+  const video = main?.rect ?? null;
   const [, setViewportTick] = useState(0);
   const [mode, setMode] = useState<"idle" | "drag" | "resize">("idle");
   const boxRef = useRef<HTMLDivElement>(null);
@@ -195,7 +190,7 @@ export function Overlay({ store, onDismiss }: { store: OverlayStore; onDismiss: 
     return () => ro.disconnect();
   }, [hidden, settings.enabled]);
 
-  const pos = !layout.manual && video ? onVideo(video, boxHeight) : place(layout, boxHeight);
+  const pos = !layout.manual && video ? placeOnVideo(video, boxHeight, viewport()) : place(layout, boxHeight);
   const scaled = { ...settings, fontSize: Math.round(settings.fontSize * videoFontScale(video)) };
 
   const persist = useCallback((next: OverlayLayout) => {
@@ -299,6 +294,12 @@ export function Overlay({ store, onDismiss }: { store: OverlayStore; onDismiss: 
           </svg>
         </button>
       </div>
+
+      {main?.silent && (status === "live" || status === "connecting") && (
+        <p className="hint" role="status">
+          {t.overlay.unmute}
+        </p>
+      )}
 
       <CaptionText caption={caption} settings={scaled} translation={translation} style={{ minHeight: `${1.35 * scaled.fontSize}px` }} />
 

@@ -11,14 +11,17 @@ export const home = {
   },
   form: {
     label: "Video link",
-    placeholder: "Paste a YouTube link",
+    placeholder: "Paste a YouTube or Twitch link",
     placeholderCompact: "Paste another video link",
     watch: "Watch",
     watchWithCaptions: "Watch with captions",
     open: "Open",
     errors: {
       notALink: "Paste a full video link, like https://www.youtube.com/watch?v=…",
-      unknown: "Heard doesn't recognize that link yet. YouTube videos, Shorts and livestreams are supported.",
+      unknown: "Heard doesn't recognize that link yet. YouTube and Twitch videos and livestreams are supported.",
+      extensionOnly: (platform: string) =>
+        `${platform} doesn’t allow its streams to be embedded, so Heard can’t play this link here. Open it on ${platform} and turn on captions with the Heard Chrome extension.`,
+      clip: "Twitch clips can’t be captioned here yet. Paste the channel or video link instead, or open the clip on Twitch and use the Heard Chrome extension.",
       channel:
         "Channel links like @handle/live can't be opened directly. Open the stream on YouTube, copy the video link (youtube.com/watch?v=… or youtube.com/live/…) and paste it here.",
     },

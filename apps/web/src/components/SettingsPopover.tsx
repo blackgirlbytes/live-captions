@@ -16,6 +16,7 @@ export function SettingsPanel({
   settings,
   onChange,
   showPosition,
+  providerName,
   onClose,
   children,
   scrollToChildren = false,
@@ -23,6 +24,8 @@ export function SettingsPanel({
   settings: CaptionSettings;
   onChange: (s: CaptionSettings) => void;
   showPosition: boolean;
+  /** Named in the "doesn't allow anything on top of its player" note. */
+  providerName: string;
   onClose: () => void;
   /** Extra sections below the caption settings (e.g. the Deepgram key). */
   children?: ReactNode;
@@ -72,7 +75,7 @@ export function SettingsPanel({
       </div>
       <div className="heard-scroll min-h-0 flex-1 overflow-y-auto border-t border-ink-800 px-4 py-5">
         <CaptionSettingsForm settings={settings} onChange={onChange} showPosition={showPosition} labels={{ ...ui.settings, language: ui.language }} />
-        {!showPosition && <p className="mt-4 border-t border-ink-800 pt-3 text-xs leading-relaxed text-ink-500">{t.noOverlay}</p>}
+        {!showPosition && <p className="mt-4 border-t border-ink-800 pt-3 text-xs leading-relaxed text-ink-500">{t.noOverlay(providerName)}</p>}
         {children && (
           <div ref={extra} className="mt-5 scroll-mt-4 border-t border-ink-800 pt-5">
             {children}

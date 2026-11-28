@@ -12,14 +12,17 @@ export const home: typeof en = {
   },
   form: {
     label: "Videolink",
-    placeholder: "YouTube-Link einfügen",
+    placeholder: "YouTube- oder Twitch-Link einfügen",
     placeholderCompact: "Anderen Videolink einfügen",
     watch: "Ansehen",
     watchWithCaptions: "Mit Untertiteln ansehen",
     open: "Öffnen",
     errors: {
       notALink: "Füge einen vollständigen Videolink ein, z. B. https://www.youtube.com/watch?v=…",
-      unknown: "Heard erkennt diesen Link noch nicht. Unterstützt werden YouTube-Videos, Shorts und Livestreams.",
+      unknown: "Heard erkennt diesen Link noch nicht. Unterstützt werden Videos und Livestreams von YouTube und Twitch.",
+      extensionOnly: (platform) =>
+        `${platform} erlaubt kein Einbetten seiner Streams, daher kann Heard diesen Link hier nicht abspielen. Öffne ihn auf ${platform} und schalte die Untertitel mit der Chrome-Erweiterung von Heard ein.`,
+      clip: "Twitch-Clips lassen sich hier noch nicht untertiteln. Füge stattdessen den Kanal- oder Videolink ein oder öffne den Clip auf Twitch und nutze die Chrome-Erweiterung von Heard.",
       channel:
         "Kanallinks wie @handle/live lassen sich nicht direkt öffnen. Öffne den Stream auf YouTube, kopiere den Videolink (youtube.com/watch?v=… oder youtube.com/live/…) und füge ihn hier ein.",
     },

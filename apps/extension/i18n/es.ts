@@ -105,6 +105,7 @@ export const es: ExtensionMessages = {
     backOnVideo: "Volver a poner los subtítulos sobre el video",
     hideTitle: "Ocultar los subtítulos en esta pestaña (la transcripción sigue en el panel lateral)",
     hide: "Ocultar subtítulos",
+    unmute: "Activa el sonido del video para ver subtítulos. Heard solo puede subtitular lo que la pestaña reproduce con sonido.",
   },
   errors: {
     restricted_chrome: "Chrome no permite que las extensiones capturen sus propias páginas. Abre un sitio con video o audio.",

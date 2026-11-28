@@ -87,6 +87,7 @@ export const youtubeProvider: VideoProvider = {
   id: "youtube",
   name: "YouTube",
   capabilities: {
+    siteHost: "youtube.com",
     // YouTube's Required Minimum Functionality forbids drawing anything in front of the
     // embedded player (see docs/provider-policies.md), so captions render below it.
     allowsCaptionOverlay: false,

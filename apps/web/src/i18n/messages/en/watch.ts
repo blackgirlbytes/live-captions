@@ -50,15 +50,15 @@ export const watch = {
     emptyUnsupported: "Open Heard in Chrome or Edge on a computer to transcribe videos.",
   },
   playerError: {
-    embedBlockedTitle: "Watch this one on YouTube",
+    embedBlockedTitle: (provider: string) => `Watch this one on ${provider}`,
     cantPlayTitle: "This video can’t be played here",
-    extensionNote: "The Heard Chrome extension adds the same live captions directly on youtube.com.",
+    extensionNote: (site: string) => `The Heard Chrome extension adds the same live captions directly on ${site}.`,
     getExtension: "Get the extension",
     openOn: (provider: string) => `Open on ${provider}`,
   },
   settings: {
     title: "Settings",
-    noOverlay: "YouTube doesn’t allow anything on top of its player, so captions show just below the video.",
+    noOverlay: (provider: string) => `${provider} doesn’t allow anything on top of its player, so captions show just below the video.`,
     close: "Close settings",
   },
   guide: {

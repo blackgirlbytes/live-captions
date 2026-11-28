@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useId, useState, type FormEvent } from "react";
 import { useT } from "@/i18n/I18nProvider";
-import { resolveVideo, watchHref } from "@/lib/providers";
+import { resolveVideo, watchHref, type ResolveResult } from "@/lib/providers";
 
 export interface UrlFormProps {
   initialValue?: string;
@@ -23,7 +23,7 @@ export function UrlForm({ initialValue = "", size = "hero", autoFocus = false }:
   const go = (raw: string) => {
     const result = resolveVideo(raw);
     if (!result.ok) {
-      setError(localizeError(result.message, t.errors));
+      setError(localizeResolveError(result, t.errors));
       return;
     }
     setError(null);
@@ -109,8 +109,14 @@ export function UrlForm({ initialValue = "", size = "hero", autoFocus = false }:
   );
 }
 
+type LinkErrors = ReturnType<typeof useT<"home">>["form"]["errors"];
+
 /** resolveVideo's messages are English; swap the known ones for the current language's words. */
-function localizeError(message: string, errors: { notALink: string; unknown: string; channel: string }): string {
+export function localizeResolveError(result: Extract<ResolveResult, { ok: false }>, errors: LinkErrors): string {
+  const { message, problem } = result;
+  if (problem?.kind === "extensionOnly" && problem.platformName) return errors.extensionOnly(problem.platformName);
+  if (problem?.kind === "clip") return errors.clip;
+  if (problem?.kind === "channel") return errors.channel;
   if (message.startsWith("Paste a full video link")) return errors.notALink;
   if (message.startsWith("Heard doesn't recognize")) return errors.unknown;
   if (message.startsWith("Channel links")) return errors.channel;

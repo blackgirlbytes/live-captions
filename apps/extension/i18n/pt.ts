@@ -105,6 +105,7 @@ export const pt: ExtensionMessages = {
     backOnVideo: "Colocar as legendas de volta no vídeo",
     hideTitle: "Ocultar as legendas nesta aba (a transcrição continua no painel lateral)",
     hide: "Ocultar legendas",
+    unmute: "Ative o som do vídeo para ver legendas. O Heard só legenda o que a aba reproduz com som.",
   },
   errors: {
     restricted_chrome: "O Chrome não permite que extensões capturem as próprias páginas dele. Abra um site com vídeo ou áudio.",

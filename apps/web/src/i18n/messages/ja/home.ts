@@ -12,14 +12,17 @@ export const home: typeof en = {
   },
   form: {
     label: "動画のリンク",
-    placeholder: "YouTube のリンクを貼り付け",
+    placeholder: "YouTube または Twitch のリンクを貼り付け",
     placeholderCompact: "別の動画リンクを貼り付け",
     watch: "見る",
     watchWithCaptions: "字幕付きで見る",
     open: "開く",
     errors: {
       notALink: "https://www.youtube.com/watch?v=… のような動画の完全なリンクを貼り付けてください。",
-      unknown: "Heard はまだこのリンクに対応していません。YouTube の動画、ショート、ライブ配信に対応しています。",
+      unknown: "Heard はまだこのリンクに対応していません。YouTube と Twitch の動画とライブ配信に対応しています。",
+      extensionOnly: (platform) =>
+        `${platform} は配信の埋め込みを許可していないため、Heard ではこのリンクをここで再生できません。${platform} で開き、Heard の Chrome 拡張機能で字幕をオンにしてください。`,
+      clip: "Twitch のクリップにはまだ字幕を付けられません。チャンネルか動画のリンクを貼り付けるか、Twitch でクリップを開いて Heard の Chrome 拡張機能を使ってください。",
       channel:
         "@handle/live のようなチャンネルのリンクは直接開けません。YouTube で配信を開き、動画のリンク（youtube.com/watch?v=… または youtube.com/live/…）をコピーしてここに貼り付けてください。",
     },
