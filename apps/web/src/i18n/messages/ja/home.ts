@@ -12,7 +12,7 @@ export const home: typeof en = {
   },
   form: {
     label: "動画のリンク",
-    placeholder: "YouTube または Twitch のリンクを貼り付け",
+    placeholder: "YouTube か Twitch のリンクを貼り付け",
     placeholderCompact: "別の動画リンクを貼り付け",
     watch: "見る",
     watchWithCaptions: "字幕付きで見る",

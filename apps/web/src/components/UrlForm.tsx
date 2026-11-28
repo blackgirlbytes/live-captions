@@ -35,18 +35,20 @@ export function UrlForm({ initialValue = "", size = "hero", autoFocus = false }:
     go(value);
   };
 
+  // Sizes follow the bar's own width (container queries), not the window: the long button label
+  // only shows when the placeholder still fits beside it, and on a phone the button moves under the input.
   return (
-    <form onSubmit={onSubmit} className="w-full" noValidate>
+    <form onSubmit={onSubmit} className="@container w-full" noValidate>
       <label htmlFor={id} className="sr-only">
         {t.label}
       </label>
       <div
         className={`flex w-full items-center gap-2 rounded-2xl bg-ink-850 ring-1 transition-shadow focus-within:ring-2 focus-within:ring-accent ${
           error ? "ring-live/60" : "ring-ink-700"
-        } ${hero ? "p-2 sm:p-2.5" : "p-1"}`}
+        } ${hero ? "flex-wrap p-2 @md:flex-nowrap @xl:p-2.5" : "p-1"}`}
       >
         <svg
-          className={`shrink-0 text-ink-500 ${hero ? "ml-3 h-5 w-5" : "ml-2.5 h-4 w-4"}`}
+          className={`shrink-0 text-ink-500 ${hero ? "ml-3 hidden h-5 w-5 @md:block" : "ml-2.5 h-4 w-4"}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -81,19 +83,19 @@ export function UrlForm({ initialValue = "", size = "hero", autoFocus = false }:
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${id}-error` : undefined}
           className={`min-w-0 flex-1 bg-transparent text-ink-100 placeholder:text-ink-500 focus:outline-none ${
-            hero ? "h-12 text-base sm:text-lg" : "h-9 text-sm"
+            hero ? "h-12 pl-2 text-base @md:pl-0" : "h-9 text-sm"
           }`}
         />
         <button
           type="submit"
           className={`shrink-0 rounded-xl bg-accent font-semibold text-accent-ink transition-colors hover:bg-accent-strong focus-visible:outline-offset-2 ${
-            hero ? "h-12 px-4 text-base sm:px-6" : "h-9 px-3.5 text-sm"
+            hero ? "h-12 w-full px-4 text-base @md:w-auto @xl:px-6" : "h-9 px-3.5 text-sm"
           }`}
         >
           {hero ? (
             <>
-              <span className="sm:hidden">{t.watch}</span>
-              <span className="hidden sm:inline">{t.watchWithCaptions}</span>
+              <span className="@xl:hidden">{t.watch}</span>
+              <span className="hidden @xl:inline">{t.watchWithCaptions}</span>
             </>
           ) : (
             t.open
